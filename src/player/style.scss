@@ -1,0 +1,221 @@
+@font-face {
+  font-family: 'iconfont';  /* project id 1373341 */
+  src: url('//at.alicdn.com/t/font_1373341_ruzx1so1dq8.eot');
+  src: url('//at.alicdn.com/t/font_1373341_ruzx1so1dq8.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_1373341_ruzx1so1dq8.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_1373341_ruzx1so1dq8.woff') format('woff'),
+  url('//at.alicdn.com/t/font_1373341_ruzx1so1dq8.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_1373341_ruzx1so1dq8.svg#iconfont') format('svg');
+}
+
+.video-player {
+  background: black;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+
+  &.live {
+    .live-hide {
+      display: none;
+    }
+  }
+
+  div.controller-layer {
+    position: absolute;
+    z-index: 4;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    .float {
+      background: rgba(21, 21, 21, 0.9);
+      border-radius: 2px;
+      display: none;
+      position: absolute;
+      z-index: 4;
+    }
+
+    .bg-gradient {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .8));
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      z-index: 1;
+
+      &.show {
+        opacity: 1;
+      }
+    }
+
+    .volume-bar {
+      width: 32px;
+      height: 100px;
+      flex-direction: column;
+
+      .volume-num-label {
+        color: white !important;
+        text-align: center;
+        font-size: 12px;
+        height: 28px;
+        line-height: 28px;
+        margin-bottom: 2px;
+      }
+
+      .volume-column-bar {
+        position: relative;
+        width: 100%;
+        height: 60px;
+        cursor: pointer;
+
+        .bar-ui {
+          width: 2px;
+          position: absolute;
+          left: 0;
+          right: 0;
+          margin: 0 auto;
+        }
+
+        .bar-ui.bar-full {
+          height: 100%;
+          background: #e7e7e7;
+          top: 0;
+        }
+
+        .bar-ui.bar-current {
+          background: #00a1d6;
+          bottom: 0;
+        }
+
+        .bar-controller {
+          position: absolute;
+          background: #00a1d6;
+          border-radius: 50%;
+          width: 12px;
+          height: 12px;
+          left: 0;
+          right: 0;
+          top: -6px;
+          margin: 0 auto;
+        }
+      }
+    }
+
+    .quality-menu {
+      font-size: 14px;
+      padding: 5px;
+
+      > div {
+        cursor: pointer;
+        text-align: center;
+        padding: 2px 5px;
+        color: #e2e2e2;
+
+        &:hover {
+          color: white;
+        }
+
+        &.current {
+          color: #00a1d6;
+        }
+      }
+
+      > div + > div {
+        margin-top: 5px;
+      }
+    }
+
+    .controller-bottom-bar {
+      padding: 20px 12px 4px 12px;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 2;
+      box-sizing: border-box;
+
+      .progress-bar {
+        position: relative;
+        padding-bottom: 10px;
+        cursor: pointer;
+
+        .bar-full, .bar-buffer {
+          height: 4px;
+        }
+
+        .bar-full {
+          background: rgba(255, 255, 255, 0.2);
+        }
+
+        .bar-buffer {
+        }
+
+        .bar-controller {
+          position: absolute;
+          top: -4px;
+          width: 12px;
+          height: 12px;
+          border-radius: 2px;
+          background: aqua;
+        }
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: space-between;
+
+        > * {
+          display: flex;
+          align-items: center;
+        }
+
+        .button {
+          color: rgba(255, 255, 255, 0.7);
+          cursor: pointer;
+          display: inline-block;
+          font-size: 16px;
+
+          &:hover {
+            color: white;
+          }
+        }
+
+        .intern-button {
+          font-size: 2rem;
+          font-family: 'iconfont', serif;
+        }
+
+        .button + .button {
+          margin-left: 10px;
+        }
+      }
+
+    }
+
+  }
+
+  div.canvas-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+
+  video.video-layer {
+    background: black;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+}

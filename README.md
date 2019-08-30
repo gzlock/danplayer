@@ -1,4 +1,4 @@
-# my_player
+# 无名播放器
 
 ## Project setup
 ```
@@ -12,12 +12,7 @@ yarn run serve
 
 ### Compiles and minifies for production
 ```
-yarn run build
-```
-
-### Run your tests
-```
-yarn run test
+yarn run build-lib
 ```
 
 ### Lints and fixes files
