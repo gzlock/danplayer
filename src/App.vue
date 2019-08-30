@@ -2,6 +2,8 @@
   <div id="app">
     <video id="player" autoplay
            src="https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4"></video>
+
+    <h3>功能调试区域</h3>
     <div>
       <div>
         <input v-model="speed" type="number" placeholder="速率"/>
@@ -51,6 +53,7 @@ export default class App extends Vue {
       for (let i = 0; i < this.randomCount; i++) {
         const duration = (player.currentTime + Math.random() * this.randomTime) * 1000
         const text = this.randomChinese()
+        // @ts-ignore
         array[i] = new Danmaku(text, { duration })
       }
       player.fillDanmakus(array)
@@ -85,9 +88,7 @@ export default class App extends Vue {
           extraButtons: [$btn, $btn2]
         })
         console.log('player 配置', player.options)
-        if (player.options.danmaku) {
-          this.speed = player.danmakuLayer.option.flowDuration
-        }
+        this.speed = player.danmakuLayer.option.flowDuration
       }
     }
 

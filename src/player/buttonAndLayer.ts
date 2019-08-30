@@ -1,7 +1,9 @@
 import { Player } from './player'
+import { UI } from '@/player/UI'
 
 export class ButtonAndLayer {
-  player!: Player
+  player: Player
+  ui: UI
   $btn!: HTMLElement
   $layer!: HTMLElement
 
@@ -17,16 +19,19 @@ export class ButtonAndLayer {
     return this._isShow
   }
 
-  constructor (player: Player) {
-    this.player = player
+  constructor (ui: UI) {
+    this.ui = ui
+    this.player = ui.player
   }
 
   protected init () {
     const mouseenterShowLayer = () => {
       clearTimeout(this.hideTimeout)
+      this.ui.isMouseInUI = true
       this.showLayer()
     }
     const mouseleaveHideLayer = () => {
+      this.ui.isMouseInUI = false
       clearTimeout(this.hideTimeout)
       this.hideTimeout = setTimeout(() => {
         this.hideLayer()
@@ -60,13 +65,13 @@ export class ButtonAndLayer {
 
   updateLayerPosition () {
     if (!this._isShow) return
-    const rootRect = this.player.$root.getBoundingClientRect()
+    const rootRect = this.ui.player.$root.getBoundingClientRect()
     const rect = this.$btn.getBoundingClientRect()
     const layerRect = this.$layer.getBoundingClientRect()
     const left = rect.left + (rect.width / 2) - rootRect.left - layerRect.width / 2
 
     this.$layer.style.left = left + 'px'
     this.$layer.style.bottom = this.bottomOffset + 'px'
-    console.log('update', { left })
+    // console.log('update', { left })
   }
 }

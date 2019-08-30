@@ -1,10 +1,9 @@
 import './style.scss'
-import { fabric } from 'fabric'
 import Hls from 'hls.js'
-import { Danmaku, DanmakuOption } from '@/player/danamku'
-import { Volume } from '@/player/volume'
-import { Controller } from '@/player/controller'
-import { DanmakuLayer } from '@/player/danmakuLayer'
+import { Danmaku, DanmakuOptions } from '@/player/danamku'
+import { UI } from '@/player/UI'
+import { DanmakuLayer, DanmakuLayerOptions } from '@/player/danmakuLayer'
+import { ProgressBar } from '@/player/progressBar'
 
 const template = `<canvas class="danmaku-layer"></canvas>
 {video-layer}
@@ -20,40 +19,33 @@ const template = `<canvas class="danmaku-layer"></canvas>
   <div class="float quality-menu">
   
   </div>
-  <div class="bg-gradient"></div>
+  <div class="bg-gradient show"></div>
   <div class="controller-bottom-bar">
-    <div class="controller-container">
-      <div class="progress-bar live-hide">
-        <div class="bar-full"></div>
-        <div class="bar-buffer"></div>
-        <div class="bar-controller"></div>    
+    <div class="progress-bar live-hide">
+      <div class="bar-full"></div>
+      <div class="bar-buffer"></div>
+      <div class="bar-controller"></div>    
+    </div>
+    <div class="buttons">
+      <div class="left">
+        <div class="button intern-button play" data-on="&#xe6a4;" data-off="&#xe6a5;"
+          data-on-title="播放视频" data-off-title="暂停播放">&#xe6a4;</div>
+        <div class="button intern-button volume" data-on="&#xe63d;" data-off="&#xe63e;" title="音量">&#xe63d;</div>
+        <div class="button intern-button toggle-danamaku" title="隐藏弹幕"
+          data-on="&#xe697;" data-off="&#xe696;" 
+          data-on-title="显示弹幕" data-off-title="隐藏弹幕">&#xe696;</div>
       </div>
-      <div class="buttons">
-        <div class="left">
-          <div class="button intern-button play" data-on="&#xe6a4;" data-off="&#xe6a5;"
-            data-on-title="播放视频" data-off-title="暂停播放">&#xe6a4;</div>
-          <div class="button intern-button volume" data-on="&#xe63d;" data-off="&#xe63e;" title="音量">&#xe63d;</div>
-          <div class="button intern-button toggle-danamaku" title="隐藏弹幕"
-            data-on="&#xe697;" data-off="&#xe696;" 
-            data-on-title="显示弹幕" data-off-title="隐藏弹幕">&#xe696;</div>
-        </div>
-        <div class="middle danmaku_form">
-          <input>
-          <button>发送</button>
-        </div>
-        <div class="right">
-          <div class="button quality" title="切换画质"></div>
-          <div class="button intern-button full-screen" data-on="&#xe6d9;" data-off="&#xe6e8;">&#xe6d9;</div>
-        </div>
-      </div>  
+      <div class="middle danmaku_form">
+        <input>
+        <button>发送</button>
+      </div>
+      <div class="right">
+        <div class="button quality" title="切换画质"></div>
+        <div class="button intern-button full-screen" data-on="&#xe6d9;" data-off="&#xe6e8;">&#xe6d9;</div>
+      </div>
     </div>
   </div>
 </div>`
-
-export class DanmakuOptions extends Object {
-  flowDuration: number = 8
-  fadeoutDuration: number = 5
-}
 
 export class PlayerOptions extends Object {
   /**
@@ -61,7 +53,7 @@ export class PlayerOptions extends Object {
    * 弹幕使用 {@link Danmaku} 不携带发视频当前的播放进度
    *
    * 普通视频模式
-   * 弹幕使用 {@link Danmaku} 携带弹幕视频当前的播放进度 {@see DanmakuOption#duration}
+   * 弹幕使用 {@link Danmaku} 携带弹幕视频当前的播放进度 {@see DanmakuOptions#duration}
    */
   live?: boolean = false
 
@@ -71,6 +63,13 @@ export class PlayerOptions extends Object {
   // 视频控制条隐藏的时间
   uiFadeOutDelay?: number = 3000
 
+  // 视频暂停状态时，隐藏鼠标的延迟，不隐藏ui
+  whenPausedHideMouseDelay? = 500
+
+  // 暂停暂停时，是否隐藏UI，隐藏UI的延时 沿用
+  /** {@see PlayerOptions#uiFadeOutDelay} **/
+  pausedHideUI? = false
+
   width?: number | string
   height?: number | string
 
@@ -79,7 +78,7 @@ export class PlayerOptions extends Object {
 
   // 扩展按钮
   extraButtons?: Element[]
-  danmaku?: DanmakuOptions = new DanmakuOptions()
+  danmaku?: DanmakuLayerOptions = new DanmakuLayerOptions()
 
   only?: boolean = false
 }
@@ -92,7 +91,7 @@ export class Player {
   private _speed: number = 1
   private _fontSize: number = 16
   public danmakuLayer: DanmakuLayer
-  public controller: Controller
+  public ui: UI
 
   // 尺寸
   private _width: string = ''
@@ -110,13 +109,13 @@ export class Player {
 
   private _duration: number = 0
 
-  public options: PlayerOptions
+  public options!: PlayerOptions
 
   constructor ($e: HTMLVideoElement, options?: PlayerOptions) {
     Player.instances.push(this)
-    this.options = Object.assign(new PlayerOptions(), options)
     const parent = $e.parentElement as Element
     this.$root = document.createElement('div')
+    this.$root.setAttribute('tabIndex', '1')
     this.$root.classList.add('video-player')
     parent.insertBefore(this.$root, $e)
     $e.classList.add('video-layer')
@@ -124,38 +123,84 @@ export class Player {
     this.$root.innerHTML = template.replace('{video-layer}', $e.outerHTML)
     $e.remove()
 
-    this.$video = this.$root.querySelector('.video-layer') as HTMLVideoElement
-    this.$video.removeAttribute('controls')
-    if (this.options.src) {
-      this.$video.setAttribute('src', this.options.src)
-    }
-    this.$video.addEventListener('loadedmetadata', () => {
-      console.log('视频长度', this.$video.duration)
-      this._duration = this.$video.duration
+    this.$root.addEventListener('keypress', (e: KeyboardEvent) => {
+      console.log('空格', e)
+      if (e.key !== ' ') return
+      if (this.$video.paused) {
+        this.$video.play()
+      } else {
+        this.$video.pause()
+      }
     })
 
-    this.controller = new Controller(this)
-    this.danmakuLayer = new DanmakuLayer(this)
+    this.$root.addEventListener('mousemove', () => {
+      this.$root.classList.remove('mouse-idle')
+      this.ui.show()
+      if (this.paused) {
 
-    this.getContentType().then(() => {
-      if (this.video) {
-        this.video.on(Hls.Events.LEVEL_LOADED, () => {
-          this.controller.qualitySelector.updateLevel(this.video as Hls)
+      } else {
+        if (this.ui.isMouseInUI) return
+        this.ui.hideUIDelay().then(() => {
+          this.$root.classList.add('mouse-idle')
         })
       }
     })
 
+    this.$root.addEventListener('mouseenter', () => {
+      this.ui.show()
+      this.ui.cancelHideUIDelay()
+    })
+    this.$root.addEventListener('mouseleave', () => {
+      this.ui.hide()
+      this.ui.cancelHideUIDelay()
+    })
+
+    this.$video = this.$root.querySelector('.video-layer') as HTMLVideoElement
+    this.$video.removeAttribute('controls')
+    this.$video.addEventListener('durationchange', () => {
+      console.log('视频长度', this.$video.duration)
+      this._duration = this.$video.duration
+    })
+
+    this.$video.addEventListener('playing', () => this.ui.hideUIDelay())
+
+    this.$video.addEventListener('play', () => this.ui.updatePlayButton())
+    this.$video.addEventListener('pause', () => this.ui.updatePlayButton())
+
     window.addEventListener('resize', () => this.resizeEvt(1000))
 
-    this.controller.insertExtraButtons()
+    this.options = Object.assign(new PlayerOptions(), options)
+
+    this.ui = new UI(this)
+    this.danmakuLayer = new DanmakuLayer(this)
+
+    const $danmaku = this.$root.querySelector('.canvas-container') as Element
+    $danmaku.addEventListener('click', () => this.toggle())
+
+    this._set()
+  }
+
+  private async _set () {
+    this.ui.insertExtraButtons()
+
+    if (this.options.src) {
+      this.$video.setAttribute('src', this.options.src)
+    }
+
+    await this.getContentType()
+
+    if (this.video) {
+      this.video.on(Hls.Events.LEVEL_LOADED, () => {
+        this.ui.qualitySelector.updateLevel(this.video as Hls)
+      })
+    }
 
     this.resize()
   }
 
   set (options: PlayerOptions) {
     this.options = options
-    this.resize()
-    this.controller.insertExtraButtons()
+    this._set()
   }
 
   resize () {
@@ -178,7 +223,20 @@ export class Player {
       this.$root.style.width = this._width
       this.$root.style.height = this._height
     }
+    this.ui.resize()
     this.danmakuLayer.resize()
+  }
+
+  hideMouse () {
+    this.$root.classList.add('mouse-idle')
+  }
+
+  hideMouseDelay () {
+
+  }
+
+  showMouse () {
+    this.$root.classList.remove('mouse-idle')
   }
 
   private delayResize: number = -1
@@ -210,18 +268,22 @@ export class Player {
     return this.$video.paused
   }
 
-  play () {
+  toggle () {
     if (this.paused) {
-      this.$video.play().then()
-      if (this.options.only) {
-        Player.instances.forEach(player => {
-          if (player !== this) {
-            player.pause()
-          }
-        })
-      }
+      this.play()
     } else {
-      this.$video.pause()
+      this.pause()
+    }
+  }
+
+  play () {
+    this.$video.play().then()
+    if (this.options.only) {
+      Player.instances.forEach(player => {
+        if (player !== this) {
+          player.pause()
+        }
+      })
     }
   }
 

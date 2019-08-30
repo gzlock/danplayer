@@ -14,11 +14,16 @@
   overflow: hidden;
   cursor: default;
   user-select: none;
+  outline: none;
 
   &.live {
     .live-hide {
       display: none;
     }
+  }
+
+  &.mouse-idle {
+    cursor: none;
   }
 
   div.controller-layer {
@@ -28,7 +33,6 @@
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
 
     .float {
       background: rgba(21, 21, 21, 0.9);
@@ -115,7 +119,7 @@
         cursor: pointer;
         text-align: center;
         padding: 2px 5px;
-        color: #e2e2e2;
+        color: #c3c3c3;
 
         &:hover {
           color: white;
@@ -207,6 +211,7 @@
     width: 100%;
     height: 100%;
     z-index: 2;
+    cursor: pointer;
   }
 
   video.video-layer {

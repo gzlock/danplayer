@@ -7,23 +7,21 @@ export const enum DanmakuType {
   Bottom
 }
 
-export interface DanmakuOption extends TextOptions {
+export interface DanmakuOptions extends TextOptions {
+  // 视频进度
   duration?: number
   showType?: DanmakuType
+  borderColor?: string
+  fill?: string
 }
 
-export class Danmaku extends fabric.Text {
+export class Danmaku extends fabric.Text implements DanmakuOptions {
   public type = 'Danmaku'
-  public duration: number = 0
-  public showType: DanmakuType = DanmakuType.Flow
 
-  constructor (text: string, options?: DanmakuOption) {
-    super(text, options as TextOptions)
-    if (options) {
-      this.duration = options.duration as number
-      this.showType = options.showType as DanmakuType
-    }
-  }
+  duration: number = 0
+  showType: DanmakuType = DanmakuType.Flow
+  borderColor: string = 'white'
+  fill: string = 'white'
 
   _render (ctx: CanvasRenderingContext2D): void {
     const x = this.left as number
@@ -35,6 +33,12 @@ export class Danmaku extends fabric.Text {
     ctx.strokeRect(-w / 2, -h / 2, w, h)
 
     super._render(ctx)
+  }
+
+  toObject (propertiesToInclude?: string[]): any {
+    const obj = super.toObject()
+    obj.styles = fabric.util.object.clone(this.styles)
+    return obj
   }
 }
 

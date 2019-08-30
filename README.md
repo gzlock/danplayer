@@ -1,24 +1,21 @@
 # 无名播放器
 
-## Project setup
+## 安装依赖
 ```
 yarn install
 ```
 
-### Compiles and hot-reloads for development
+### 启动热更新的开发模式
 ```
 yarn run serve
 ```
 
-### Compiles and minifies for production
+### 编译，输出到 ./dist 文件夹
 ```
 yarn run build-lib
 ```
 
-### Lints and fixes files
+### 修复代码格式
 ```
 yarn run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

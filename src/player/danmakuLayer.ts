@@ -1,16 +1,16 @@
-import { DanmakuOptions, Player } from '@/player/player'
+import { Player } from '@/player/player'
 import { fabric } from 'fabric'
-import { Danmaku, DanmakuOption } from '@/player/danamku'
+import { Danmaku } from '@/player/danamku'
+
+export class DanmakuLayerOptions extends Object {
+  flowDuration: number = 8
+  fadeoutDuration: number = 5
+}
 
 export class DanmakuLayer {
   private player: Player
-
   private canvas: fabric.Canvas
   private $root: HTMLElement
-  private _isShow = true
-  get isShow (): boolean {
-    return this._isShow
-  }
 
   // 要显示的弹幕
   private danmakus: Danmaku[] = []
@@ -28,25 +28,27 @@ export class DanmakuLayer {
   private _defaultFlowDuration: number = 10
   private _defaultFadeOutDuration: number = 5
 
-  option: DanmakuOptions
+  isShow = true
+
+  option: DanmakuLayerOptions
 
   constructor (player: Player) {
     this.player = player
-    this.option = player.options.danmaku as DanmakuOptions
-    const $canvas = player.$root.querySelector('.danmaku-layer') as HTMLCanvasElement
+    this.option = this.player.options.danmaku as DanmakuLayerOptions
+    const $canvas = this.player.$root.querySelector('.danmaku-layer') as HTMLCanvasElement
     this.canvas = new fabric.Canvas($canvas)
 
-    this.$root = player.$root.querySelector('.canvas-container') as HTMLElement
+    this.$root = this.player.$root.querySelector('.canvas-container') as HTMLElement
     this.loop()
   }
 
   show () {
-    this._isShow = true
+    this.isShow = true
     this.$root.style.display = ''
   }
 
   hide () {
-    this._isShow = false
+    this.isShow = false
     this.$root.style.display = 'none'
   }
 
@@ -57,7 +59,7 @@ export class DanmakuLayer {
   }
 
   toggle (): void {
-    if (this._isShow) {
+    if (this.isShow) {
       this.hide()
     } else {
       this.show()
@@ -73,6 +75,9 @@ export class DanmakuLayer {
       fill: color,
       borderColor: '#ff0000'
     })
+    if (!this.player.options.live) {
+      item.duration = this.player.$video.currentTime
+    }
     this.canvas.add(item)
     this.danmakus.push(item)
   }

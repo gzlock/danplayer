@@ -1,5 +1,6 @@
 import { Player } from '@/player/player'
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
+import { UI } from '@/player/UI'
 
 export class QualitySelector extends ButtonAndLayer {
   video!: Hls
@@ -7,10 +8,10 @@ export class QualitySelector extends ButtonAndLayer {
   private levels: Element[] = []
   private currentLevel = -1
 
-  constructor (player: Player) {
-    super(player)
-    this.$btn = player.$root.querySelector('.button.quality') as HTMLElement
-    this.$layer = player.$root.querySelector('.float.quality-menu') as HTMLElement
+  constructor (ui: UI) {
+    super(ui)
+    this.$btn = this.player.$root.querySelector('.button.quality') as HTMLElement
+    this.$layer = this.player.$root.querySelector('.float.quality-menu') as HTMLElement
     this.$autoLevel = document.createElement('div')
     this.$autoLevel.innerHTML = '自动'
     this.$autoLevel.setAttribute('data-value', (-1).toString())
@@ -22,7 +23,7 @@ export class QualitySelector extends ButtonAndLayer {
           const value = parseInt($item.getAttribute('data-value') as string)
           console.log('click', value)
           if (this.player.video) {
-            this.player.video.loadLevel = value
+            this.player.video.currentLevel = this.player.video.loadLevel = value
             this.currentLevel = value
           }
         }

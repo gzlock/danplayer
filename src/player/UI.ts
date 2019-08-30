@@ -1,12 +1,26 @@
 import { Player } from '@/player/player'
-import { Volume } from '@/player/volume'
+import { VolumeLayer } from '@/player/volumeLayer'
 import { QualitySelector } from '@/player/qualitySelector'
+import { ProgressBar } from '@/player/progressBar'
 
-export class Controller {
+export class UI {
   qualitySelector: QualitySelector
-  private $bar: HTMLElement
-  private player: Player
-  private isBarShow: boolean = false
+
+  private _isMouseInUI: boolean = false
+
+  set isMouseInUI (val: boolean) {
+    this._isMouseInUI = val
+    this.cancelHideUIDelay()
+  }
+
+  get isMouseInUI () {
+    return this._isMouseInUI
+  }
+
+  player: Player
+  isShow: boolean = false
+
+  private $root: HTMLElement
 
   // 控制器按钮
   private $btnPlay: Element
@@ -15,43 +29,43 @@ export class Controller {
   private $gradientBG: HTMLElement
   private extraButtons: Element[] = []
 
-  private volume: Volume
+  private volume: VolumeLayer
+  private progressBar: ProgressBar
 
   // 右边按钮区别
   private $controllerButtonsRightLayout: Element
 
+  private hideTimeout = -1
+
   constructor (player: Player) {
-    this.$bar = player.$root.querySelector('.controller-layer .controller-bottom-bar') as HTMLElement
-    this.$gradientBG = player.$root.querySelector('.bg-gradient') as HTMLElement
     this.player = player
-
-    player.$root.addEventListener('mouseenter', () => {
-      this.showBar()
+    this.$root = player.$root.querySelector('.controller-layer .controller-bottom-bar') as HTMLElement
+    this.$root.addEventListener('mouseenter', () => {
+      this.isMouseInUI = true
     })
-    player.$root.addEventListener('mouseleave', () => {
-      this.hideBar()
+    this.$root.addEventListener('mouseleave', () => {
+      this.isMouseInUI = false
     })
+    this.$gradientBG = player.$root.querySelector('.bg-gradient') as HTMLElement
 
-    player.$video.addEventListener('play', () => this.updatePlayButton())
-    player.$video.addEventListener('pause', () => this.updatePlayButton())
+    this.volume = new VolumeLayer(this)
+    this.qualitySelector = new QualitySelector(this)
+    this.progressBar = new ProgressBar(this)
 
-    this.volume = new Volume(player)
-    this.qualitySelector = new QualitySelector(player)
-
-    this.$controllerButtonsRightLayout = this.$bar.querySelector('.buttons .right') as Element
-    this.$btnFullScreen = this.$bar.querySelector('.button.full-screen') as Element
+    this.$controllerButtonsRightLayout = this.$root.querySelector('.buttons .right') as Element
+    this.$btnFullScreen = this.$root.querySelector('.button.full-screen') as Element
     this.$btnFullScreen.addEventListener('click', async () => {
       await this.player.toggleFullScreen()
       this.updateFullScreenButton()
     })
 
-    this.$btnPlay = this.$bar.querySelector('.button.play') as Element
+    this.$btnPlay = this.$root.querySelector('.button.play') as Element
     this.$btnPlay.addEventListener('click', () => {
       this.player.play()
       this.updatePlayButton()
     })
 
-    this.$btnShowDanmaku = this.$bar.querySelector('.button.toggle-danamaku') as Element
+    this.$btnShowDanmaku = this.$root.querySelector('.button.toggle-danamaku') as Element
     this.$btnShowDanmaku.addEventListener('click', () => {
       this.player.danmakuLayer.toggle()
       this.updateDanmakuButton()
@@ -60,16 +74,32 @@ export class Controller {
     this.insertExtraButtons()
   }
 
-  public showBar () {
-    this.isBarShow = true
-    this.$bar.style.display = ''
+  public show () {
+    this.isShow = true
+    this.$root.style.display = ''
     this.$gradientBG.classList.add('show')
   }
 
-  public hideBar () {
-    this.isBarShow = false
-    this.$bar.style.display = 'none'
+  public hide () {
+    this.isShow = false
+    this.$root.style.display = 'none'
     this.$gradientBG.classList.remove('show')
+  }
+
+  public hideUIDelay () {
+    this.cancelHideUIDelay()
+    return new Promise(resolve => {
+      this.hideTimeout = setTimeout(() => {
+        this.hide()
+        this.volume.hideLayer()
+        this.qualitySelector.hideLayer()
+        resolve()
+      }, this.player.options.uiFadeOutDelay)
+    })
+  }
+
+  public cancelHideUIDelay () {
+    clearTimeout(this.hideTimeout)
   }
 
   public clearExtraButtons () {
@@ -89,7 +119,7 @@ export class Controller {
     }
   }
 
-  private updatePlayButton () {
+  updatePlayButton () {
     let attr: string
     let attrTitle: string
     if (this.player.paused) {
@@ -117,5 +147,11 @@ export class Controller {
     }
     this.$btnShowDanmaku.innerHTML = this.$btnShowDanmaku.getAttribute(attr) as string
     this.$btnShowDanmaku.setAttribute('title', this.$btnShowDanmaku.getAttribute(title) as string)
+  }
+
+  resize () {
+    if (this.volume.isShow) this.volume.updateLayerPosition()
+    if (this.qualitySelector.isShow) this.qualitySelector.updateLayerPosition()
+    this.progressBar.resize()
   }
 }

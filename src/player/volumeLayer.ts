@@ -1,10 +1,11 @@
 import { Player, PlayerOptions } from '@/player/player'
 import NP from 'number-precision'
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
+import { UI } from '@/player/UI'
 
 NP.enableBoundaryChecking(false)
 
-export class Volume extends ButtonAndLayer {
+export class VolumeLayer extends ButtonAndLayer {
   $video: HTMLVideoElement
   $valueLabel: HTMLElement
   $dragArea: HTMLElement
@@ -14,13 +15,13 @@ export class Volume extends ButtonAndLayer {
   volumeValue: number = 0
   private areaHeight: number = 0
 
-  constructor (player: Player) {
-    super(player)
-    this.$video = player.$video
+  constructor (ui: UI) {
+    super(ui)
+    this.$video = this.player.$video
     this.$video.addEventListener('volumechange', () => this.updateController())
-    this.$layer = player.$root.querySelector('.controller-layer .volume-bar') as HTMLElement
+    this.$layer = this.player.$root.querySelector('.controller-layer .volume-bar') as HTMLElement
     this.$valueLabel = this.$layer.querySelector('.volume-num-label') as HTMLElement
-    this.$btn = player.$root.querySelector('.controller-layer .buttons .button.volume') as HTMLElement
+    this.$btn = this.player.$root.querySelector('.controller-layer .buttons .button.volume') as HTMLElement
     this.$btn.addEventListener('click', () => this.toggleMuted())
     this.$dragArea = this.$layer.querySelector('.volume-column-bar') as HTMLElement
     this.$controller = this.$dragArea.querySelector('.bar-controller') as HTMLElement
