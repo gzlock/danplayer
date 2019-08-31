@@ -8,6 +8,8 @@
   url('//at.alicdn.com/t/font_1373341_ruzx1so1dq8.svg#iconfont') format('svg');
 }
 
+$controller-color: #00a1d6;
+
 .video-player {
   background: black;
   position: relative;
@@ -26,21 +28,25 @@
     cursor: none;
   }
 
-  div.controller-layer {
+  // 视频层
+  video.video-layer {
+    background: black;
     position: absolute;
-    z-index: 4;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
+  }
 
-    .float {
-      background: rgba(21, 21, 21, 0.9);
-      border-radius: 2px;
-      display: none;
-      position: absolute;
-      z-index: 4;
-    }
+  // 活动层
+  div.interactive-layer {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
 
     .bg-gradient {
       position: absolute;
@@ -51,11 +57,19 @@
       background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .8));
       opacity: 0;
       transition: opacity 0.2s ease-in-out;
-      z-index: 1;
+      z-index: 2;
 
       &.show {
         opacity: 1;
       }
+    }
+
+    .float {
+      background: rgba(21, 21, 21, 0.9);
+      border-radius: 2px;
+      display: none;
+      position: absolute;
+      z-index: 4;
     }
 
     .volume-bar {
@@ -93,13 +107,13 @@
         }
 
         .bar-ui.bar-current {
-          background: #00a1d6;
+          background: $controller-color;
           bottom: 0;
         }
 
         .bar-controller {
           position: absolute;
-          background: #00a1d6;
+          background: $controller-color;
           border-radius: 50%;
           width: 12px;
           height: 12px;
@@ -126,7 +140,7 @@
         }
 
         &.current {
-          color: #00a1d6;
+          color: $controller-color;
         }
       }
 
@@ -141,32 +155,46 @@
       left: 0;
       bottom: 0;
       width: 100%;
-      z-index: 2;
+      z-index: 3;
       box-sizing: border-box;
 
       .progress-bar {
         position: relative;
-        padding-bottom: 10px;
+        margin-bottom: 10px;
+        height: 4px;
         cursor: pointer;
 
-        .bar-full, .bar-buffer {
-          height: 4px;
+        .bar-full, .bar-buffer, .bar-current {
+          height: 100%;
+          position: absolute;
+          border-radius: 2px;
         }
 
         .bar-full {
           background: rgba(255, 255, 255, 0.2);
+          z-index: 1;
+          width: 100%;
         }
 
         .bar-buffer {
+          background: rgba(255, 255, 255, 0.5);
+          z-index: 2;
+        }
+
+        .bar-current {
+          background: $controller-color;
+          z-index: 3;
         }
 
         .bar-controller {
           position: absolute;
           top: -4px;
+          left: -6px;
           width: 12px;
           height: 12px;
           border-radius: 2px;
-          background: aqua;
+          background: $controller-color;
+          z-index: 4;
         }
       }
 
@@ -202,25 +230,16 @@
 
     }
 
+    div.canvas-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      cursor: pointer;
+    }
+
   }
 
-  div.canvas-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    cursor: pointer;
-  }
-
-  video.video-layer {
-    background: black;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-  }
 }

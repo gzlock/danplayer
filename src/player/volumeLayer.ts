@@ -19,9 +19,9 @@ export class VolumeLayer extends ButtonAndLayer {
     super(ui)
     this.$video = this.player.$video
     this.$video.addEventListener('volumechange', () => this.updateController())
-    this.$layer = this.player.$root.querySelector('.controller-layer .volume-bar') as HTMLElement
+    this.$layer = this.player.$root.querySelector('.interactive-layer .volume-bar') as HTMLElement
     this.$valueLabel = this.$layer.querySelector('.volume-num-label') as HTMLElement
-    this.$btn = this.player.$root.querySelector('.controller-layer .buttons .button.volume') as HTMLElement
+    this.$btn = this.player.$root.querySelector('.interactive-layer .buttons .button.volume') as HTMLElement
     this.$btn.addEventListener('click', () => this.toggleMuted())
     this.$dragArea = this.$layer.querySelector('.volume-column-bar') as HTMLElement
     this.$controller = this.$dragArea.querySelector('.bar-controller') as HTMLElement
@@ -54,20 +54,22 @@ export class VolumeLayer extends ButtonAndLayer {
       document.addEventListener('mousemove', mousemoveControlVolume)
       document.addEventListener('mouseup', mouseupReleaseControl)
     })
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
+    this.player.$root.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp') {
-        if (this.$video.volume < 1) {
-          this.$video.volume += 0.1
+        if (this.$video.volume <= 0.9) {
+          this.$video.volume = NP.plus(this.$video.volume, 0.1)
         } else {
           this.$video.volume = 1
         }
       } else if (e.key === 'ArrowDown') {
-        if (this.$video.volume > 0) {
-          this.$video.volume -= 0.1
+        if (this.$video.volume >= 0.1) {
+          this.$video.volume = NP.minus(this.$video.volume, 0.1)
         } else {
           this.$video.volume = 0
         }
       }
+      this.volumeValue = this.$video.volume
+      this.updateButton()
     })
 
     this.init()
@@ -75,13 +77,25 @@ export class VolumeLayer extends ButtonAndLayer {
   }
 
   toggleMuted () {
-    let attr
     if (this.$video.volume > 0) {
       this.$video.volume = 0
-      attr = 'data-off'
     } else {
-      this.$video.volume = this.volumeValue
+      if (this.volumeValue === 0) {
+        this.$video.volume = 1
+      } else {
+        this.$video.volume = this.volumeValue
+      }
+    }
+    this.updateButton()
+  }
+
+  updateButton () {
+    let attr
+    // console.log('音量', this.$video.volume)
+    if (this.$video.volume > 0) {
       attr = 'data-on'
+    } else {
+      attr = 'data-off'
     }
     this.$btn.innerHTML = this.$btn.getAttribute(attr) as string
   }
@@ -93,6 +107,7 @@ export class VolumeLayer extends ButtonAndLayer {
     this.$current.style.height = y + 'px'
     y = this.areaHeight - y
     this.$controller.style.transform = `translateY(${y}px)`
+    this.updateButton()
   }
 
   showLayer () {

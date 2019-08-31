@@ -1,10 +1,113 @@
 import { Player } from '@/player/player'
 import { fabric } from 'fabric'
-import { Danmaku } from '@/player/danamku'
+import { Danmaku, DanmakuType } from '@/player/danamku'
 
 export class DanmakuLayerOptions extends Object {
+  enable: boolean = true
   flowDuration: number = 8
   fadeoutDuration: number = 5
+}
+
+const defaultOptions = {
+  fontSize: 24,
+  strokeWidth: 1,
+  stroke: 'black',
+  fontFamily: 'SimHei',
+  fontWeight: 'normal',
+  selectable: false,
+  paintFirst: 'stroke'
+}
+
+class Label extends fabric.Text {
+  constructor (text: string) {
+    super(text, defaultOptions)
+  }
+
+  _render (ctx: CanvasRenderingContext2D): void {
+    super._render(ctx)
+    if (this.borderColor) {
+      const w = this.width as number + 4
+      const h = this.height as number + 4
+      ctx.strokeStyle = this.borderColor
+      ctx.strokeRect(-w / 2, -h / 2, w, h)
+    }
+  }
+}
+
+class LabelBox extends fabric.Textbox {
+  editable = false
+  textAlign = 'center'
+
+  constructor (text: string) {
+    super(text, defaultOptions)
+  }
+
+  _render (ctx: CanvasRenderingContext2D): void {
+    super._render(ctx)
+    if (this.borderColor) {
+      const w = this.width as number + 4
+      const h = this.height as number + 4
+      ctx.strokeStyle = this.borderColor
+      ctx.strokeRect(-w / 2, -h / 2, w, h)
+    }
+  }
+}
+
+class DanmakuDrawer {
+  danmaku!: Danmaku
+  label!: Label | LabelBox
+  width: number = 0
+  height: number = 0
+  enable: boolean = false
+}
+
+class DanmakuFlowDrawer extends DanmakuDrawer {
+  constructor () {
+    super()
+    this.label = new Label('')
+    this.height = this.label.getHeightOfLine(0)
+  }
+
+  set (danmaku: Danmaku, left: number, top: number) {
+    this.danmaku = danmaku
+
+    this.label.cleanStyle('borderColor')
+    this.label.set(Object.assign({}, danmaku, { width: left, left, top }))
+    this.width = this.label.getLineWidth(0)
+    this.enable = true
+  }
+
+  update (canvasWidth: number, duration: number, lastFrameTime: number) {
+    const speed = (canvasWidth + this.width) / duration * lastFrameTime
+    const left = (this.label.left ? this.label.left : canvasWidth) - speed
+    this.label.set({ left })
+    this.enable = left > -this.width
+  }
+}
+
+class DanmakuFixedDrawer extends DanmakuDrawer {
+  timeout: number = 0
+
+  constructor () {
+    super()
+    this.label = new LabelBox('')
+  }
+
+  set (danmaku: Danmaku, timeout: number, width: number, top: number) {
+    this.danmaku = danmaku
+    this.timeout = timeout
+    this.label.cleanStyle('borderColor')
+    this.label.set(Object.assign({}, danmaku, { width, left: 0 }))
+    this.width = width
+    this.height = this.label.height as number
+    if (danmaku.type === DanmakuType.Bottom) { this.label.set({ top: top - this.height }) }
+    this.enable = true
+  }
+
+  update (lastFrameTime: number) {
+    this.timeout -= lastFrameTime
+    this.enable = this.timeout > 0
+  }
 }
 
 export class DanmakuLayer {
@@ -12,33 +115,50 @@ export class DanmakuLayer {
   private canvas: fabric.Canvas
   private $root: HTMLElement
 
-  // 要显示的弹幕
-  private danmakus: Danmaku[] = []
+  // 弹幕内容池
+  danmakus: Danmaku[] = []
+  showed: Danmaku[] = []
 
-  // 复用的弹幕库
-  private danmakuPool: Danmaku[] = []
-
-  // 批量填充的弹幕将会填充到这里，等待时机 转移到 danmakus
-  public waitToShow: Danmaku[] = []
+  // 池
+  fixedEnables: DanmakuFixedDrawer[] = []
+  fixedDisables: DanmakuFixedDrawer[] = []
+  flowEnables: DanmakuFlowDrawer[] = []
+  flowDisables: DanmakuFlowDrawer[] = []
 
   // 上一帧的生成时间
   private frameTime: number = 0
-  private lastFrame: number = 0
-
-  private _defaultFlowDuration: number = 10
-  private _defaultFadeOutDuration: number = 5
+  // 最后一帧
+  private lastFrame: number = Date.now()
 
   isShow = true
 
   option: DanmakuLayerOptions
 
+  private width = 0
+  private height = 0
+
   constructor (player: Player) {
     this.player = player
     this.option = this.player.options.danmaku as DanmakuLayerOptions
+    console.log('弹幕设置', this.option)
     const $canvas = this.player.$root.querySelector('.danmaku-layer') as HTMLCanvasElement
-    this.canvas = new fabric.Canvas($canvas)
+    this.canvas = new fabric.Canvas($canvas, {
+      selection: false,
+      hoverCursor: 'default',
+      moveCursor: 'default'
+    })
 
     this.$root = this.player.$root.querySelector('.canvas-container') as HTMLElement
+    this.player.$video.addEventListener('seeked', () => {
+      console.log('video seeked 事件')
+      this.clear()
+    })
+
+    if (this.option.enable) {
+      this.show()
+    } else {
+      this.hide()
+    }
     this.loop()
   }
 
@@ -52,10 +172,19 @@ export class DanmakuLayer {
     this.$root.style.display = 'none'
   }
 
+  clear () {
+    this.showed.length = 0
+    this.canvas.clear()
+    this.fixedDisables.push(...this.fixedEnables)
+    this.fixedEnables.length = 0
+    this.flowDisables.push(...this.flowEnables)
+    this.flowEnables.length = 0
+  }
+
   resize () {
-    const width = this.player.$root.clientWidth
-    const height = this.player.$root.clientHeight
-    this.canvas.setDimensions({ width, height })
+    this.width = this.player.$root.clientWidth
+    this.height = this.player.$root.clientHeight
+    this.canvas.setDimensions({ width: this.width, height: this.height })
   }
 
   toggle (): void {
@@ -66,76 +195,87 @@ export class DanmakuLayer {
     }
   }
 
-  send (text: string, color: string) {
-    if (!text) { return }
-    let item = this.danmakuPool.shift() || new Danmaku(text)
-    item.set({
-      text,
-      left: this.canvas.getWidth(),
-      fill: color,
-      borderColor: '#ff0000'
-    })
-    if (!this.player.options.live) {
-      item.duration = this.player.$video.currentTime
-    }
-    this.canvas.add(item)
-    this.danmakus.push(item)
+  send (d: Danmaku) {
+    this.danmakus.push(d)
   }
 
   /**
    * 绘制弹幕
    */
   private drawDanmaku () {
-    let speed: number = this.player.options.danmaku ? this.player.options.danmaku.flowDuration : this._defaultFlowDuration
-    speed = this.canvas.getWidth() / speed
-    console.debug('speed', { speed, frame: this.frameTime, length: this.danmakus.length })
-    const disableItems: Danmaku[] = []
-    this.danmakus = this.danmakus.filter(danmaku => {
-      const x = this.drawFlowDanmaku(danmaku, speed)
-      if (x < 0) {
-        disableItems.push(danmaku)
+    const width = this.canvas.getWidth()
+    for (let i = 0; i < this.danmakus.length; i++) {
+      const danmaku = this.danmakus[i]
+      const time = this.player.currentTime - danmaku.currentTime
+      if (this.showed.includes(danmaku)) continue
+      if (time < -0.1 || time > 0.1) continue
+      this.showed.push(danmaku)
+
+      let drawer: DanmakuFixedDrawer | DanmakuFlowDrawer
+      // todo 防止 重叠算法
+      if (danmaku.type === DanmakuType.Flow) {
+        drawer = this.flowDisables.shift() || new DanmakuFlowDrawer()
+        drawer.set(danmaku, width, 0)
+        this.flowEnables.push(drawer)
+      } else {
+        drawer = this.fixedDisables.shift() || new DanmakuFixedDrawer()
+        let top = danmaku.type === DanmakuType.Top ? 0 : this.height
+        drawer.set(danmaku, this.option.fadeoutDuration, width, top)
+        this.fixedEnables.push(drawer)
+      }
+      this.canvas.add(drawer.label)
+    }
+
+    this.fixedEnables = this.fixedEnables.filter(drawer => {
+      if (drawer.enable) {
+        drawer.update(this.frameTime)
+        return true
+      } else {
+        this.fixedDisables.push(drawer)
+        this.canvas.remove(drawer.label)
         return false
       }
-      return true
     })
-    this.danmakuPool.push(...disableItems)
-    this.canvas.renderAll()
-  }
 
-  /**
-   * 绘制流动的弹幕
-   * @param danmaku
-   * @param speed
-   * @return {number} 返回 x 坐标，检测是否超出屏幕
-   */
-  private drawFlowDanmaku (danmaku: Danmaku, speed: number): number {
-    const left = danmaku.left as number - speed * this.frameTime
-    const width = danmaku.width as number
-    danmaku.left = left
-    return left + width
-  }
-
-  private checkWait () {
-    if (this.waitToShow.length === 0) { return }
-    const pickUp: Danmaku[] = []
-    const currentTime = this.player.currentTime * 1000
-    this.waitToShow = this.waitToShow.filter(danmaku => {
-      if (danmaku.duration <= currentTime) {
-        pickUp.push(danmaku)
+    this.flowEnables = this.flowEnables.filter(drawer => {
+      if (drawer.enable) {
+        drawer.update(width, this.option.flowDuration, this.frameTime)
+        return true
+      } else {
+        this.flowDisables.push(drawer)
+        this.canvas.remove(drawer.label)
         return false
       }
-      return true
     })
-    this.danmakus.push(...pickUp)
+
+    if (this.isShow) {
+      this.canvas.renderAll()
+    }
   }
 
   private loop () {
-    this.checkWait()
     if (!this.player.paused) {
       this.drawDanmaku()
     }
     this.frameTime = (Date.now() - this.lastFrame) / 1000
     this.lastFrame = Date.now()
     window.requestAnimationFrame(() => { this.loop() })
+  }
+
+  get debug (): Object {
+    return {
+      isShow: this.isShow,
+      all: this.danmakus.length,
+      showed: this.showed.length,
+      canvasItems: this.canvas._objects.length,
+      fixed: {
+        enables: this.fixedEnables.length,
+        disabled: this.fixedDisables.length
+      },
+      flow: {
+        enables: this.flowEnables.length,
+        disabled: this.flowDisables.length
+      }
+    }
   }
 }

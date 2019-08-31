@@ -2,11 +2,13 @@ import { Player } from '@/player/player'
 import { VolumeLayer } from '@/player/volumeLayer'
 import { QualitySelector } from '@/player/qualitySelector'
 import { ProgressBar } from '@/player/progressBar'
+import { DanmakuLayer } from '@/player/danmakuLayer'
 
 export class UI {
   qualitySelector: QualitySelector
 
   private _isMouseInUI: boolean = false
+  danmakuLayer: DanmakuLayer
 
   set isMouseInUI (val: boolean) {
     this._isMouseInUI = val
@@ -39,7 +41,7 @@ export class UI {
 
   constructor (player: Player) {
     this.player = player
-    this.$root = player.$root.querySelector('.controller-layer .controller-bottom-bar') as HTMLElement
+    this.$root = player.$root.querySelector('.interactive-layer .controller-bottom-bar') as HTMLElement
     this.$root.addEventListener('mouseenter', () => {
       this.isMouseInUI = true
     })
@@ -61,15 +63,17 @@ export class UI {
 
     this.$btnPlay = this.$root.querySelector('.button.play') as Element
     this.$btnPlay.addEventListener('click', () => {
-      this.player.play()
+      this.player.toggle()
       this.updatePlayButton()
     })
 
     this.$btnShowDanmaku = this.$root.querySelector('.button.toggle-danamaku') as Element
     this.$btnShowDanmaku.addEventListener('click', () => {
-      this.player.danmakuLayer.toggle()
+      this.danmakuLayer.toggle()
       this.updateDanmakuButton()
     })
+
+    this.danmakuLayer = new DanmakuLayer(player)
 
     this.insertExtraButtons()
   }
@@ -138,7 +142,7 @@ export class UI {
   private updateDanmakuButton () {
     let attr: string
     let title: string
-    if (this.player.danmakuLayer.isShow) {
+    if (this.danmakuLayer.isShow) {
       attr = 'data-off'
       title = 'data-off-title'
     } else {
@@ -153,5 +157,14 @@ export class UI {
     if (this.volume.isShow) this.volume.updateLayerPosition()
     if (this.qualitySelector.isShow) this.qualitySelector.updateLayerPosition()
     this.progressBar.resize()
+    this.danmakuLayer.resize()
+  }
+
+  get debug (): Object {
+    return {
+      isShow: this.isShow,
+      isMouseInUI: this._isMouseInUI,
+      danmakuLayer: this.danmakuLayer.debug
+    }
   }
 }

@@ -2,12 +2,13 @@ import './style.scss'
 import Hls from 'hls.js'
 import { Danmaku, DanmakuOptions } from '@/player/danamku'
 import { UI } from '@/player/UI'
-import { DanmakuLayer, DanmakuLayerOptions } from '@/player/danmakuLayer'
-import { ProgressBar } from '@/player/progressBar'
+import { DanmakuLayerOptions } from '@/player/danmakuLayer'
 
-const template = `<canvas class="danmaku-layer"></canvas>
+const template = `
 {video-layer}
-<div class="controller-layer">
+<div class="interactive-layer">
+  <canvas class="danmaku-layer"></canvas>
+  <div class="bg-gradient show"></div>
   <div class="float volume-bar">
     <div class="volume-num-label"></div>
     <div class="volume-column-bar">
@@ -16,14 +17,12 @@ const template = `<canvas class="danmaku-layer"></canvas>
       <div class="bar-controller"></div>
     </div>
   </div>
-  <div class="float quality-menu">
-  
-  </div>
-  <div class="bg-gradient show"></div>
+  <div class="float quality-menu"></div>
   <div class="controller-bottom-bar">
     <div class="progress-bar live-hide">
       <div class="bar-full"></div>
       <div class="bar-buffer"></div>
+      <div class="bar-current"></div>
       <div class="bar-controller"></div>    
     </div>
     <div class="buttons">
@@ -53,7 +52,7 @@ export class PlayerOptions extends Object {
    * 弹幕使用 {@link Danmaku} 不携带发视频当前的播放进度
    *
    * 普通视频模式
-   * 弹幕使用 {@link Danmaku} 携带弹幕视频当前的播放进度 {@see DanmakuOptions#duration}
+   * 弹幕使用 {@link Danmaku} 携带弹幕视频当前的播放进度 {@see DanmakuOptions#currentTime}
    */
   live?: boolean = false
 
@@ -62,13 +61,6 @@ export class PlayerOptions extends Object {
 
   // 视频控制条隐藏的时间
   uiFadeOutDelay?: number = 3000
-
-  // 视频暂停状态时，隐藏鼠标的延迟，不隐藏ui
-  whenPausedHideMouseDelay? = 500
-
-  // 暂停暂停时，是否隐藏UI，隐藏UI的延时 沿用
-  /** {@see PlayerOptions#uiFadeOutDelay} **/
-  pausedHideUI? = false
 
   width?: number | string
   height?: number | string
@@ -88,9 +80,7 @@ export class Player {
   $root: HTMLElement
   $video: HTMLVideoElement
   video?: Hls
-  private _speed: number = 1
   private _fontSize: number = 16
-  public danmakuLayer: DanmakuLayer
   public ui: UI
 
   // 尺寸
@@ -172,12 +162,8 @@ export class Player {
     this.options = Object.assign(new PlayerOptions(), options)
 
     this.ui = new UI(this)
-    this.danmakuLayer = new DanmakuLayer(this)
 
-    const $danmaku = this.$root.querySelector('.canvas-container') as Element
-    $danmaku.addEventListener('click', () => this.toggle())
-
-    this._set()
+    this._set().then()
   }
 
   private async _set () {
@@ -200,7 +186,7 @@ export class Player {
 
   set (options: PlayerOptions) {
     this.options = options
-    this._set()
+    this._set().then()
   }
 
   resize () {
@@ -224,19 +210,6 @@ export class Player {
       this.$root.style.height = this._height
     }
     this.ui.resize()
-    this.danmakuLayer.resize()
-  }
-
-  hideMouse () {
-    this.$root.classList.add('mouse-idle')
-  }
-
-  hideMouseDelay () {
-
-  }
-
-  showMouse () {
-    this.$root.classList.remove('mouse-idle')
   }
 
   private delayResize: number = -1
@@ -245,7 +218,6 @@ export class Player {
     window.clearTimeout(this.delayResize)
     this.delayResize = window.setTimeout(() => {
       this.resize()
-      this.danmakuLayer.resize()
     }, ms)
   }
 
@@ -253,15 +225,15 @@ export class Player {
    * 批量填充弹幕
    */
   fillDanmakus (array: Danmaku[]) {
-    this.danmakuLayer.waitToShow.push(...array)
+    this.ui.danmakuLayer.danmakus.push(...array)
   }
 
   get currentTime () {
     return this.$video.currentTime
   }
 
-  sendDanmaku (text: string, color: string = 'white') {
-    this.danmakuLayer.send(text, color)
+  sendDanmaku (danmaku: Danmaku) {
+    this.ui.danmakuLayer.send(danmaku)
   }
 
   get paused () {
@@ -328,12 +300,6 @@ export class Player {
     }
   }
 
-  speed (speed: number) {
-    if (speed >= 0 && speed <= 1) {
-      this._speed = speed
-    }
-  }
-
   /**
    * 切换全屏模式
    */
@@ -345,5 +311,9 @@ export class Player {
       await document.exitFullscreen()
     }
     this.resize()
+  }
+
+  get debug (): Object {
+    return { width: this.width, height: this.height, ui: this.ui.debug }
   }
 }

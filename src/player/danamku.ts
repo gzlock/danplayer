@@ -7,40 +7,29 @@ export const enum DanmakuType {
   Bottom
 }
 
-export interface DanmakuOptions extends TextOptions {
+/**
+ * @class DanmakuOptions
+ */
+export class DanmakuOptions extends Object {
   // 视频进度
-  duration?: number
-  showType?: DanmakuType
+  currentTime?: number
+  type?: DanmakuType = DanmakuType.Flow
   borderColor?: string
   fill?: string
 }
 
-export class Danmaku extends fabric.Text implements DanmakuOptions {
-  public type = 'Danmaku'
-
-  duration: number = 0
-  showType: DanmakuType = DanmakuType.Flow
-  borderColor: string = 'white'
+export class Danmaku extends Object {
+  text: string
+  borderColor?: string
+  currentTime: number = 0
   fill: string = 'white'
+  type: DanmakuType = DanmakuType.Flow
 
-  _render (ctx: CanvasRenderingContext2D): void {
-    const x = this.left as number
-    const y = this.top as number
-    const w = this.width as number
-    const h = this.height as number
-    console.log('_render', { x, y, w, h })
-    ctx.strokeStyle = this.borderColor as string
-    ctx.strokeRect(-w / 2, -h / 2, w, h)
-
-    super._render(ctx)
-  }
-
-  toObject (propertiesToInclude?: string[]): any {
-    const obj = super.toObject()
-    obj.styles = fabric.util.object.clone(this.styles)
-    return obj
+  constructor (text: string, options?: DanmakuOptions) {
+    super()
+    this.text = text
+    if (options) {
+      Object.assign(this, options)
+    }
   }
 }
-
-// @ts-ignore
-fabric.Danmaku = Danmaku
