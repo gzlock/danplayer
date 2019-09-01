@@ -12,9 +12,6 @@ export class ButtonAndLayer {
   private hideTimeout = -1
   private _isShow: boolean = false
 
-  // 不让layer隐藏
-  protected holdLayer = false
-
   get isShow (): boolean {
     return this._isShow
   }
@@ -73,5 +70,9 @@ export class ButtonAndLayer {
     this.$layer.style.left = left + 'px'
     this.$layer.style.bottom = this.bottomOffset + 'px'
     // console.log('update', { left })
+  }
+
+  destroy () {
+    clearTimeout(this.hideTimeout)
   }
 }

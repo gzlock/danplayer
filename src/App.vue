@@ -1,7 +1,7 @@
+import { DanmakuType } from '@/player/danamku'
 <template>
   <div id="app">
-    <video id="player" autoplay
-           src="https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4"></video>
+    <video id="player" src="https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4"></video>
 
     <h3>功能调试区域</h3>
     <div>
@@ -48,7 +48,8 @@ let player: Player
 const min = parseInt('4E00', 16)
 const max = parseInt('9FA5', 16)
 let updateInterval: number = -1
-  @Component
+
+@Component
 export default class App extends Vue {
     private danmaku = ''
     private flowSpeed = 1
@@ -56,7 +57,7 @@ export default class App extends Vue {
     private randomCount = 100
     private randomTime = 10
     private info = ''
-    private typeValue = DanmakuType.Flow
+    private typeValue = 1
 
     sendDanmaku () {
       if (this.danmaku) {
@@ -99,20 +100,11 @@ export default class App extends Vue {
     mounted () {
       const $e = document.getElementById('player') as HTMLVideoElement
       if ($e) {
-        // 扩展按钮
-        const $btn: HTMLElement = document.createElement('div')
-        $btn.classList.add('extra-button')
-        $btn.innerHTML = '自定义按钮1'
-        $btn.onclick = () => { alert('hello world 1!') }
-        const $btn2: HTMLElement = document.createElement('div')
-        $btn2.classList.add('extra-button')
-        $btn2.innerHTML = '自定义按钮2'
-        $btn2.onclick = () => { alert('hello world 2!') }
         player = new Player($e, {
-          width: 1024,
-          volume: 0,
+          width: 600,
+          // @ts-ignore
+          volume: 0
           // src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-          extraButtons: [$btn, $btn2]
         })
         console.log('player 配置', player.options)
         if (player.options.danmaku) {
@@ -127,7 +119,7 @@ export default class App extends Vue {
 
     beforeDestroy () {
       console.log('beforeDestroy')
-      player.pause()
+      player.destroy()
       clearInterval(updateInterval)
     }
 }

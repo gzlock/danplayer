@@ -93,7 +93,7 @@ export class UI {
   public hideUIDelay () {
     this.cancelHideUIDelay()
     return new Promise(resolve => {
-      this.hideTimeout = setTimeout(() => {
+      this.hideTimeout = window.setTimeout(() => {
         this.hide()
         this.volume.hideLayer()
         this.qualitySelector.hideLayer()
@@ -158,6 +158,13 @@ export class UI {
     if (this.qualitySelector.isShow) this.qualitySelector.updateLayerPosition()
     this.progressBar.resize()
     this.danmakuLayer.resize()
+  }
+
+  destroy () {
+    clearTimeout(this.hideTimeout)
+    this.danmakuLayer.destroy()
+    this.qualitySelector.destroy()
+    this.volume.destroy()
   }
 
   get debug (): Object {

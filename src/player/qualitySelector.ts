@@ -3,10 +3,9 @@ import { ButtonAndLayer } from '@/player/buttonAndLayer'
 import { UI } from '@/player/UI'
 
 export class QualitySelector extends ButtonAndLayer {
-  video!: Hls
-  private $autoLevel: Element
-  private levels: Element[] = []
-  private currentLevel = -1
+  hls!: Hls
+  private readonly $autoLevel: Element
+  currentLevel = -1
 
   constructor (ui: UI) {
     super(ui)
@@ -22,8 +21,8 @@ export class QualitySelector extends ButtonAndLayer {
         if ($item.hasAttribute('data-value')) {
           const value = parseInt($item.getAttribute('data-value') as string)
           console.log('click', value)
-          if (this.player.video) {
-            this.player.video.currentLevel = this.player.video.loadLevel = value
+          if (this.player.hls) {
+            this.player.hls.currentLevel = this.player.hls.loadLevel = value
             this.currentLevel = value
           }
         }
@@ -49,15 +48,15 @@ export class QualitySelector extends ButtonAndLayer {
 
   updateButton () {
     let name = '自动'
-    if (this.currentLevel > -1 && this.video.levels[this.video.loadLevel]) {
-      name = this.video.levels[this.video.loadLevel].name + 'p'
+    if (this.currentLevel > -1 && this.hls.levels[this.hls.loadLevel]) {
+      name = this.hls.levels[this.hls.loadLevel].name + 'p'
     }
     this.$btn.innerText = name
   }
 
   private _updateLevel () {
     this.$layer.innerHTML = ''
-    this.video.levels.forEach((level, index) => {
+    this.hls.levels.forEach((level, index) => {
       const $item = document.createElement('div') as HTMLElement
 
       if (index === this.currentLevel) {
@@ -76,7 +75,7 @@ export class QualitySelector extends ButtonAndLayer {
   }
 
   updateLevel (video: Hls) {
-    this.video = video
+    this.hls = video
     this._updateLevel()
     this.updateLayerPosition()
     this.updateButton()

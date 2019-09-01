@@ -1,15 +1,9 @@
-import { fabric } from 'fabric'
-import { TextOptions } from 'fabric/fabric-impl'
-
 export const enum DanmakuType {
   Top,
   Flow,
   Bottom
 }
 
-/**
- * @class DanmakuOptions
- */
 export class DanmakuOptions extends Object {
   // 视频进度
   currentTime?: number

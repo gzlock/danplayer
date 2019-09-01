@@ -79,7 +79,7 @@ export class Player {
   private static instances: Player[] = []
   $root: HTMLElement
   $video: HTMLVideoElement
-  video?: Hls
+  hls?: Hls
   private _fontSize: number = 16
   public ui: UI
 
@@ -175,9 +175,9 @@ export class Player {
 
     await this.getContentType()
 
-    if (this.video) {
-      this.video.on(Hls.Events.LEVEL_LOADED, () => {
-        this.ui.qualitySelector.updateLevel(this.video as Hls)
+    if (this.hls) {
+      this.hls.on(Hls.Events.LEVEL_LOADED, () => {
+        this.ui.qualitySelector.updateLevel(this.hls as Hls)
       })
     }
 
@@ -273,9 +273,9 @@ export class Player {
     if (useHLS) {
       console.log('使用Hls.js')
       if (Hls.isSupported()) {
-        this.video = new Hls()
-        this.video.attachMedia(this.$video)
-        this.video.loadSource(src)
+        this.hls = new Hls()
+        this.hls.attachMedia(this.$video)
+        this.hls.loadSource(src)
       } else {
         const http = new XMLHttpRequest()
         http.open('Get', src)
@@ -313,7 +313,30 @@ export class Player {
     this.resize()
   }
 
+  /**
+   * 销毁
+   */
+  destroy () {
+    this.ui.destroy()
+  }
+
   get debug (): Object {
-    return { width: this.width, height: this.height, ui: this.ui.debug }
+    let quality = '默认'
+    let src = this.$video.src
+    if (this.hls) {
+      if (this.ui.qualitySelector.currentLevel === -1) {
+        quality = '自动 '
+      } else {
+        quality = ''
+      }
+      quality += this.hls.levels[this.hls.currentLevel].name + 'P'
+    }
+    return {
+      width: this.width,
+      height: this.height,
+      src,
+      quality,
+      ui: this.ui.debug
+    }
   }
 }
