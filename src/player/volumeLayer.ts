@@ -1,4 +1,3 @@
-import { Player, PlayerOptions } from '@/player/player'
 import NP from 'number-precision'
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
 import { UI } from '@/player/UI'
@@ -26,7 +25,11 @@ export class VolumeLayer extends ButtonAndLayer {
     this.$dragArea = this.$layer.querySelector('.volume-column-bar') as HTMLElement
     this.$controller = this.$dragArea.querySelector('.bar-controller') as HTMLElement
     this.$current = this.$dragArea.querySelector('.bar-current') as HTMLElement
-    this.$video.volume = this.player.options.volume as number
+    this.volumeValue = this.$video.volume = this.player.options.volume
+
+    if (this.volumeValue === 0) {
+      this.volumeValue = 0.7
+    }
 
     const mousemoveControlVolume = (e: MouseEvent) => {
       // console.log({ y })

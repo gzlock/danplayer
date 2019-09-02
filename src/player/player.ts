@@ -1,14 +1,14 @@
 import './style.scss'
 import Hls from 'hls.js'
-import { Danmaku, DanmakuOptions } from '@/player/danamku'
+import { Danmaku, DanmakuOptions } from '@/player/danmaku/danmaku'
 import { UI } from '@/player/UI'
-import { DanmakuLayerOptions } from '@/player/danmakuLayer'
+import { MakeDanmakuLayerOptions, DanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
 
-const template = `
-{video-layer}
+const template = `{video-layer}
 <div class="interactive-layer">
   <canvas class="danmaku-layer"></canvas>
   <div class="bg-gradient show"></div>
+  <div class="float danmaku-context-menu" tabIndex="2"></div>
   <div class="float volume-bar">
     <div class="volume-num-label"></div>
     <div class="volume-column-bar">
@@ -46,7 +46,7 @@ const template = `
   </div>
 </div>`
 
-export class PlayerOptions extends Object {
+interface PlayerOptions extends Object {
   /**
    * 直播模式
    * 弹幕使用 {@link Danmaku} 不携带发视频当前的播放进度
@@ -54,25 +54,50 @@ export class PlayerOptions extends Object {
    * 普通视频模式
    * 弹幕使用 {@link Danmaku} 携带弹幕视频当前的播放进度 {@see DanmakuOptions#currentTime}
    */
-  live?: boolean = false
+  live: boolean
 
   // 音量
-  volume?: number = 0.7
+  volume: number
 
   // 视频控制条隐藏的时间
-  uiFadeOutDelay?: number = 3000
+  uiFadeOutDelay: number
 
-  width?: number | string
-  height?: number | string
+  width: number | string
+  height: number | string
 
   // 视频来源，也可以在<video src=""></video>的src设置
-  src?: string
+  src: string
 
   // 扩展按钮
-  extraButtons?: Element[]
-  danmaku?: DanmakuLayerOptions = new DanmakuLayerOptions()
+  extraButtons: Element[]
 
-  only?: boolean = false
+  danmaku: DanmakuLayerOptions
+
+  onlyOne: boolean
+}
+
+function MakeDefaultOptions ({
+  live = false,
+  volume = 0.7,
+  width = 600,
+  height = 350,
+  uiFadeOutDelay = 3000,
+  extraButtons = [],
+  src = '',
+  danmaku = MakeDanmakuLayerOptions(),
+  onlyOne = false
+}: Partial<PlayerOptions>): PlayerOptions {
+  return {
+    live,
+    volume,
+    width,
+    height,
+    src,
+    uiFadeOutDelay,
+    extraButtons,
+    danmaku,
+    onlyOne
+  }
 }
 
 export class Player {
@@ -85,7 +110,7 @@ export class Player {
 
   // 尺寸
   private _width: string = ''
-  private _height: string = '300px'
+  private _height: string = ''
 
   get width () {
     return this.$root.clientWidth
@@ -99,9 +124,9 @@ export class Player {
 
   private _duration: number = 0
 
-  public options!: PlayerOptions
+  public options: PlayerOptions
 
-  constructor ($e: HTMLVideoElement, options?: PlayerOptions) {
+  constructor ($e: HTMLVideoElement, options?: Partial<PlayerOptions>) {
     Player.instances.push(this)
     const parent = $e.parentElement as Element
     this.$root = document.createElement('div')
@@ -159,7 +184,7 @@ export class Player {
 
     window.addEventListener('resize', () => this.resizeEvt(1000))
 
-    this.options = Object.assign(new PlayerOptions(), options)
+    this.options = MakeDefaultOptions(options || {})
 
     this.ui = new UI(this)
 
@@ -184,8 +209,8 @@ export class Player {
     this.resize()
   }
 
-  set (options: PlayerOptions) {
-    this.options = options
+  set (options: Partial<PlayerOptions>) {
+    this.options = MakeDefaultOptions(options)
     this._set().then()
   }
 
@@ -250,7 +275,7 @@ export class Player {
 
   play () {
     this.$video.play().then()
-    if (this.options.only) {
+    if (this.options.onlyOne) {
       Player.instances.forEach(player => {
         if (player !== this) {
           player.pause()

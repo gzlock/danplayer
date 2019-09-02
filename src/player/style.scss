@@ -70,6 +70,17 @@ $controller-color: #00a1d6;
       display: none;
       position: absolute;
       z-index: 4;
+
+      &.show {
+        display: block;
+      }
+    }
+
+    .danmaku-context-menu {
+      padding: 5px 8px;
+      z-index: 5;
+      outline: none;
+      color: white;
     }
 
     .volume-bar {
@@ -234,10 +245,7 @@ $controller-color: #00a1d6;
       position: absolute;
       left: 0;
       top: 0;
-      width: 100%;
-      height: 100%;
       z-index: 1;
-      cursor: pointer;
     }
 
   }

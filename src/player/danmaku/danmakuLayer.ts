@@ -1,155 +1,28 @@
 import { Player } from '@/player/player'
 import { fabric } from 'fabric'
-import { Danmaku, DanmakuType } from '@/player/danamku'
+import { Danmaku, DanmakuType } from '@/player/danmaku/danmaku'
 import { sortBy, groupBy } from 'lodash'
+import { DanmakuDrawer, DanmakuFlowDrawer, DanmakuFixedDrawer } from './danmaku_drawer'
 
-export class DanmakuLayerOptions extends Object {
-  enable: boolean = true
-  flowDuration: number = 8
-  fadeoutDuration: number = 5
+export interface DanmakuLayerOptions {
+  enable: boolean
+  flowDuration: number
+  fadeoutDuration: number
 }
 
-const defaultOptions = {
-  fontSize: 24,
-  strokeWidth: 1,
-  stroke: 'black',
-  fontFamily: 'SimHei',
-  fontWeight: 'normal',
-  selectable: false,
-  paintFirst: 'stroke'
-}
-
-class Label extends fabric.Text {
-  static type = 'Label'
-  width: number = 0
-  height: number = 0
-  left: number = 0
-  top: number = 0
-
-  constructor (text: string) {
-    super(text, defaultOptions)
-  }
-
-  _render (ctx: CanvasRenderingContext2D): void {
-    super._render(ctx)
-    if (this.borderColor) {
-      const w = this.width + 4
-      const h = this.height + 4
-      ctx.strokeStyle = this.borderColor
-      ctx.strokeRect(-w / 2, -h / 2, w, h)
-    }
-  }
-
-  toJSON (propertiesToInclude?: string[]): any {
-    return {}
-  }
-}
-
-// @ts-ignore
-fabric.Label = Label
-
-class LabelBox extends fabric.Textbox {
-  static type = 'LabelBox'
-  width: number = 0
-  height: number = 0
-  left: number = 0
-  top: number = 0
-
-  editable = false
-  textAlign = 'center'
-
-  constructor (text: string) {
-    super(text, defaultOptions)
-  }
-
-  _render (ctx: CanvasRenderingContext2D): void {
-    super._render(ctx)
-    if (this.borderColor) {
-      const w = this.width + 4
-      const h = this.height + 4
-      ctx.strokeStyle = this.borderColor
-      ctx.strokeRect(-w / 2, -h / 2, w, h)
-    }
-  }
-}
-
-// @ts-ignore
-fabric.LabelBox = LabelBox
-
-class DanmakuDrawer {
-  danmaku!: Danmaku
-  label!: Label | LabelBox
-  width: number = 0
-  height: number = 0
-
-  get left () {
-    return this.label.left
-  }
-
-  get top () {
-    return this.label.top
-  }
-
-  enable: boolean = false
-}
-
-class DanmakuFlowDrawer extends DanmakuDrawer {
-  constructor () {
-    super()
-    this.label = new Label('')
-    this.height = this.label.getHeightOfLine(0)
-  }
-
-  set (danmaku: Danmaku, left: number, top: number) {
-    this.danmaku = danmaku
-    this.label.borderColor = undefined
-    this.label.set(Object.assign({}, danmaku, { left, top }))
-    this.width = this.label.getLineWidth(0)
-    this.enable = true
-  }
-
-  update (canvasWidth: number, duration: number, lastFrameTime: number) {
-    const speed = (canvasWidth + this.width) / duration * lastFrameTime
-    this.label.left = this.label.left - speed
-    this.enable = this.label.left > -this.width
-  }
-}
-
-class DanmakuFixedDrawer extends DanmakuDrawer {
-  timeout: number = 0
-
-  constructor () {
-    super()
-    this.label = new LabelBox('')
-  }
-
-  set (danmaku: Danmaku, timeout: number, maxWidth: number, top: number) {
-    this.danmaku = danmaku
-    this.timeout = timeout
-    this.label.borderColor = undefined
-    this.label.set(Object.assign({}, danmaku, { top }))
-    this.width = this.label.width
-    this.label.left = (maxWidth - this.width) / 2
-    this.height = this.label.height as number
-    this.enable = true
-
-    this.update(maxWidth, 0)
-  }
-
-  update (maxWidth: number, lastFrameTime: number) {
-    this.timeout -= lastFrameTime
-    if (this.label.width > maxWidth) {
-      this.label.set({ width: maxWidth })
-      this.height = this.label.height as number
-    }
-    this.enable = this.timeout > 0
-  }
+export function MakeDanmakuLayerOptions ({
+  enable = true,
+  flowDuration = 8,
+  fadeoutDuration = 5
+}: Partial<DanmakuLayerOptions> = {}): DanmakuLayerOptions {
+  return { enable, flowDuration, fadeoutDuration }
 }
 
 export class DanmakuLayer {
   private player: Player
   private canvas: fabric.Canvas
   private $root: HTMLElement
+  private $menu: HTMLElement
 
   // 弹幕内容池
   danmakus: Danmaku[] = []
@@ -173,8 +46,6 @@ export class DanmakuLayer {
 
   isShow = true
 
-  option: DanmakuLayerOptions
-
   private width = 0
   private height = 0
   private calcTopInterval: number = -1
@@ -182,9 +53,8 @@ export class DanmakuLayer {
 
   constructor (player: Player) {
     this.player = player
-    this.option = this.player.options.danmaku as DanmakuLayerOptions
-    console.log('弹幕设置', this.option)
     const $canvas = this.player.$root.querySelector('.danmaku-layer') as HTMLCanvasElement
+
     this.canvas = new fabric.Canvas($canvas, {
       selection: false,
       hoverCursor: 'default',
@@ -192,6 +62,46 @@ export class DanmakuLayer {
     })
     // @ts-ignore
     window.canvas = this.canvas
+    this.canvas.defaultCursor = 'pointer'
+    this.canvas.on('mouse:up', (e: fabric.IEvent) => {
+      if (e.target === null) {
+        this.player.toggle()
+      }
+    })
+    const canvas = player.$root.querySelector('.upper-canvas') as HTMLCanvasElement
+    this.$menu = player.$root.querySelector('.float.danmaku-context-menu') as HTMLElement
+
+    const hideMenu = (e: MouseEvent) => {
+      if (this.$menu === e.currentTarget || this.$menu.contains(e.currentTarget as Element)) {
+        console.log()
+      }
+      this.$menu.classList.remove('show')
+      document.removeEventListener('click', hideMenu)
+      document.removeEventListener('contextmenu', hideMenu)
+    }
+    canvas.addEventListener('contextmenu', (e: MouseEvent) => {
+      const found = this.findDrawers(e)
+      if (found.length > 0) {
+        console.log('found', found)
+        this.$menu.classList.add('show')
+        this.$menu.innerHTML = ''
+        for (let i = 0; i < found.length; i++) {
+          const item = document.createElement('div') as HTMLDivElement
+          item.innerText = found[i].danmaku.text
+          this.$menu.append(item)
+        }
+        this.$menu.style.left = e.offsetX + 'px'
+        this.$menu.style.top = e.offsetY + 'px'
+        this.$menu.focus()
+        document.addEventListener('click', hideMenu)
+        document.addEventListener('contextmenu', hideMenu)
+      } else {
+        this.$menu.classList.remove('show')
+      }
+      e.preventDefault()
+      e.stopPropagation()
+      return false
+    })
 
     this.$root = this.player.$root.querySelector('.canvas-container') as HTMLElement
     this.player.$video.addEventListener('seeked', () => {
@@ -199,13 +109,11 @@ export class DanmakuLayer {
       this.clear()
     })
 
-    if (this.option.enable) {
+    if (this.player.options.danmaku.enable) {
       this.show()
     } else {
       this.hide()
     }
-    // 每秒12次计算top坐标
-    // this.calcTopInterval = setInterval(() => { this.calcTop() }, 1000 / 12)
     this.loop()
   }
 
@@ -246,6 +154,23 @@ export class DanmakuLayer {
     this.danmakus.push(d)
   }
 
+  private findDrawers (e: MouseEvent): DanmakuDrawer[] {
+    return [
+      ...this.topEnables.filter(drawer => DanmakuLayer.find(e, drawer)),
+      ...this.bottomEnables.filter(drawer => DanmakuLayer.find(e, drawer)),
+      ...this.flowEnables.filter(drawer => DanmakuLayer.find(e, drawer))
+    ]
+  }
+
+  private static find (e: MouseEvent, drawer: DanmakuDrawer): boolean {
+    if (e.offsetX > drawer.left && e.offsetX < (drawer.left + drawer.width)) {
+      if (e.offsetY > drawer.top && e.offsetY < (drawer.top + drawer.height)) {
+        return true
+      }
+    }
+    return false
+  }
+
   private addDanmakuToCanvas () {
     let hasChange = false
     for (let i = 0; i < this.danmakus.length; i++) {
@@ -256,21 +181,27 @@ export class DanmakuLayer {
       hasChange = true
       this.showed.push(danmaku)
 
-      let drawer: DanmakuFixedDrawer | DanmakuFlowDrawer
+      let drawer: DanmakuFixedDrawer | DanmakuFlowDrawer | undefined
       if (danmaku.type === DanmakuType.Flow) {
         this.calcFlowTop()
-        drawer = this.flowDisables.shift() || new DanmakuFlowDrawer()
+        drawer = this.flowDisables.shift()
+        if (!drawer) {
+          drawer = new DanmakuFlowDrawer()
+        }
         drawer.set(danmaku, this.width, this.flowTop)
         // this.calcFlowTopFromDrawer(drawer)
         this.flowEnables.push(drawer)
       } else {
-        drawer = this.topAndBottomDisables.shift() || new DanmakuFixedDrawer()
+        drawer = this.topAndBottomDisables.shift()
+        if (!drawer) {
+          drawer = new DanmakuFixedDrawer()
+        }
         if (danmaku.type === DanmakuType.Top) {
-          drawer.set(danmaku, this.option.fadeoutDuration, this.width, this.topTop)
+          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, this.topTop)
           this.calcTopTop(drawer)
           this.topEnables.push(drawer)
         } else {
-          drawer.set(danmaku, this.option.fadeoutDuration, this.width, this.bottomTop)
+          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, this.bottomTop)
           this.calcBottomTop(drawer)
           this.bottomEnables.push(drawer)
         }
@@ -283,36 +214,19 @@ export class DanmakuLayer {
     }
   }
 
-  private calcFlowTopFromDrawer (drawer: DanmakuFlowDrawer) {
-    this.calcFlowTop()
-    if (drawer.enable) {
-      const height = drawer.label.top + drawer.height
-      if (height > this.height) {
-        this.flowTop = drawer.label.top = 0
-      } else {
-        if ((drawer.label.left + drawer.label.width) < this.width) {
-          this.flowTop = drawer.label.top
-        } else {
-          this.flowTop = height
-        }
-      }
-    } else if (drawer.label.top < this.flowTop) {
-      this.flowTop = drawer.label.top
-    }
-  }
-
   private calcFlowTop () {
     if (this.flowEnables.length === 0) {
       this.flowTop = 0
       return
     }
-    let top = 0
-    const lines = groupBy<DanmakuFlowDrawer>(this.flowEnables, (item) => Math.floor(item.top))
     const lineHeight = this.flowEnables[0].height
+    // 按top坐标分组
+    const lines = groupBy<DanmakuFlowDrawer>(this.flowEnables, (item) => Math.floor(item.top))
+    let top = 0
+
     for (let key in lines) {
-      const drawers: DanmakuFlowDrawer[] = sortBy(lines[key], 'top')
+      const drawers: DanmakuFlowDrawer[] = sortBy(lines[key], drawer => drawer.left + drawer.width)
       const drawer: DanmakuFlowDrawer = drawers[drawers.length - 1]
-      console.log({ key, drawer })
       if ((drawer.left + drawer.width) < this.width) {
         top = drawer.top
         break
@@ -363,7 +277,7 @@ export class DanmakuLayer {
       } else {
         this.topAndBottomDisables.push(drawer)
         this.canvas.remove(drawer.label)
-        drawer.danmaku.type === DanmakuType.Top ? this.calcTopTop(drawer) : this.calcBottomTop(drawer)
+        this.calcTopTop(drawer)
         return false
       }
     })
@@ -375,19 +289,18 @@ export class DanmakuLayer {
       } else {
         this.topAndBottomDisables.push(drawer)
         this.canvas.remove(drawer.label)
-        drawer.danmaku.type === DanmakuType.Top ? this.calcTopTop(drawer) : this.calcBottomTop(drawer)
+        this.calcBottomTop(drawer)
         return false
       }
     })
 
     this.flowEnables = this.flowEnables.filter(drawer => {
       if (drawer.enable) {
-        drawer.update(this.width, this.option.flowDuration, this.frameTime)
+        drawer.update(this.width, this.player.options.danmaku.flowDuration, this.frameTime)
         return true
       } else {
         this.flowDisables.push(drawer)
         this.canvas.remove(drawer.label)
-        this.calcFlowTopFromDrawer(drawer)
         return false
       }
     })
