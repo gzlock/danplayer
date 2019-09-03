@@ -92,6 +92,6 @@ const player = new Player($video, {
 player.fillDanmakus([danmaku,danmaku1])
 ```
 
-# <a name='sponsors'>特别鸣谢</a>
+# 特别鸣谢
 暂无
 
