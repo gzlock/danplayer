@@ -24,11 +24,13 @@ yarn run lint
 
 ### 自动播放
     
-依赖<video autoplay>属性，有autoplay属性就自动播放，没有autoplay就不会自动播放
+依赖`<video autoplay>`属性，有autoplay属性就自动播放，没有autoplay就不会自动播放
     
-### 播放资源网址
+### 配置播放资源网址
     
-如果<video src="">有src属性，则会自动使用src属性，如果创建Player的参数有赋予src，则会使用参数的src
+1. 元素属性，`<video src="">`Video网页元素有src属性，会使用src属性
+2. 参数src属性，如果创建Player的参数有赋予src，则会使用参数的src
+3. 1和2都有的情况下，会使用参数的src资源
 
 ### 添加扩展按钮(放置在控制栏右方区域，画质选项按钮 或 全屏按钮的左侧)
 
@@ -89,3 +91,7 @@ const player = new Player($video, {
 // 一次填充多条弹幕
 player.fillDanmakus([danmaku,danmaku1])
 ```
+
+# <a name='sponsors'>特别鸣谢</a>
+暂无
+
