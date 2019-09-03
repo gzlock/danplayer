@@ -26,7 +26,7 @@ class Label extends fabric.Text {
     super._render(ctx)
     if (this.borderColor) {
       const w = this.width + 4
-      const h = this.height + 4
+      const h = this.height
       ctx.strokeStyle = this.borderColor
       ctx.strokeRect(-w / 2, -h / 2, w, h)
     }
@@ -54,7 +54,7 @@ class LabelBox extends fabric.Textbox {
     super._render(ctx)
     if (this.borderColor) {
       const w = this.width + 4
-      const h = this.height + 4
+      const h = this.height
       ctx.strokeStyle = this.borderColor
       ctx.strokeRect(-w / 2, -h / 2, w, h)
     }

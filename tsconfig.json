@@ -35,6 +35,6 @@
   ],
   "exclude": [
     "node_modules",
-    "./*.md"
+    "README.md"
   ]
 }

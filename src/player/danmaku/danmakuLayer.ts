@@ -2,20 +2,41 @@ import { Player } from '@/player/player'
 import { fabric } from 'fabric'
 import { Danmaku, DanmakuType } from '@/player/danmaku/danmaku'
 import { sortBy, groupBy } from 'lodash'
-import { DanmakuDrawer, DanmakuFlowDrawer, DanmakuFixedDrawer } from './danmaku_drawer'
+import { DanmakuDrawer, DanmakuFlowDrawer, DanmakuFixedDrawer } from './danmakuDrawer'
+import { EventEmitter } from 'events'
 
 export interface DanmakuLayerOptions {
   enable: boolean
   flowDuration: number
   fadeoutDuration: number
+  contextMenu: ((d: DanmakuDrawer) => { [name: string]: () => void }) | undefined
+}
+
+const template = '<div class="content"></div><div class="buttons"><span class="copy">复制</span></div>'
+
+function MakeDanmakuDrawerMenu (d: DanmakuDrawer, menus: { [p: string]: () => void }): HTMLDivElement {
+  const $div = document.createElement('div')
+  $div.innerHTML = template
+  const $content = $div.querySelector('.content') as HTMLElement
+  $content.innerText = d.danmaku.text
+  const $buttons = $div.querySelector('.buttons') as HTMLDivElement
+  for (let key in menus) {
+    const $span = document.createElement('span')
+    $span.innerText = key
+    $span.onclick = menus[key]
+    $buttons.prepend($span)
+  }
+  const $copy = $div.querySelector('.copy')
+  return $div
 }
 
 export function MakeDanmakuLayerOptions ({
   enable = true,
   flowDuration = 8,
-  fadeoutDuration = 5
+  fadeoutDuration = 5,
+  contextMenu = undefined
 }: Partial<DanmakuLayerOptions> = {}): DanmakuLayerOptions {
-  return { enable, flowDuration, fadeoutDuration }
+  return { enable, flowDuration, fadeoutDuration, contextMenu }
 }
 
 export class DanmakuLayer {
@@ -51,8 +72,12 @@ export class DanmakuLayer {
   private calcTopInterval: number = -1
   private destroied: boolean = false
 
+  private event: EventEmitter
+
   constructor (player: Player) {
     this.player = player
+    this.event = new EventEmitter()
+
     const $canvas = this.player.$root.querySelector('.danmaku-layer') as HTMLCanvasElement
 
     this.canvas = new fabric.Canvas($canvas, {
@@ -72,23 +97,20 @@ export class DanmakuLayer {
     this.$menu = player.$root.querySelector('.float.danmaku-context-menu') as HTMLElement
 
     const hideMenu = (e: MouseEvent) => {
-      if (this.$menu === e.currentTarget || this.$menu.contains(e.currentTarget as Element)) {
-        console.log()
-      }
       this.$menu.classList.remove('show')
       document.removeEventListener('click', hideMenu)
       document.removeEventListener('contextmenu', hideMenu)
     }
     canvas.addEventListener('contextmenu', (e: MouseEvent) => {
       const found = this.findDrawers(e)
-      if (found.length > 0) {
+      if (found.length > 0 && this.player.options.danmaku.contextMenu) {
         console.log('found', found)
         this.$menu.classList.add('show')
         this.$menu.innerHTML = ''
         for (let i = 0; i < found.length; i++) {
-          const item = document.createElement('div') as HTMLDivElement
-          item.innerText = found[i].danmaku.text
-          this.$menu.append(item)
+          const drawer = found[i]
+          const menu = MakeDanmakuDrawerMenu(drawer, this.player.options.danmaku.contextMenu(drawer))
+          this.$menu.append(menu)
         }
         this.$menu.style.left = e.offsetX + 'px'
         this.$menu.style.top = e.offsetY + 'px'

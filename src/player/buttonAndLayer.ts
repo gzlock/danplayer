@@ -43,13 +43,13 @@ export class ButtonAndLayer {
 
   showLayer () {
     this._isShow = true
-    this.$layer.style.display = 'block'
+    this.$layer.classList.add('show')
     this.updateLayerPosition()
   }
 
   hideLayer () {
     this._isShow = false
-    this.$layer.style.display = ''
+    this.$layer.classList.remove('show')
   }
 
   toggleLayer () {
@@ -60,12 +60,20 @@ export class ButtonAndLayer {
     }
   }
 
+  showButton () {
+    this.$btn.style.display = ''
+  }
+
+  hideButton () {
+    this.$btn.style.display = 'none'
+  }
+
   updateLayerPosition () {
     if (!this._isShow) return
     const rootRect = this.ui.player.$root.getBoundingClientRect()
-    const rect = this.$btn.getBoundingClientRect()
+    const btnRect = this.$btn.getBoundingClientRect()
     const layerRect = this.$layer.getBoundingClientRect()
-    const left = rect.left + (rect.width / 2) - rootRect.left - layerRect.width / 2
+    const left = btnRect.left + (btnRect.width / 2) - rootRect.left - layerRect.width / 2
 
     this.$layer.style.left = left + 'px'
     this.$layer.style.bottom = this.bottomOffset + 'px'

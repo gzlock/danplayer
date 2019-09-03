@@ -3,6 +3,8 @@ import { VolumeLayer } from '@/player/volumeLayer'
 import { QualitySelector } from '@/player/qualitySelector'
 import { ProgressBar } from '@/player/progressBar'
 import { DanmakuLayer } from '@/player/danmaku/danmakuLayer'
+import { DanmakuStyleLayer } from '@/player/danmaku/danmakuStyleLayer'
+import { DanmakuForm } from '@/player/danmaku/danmakuForm'
 
 export class UI {
   qualitySelector: QualitySelector
@@ -33,6 +35,8 @@ export class UI {
 
   private volume: VolumeLayer
   private progressBar: ProgressBar
+  styleLayer: DanmakuStyleLayer
+  danmakuForm: DanmakuForm
 
   // 右边按钮区别
   private $controllerButtonsRightLayout: Element
@@ -53,6 +57,8 @@ export class UI {
     this.volume = new VolumeLayer(this)
     this.qualitySelector = new QualitySelector(this)
     this.progressBar = new ProgressBar(this)
+    this.styleLayer = new DanmakuStyleLayer(this)
+    this.danmakuForm = new DanmakuForm(this)
 
     this.$controllerButtonsRightLayout = this.$root.querySelector('.buttons .right') as Element
     this.$btnFullScreen = this.$root.querySelector('.button.full-screen') as Element

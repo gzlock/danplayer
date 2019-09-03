@@ -24,9 +24,9 @@
         </el-input>
       </el-form-item>
       <el-form-item label="随机填充大量弹幕">
-        <div>
-          <el-input v-model="random.timeRange"><span slot="append">秒内</span></el-input>
-          <el-input v-model="random.count"><span slot="append">条弹幕</span></el-input>
+        <div style="width: 200px">
+          <el-input v-model="random.timeRange" size="mini"><span slot="append">秒内</span></el-input>
+          <el-input v-model="random.count" size="mini"><span slot="append">条弹幕</span></el-input>
         </div>
         <el-button @click="sendRandomDanmaku" type="primary">填充弹幕！</el-button>
       </el-form-item>
@@ -41,6 +41,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Player } from '@/player/player'
 import { Danmaku } from '@/player/danmaku/danmaku'
 import { MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
+import { DanmakuDrawer } from '@/player/danmaku/danmakuDrawer'
 
 let player: Player
 const min = parseInt('4E00', 16)
@@ -56,7 +57,10 @@ export default class App extends Vue {
     sendDanmaku () {
       if (this.form.danmaku) {
         player.sendDanmaku(new Danmaku(this.form.danmaku, {
-          type: this.form.type, borderColor: 'white', currentTime: player.currentTime
+          type: this.form.type,
+          borderColor: 'white',
+          currentTime: player.currentTime,
+          id: 'myself'
         }))
       }
     }
@@ -99,7 +103,21 @@ export default class App extends Vue {
         player = new Player($e, {
           width: 600,
           volume: 0,
-          danmaku: MakeDanmakuLayerOptions({})
+          danmaku: MakeDanmakuLayerOptions({
+            contextMenu: (drawer: DanmakuDrawer) => {
+              const items: any = {}
+              if (drawer.danmaku.id === 'myself') { // 自己的弹幕
+                items['撤回'] = () => {
+                  alert('弹幕内容：' + drawer.danmaku.text)
+                }
+              } else { // 别人的弹幕
+                items['举报'] = () => {
+                  alert('举报内容：' + drawer.danmaku.text)
+                }
+              }
+              return items
+            }
+          })
           // src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
         })
         console.log('player 配置', player.options)

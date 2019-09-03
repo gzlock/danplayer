@@ -19,15 +19,19 @@ export interface DanmakuOptions {
   type: DanmakuType
   borderColor: string
   fill: string
+  id: string | number
+  fontSize: string | number,
 }
 
 export function MakeDanmakuOptions ({
   currentTime = 0,
   borderColor = '',
   fill = 'white',
-  type = DanmakuType.Flow
+  type = DanmakuType.Flow,
+  id = '',
+  fontSize = 28
 }: Partial<DanmakuOptions>): DanmakuOptions {
-  return { currentTime, type, borderColor, fill }
+  return { currentTime, type, borderColor, fill, id, fontSize }
 }
 
 export class Danmaku implements DanmakuOptions {
@@ -36,9 +40,12 @@ export class Danmaku implements DanmakuOptions {
   currentTime!: number
   fill!: string
   type!: DanmakuType
+  id!: string
+  fontSize!: string | number
 
   constructor (text: string, options?: Partial<DanmakuOptions>) {
     this.text = text
     Object.assign(this, MakeDanmakuOptions(options || {}))
+    console.log('danmaku', this)
   }
 }

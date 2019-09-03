@@ -9,6 +9,7 @@ const template = `{video-layer}
   <canvas class="danmaku-layer"></canvas>
   <div class="bg-gradient show"></div>
   <div class="float danmaku-context-menu" tabIndex="2"></div>
+  <div class="float danmaku-style-layer"></div>
   <div class="float volume-bar">
     <div class="volume-num-label"></div>
     <div class="volume-column-bar">
@@ -34,8 +35,10 @@ const template = `{video-layer}
           data-on="&#xe697;" data-off="&#xe696;" 
           data-on-title="显示弹幕" data-off-title="隐藏弹幕">&#xe696;</div>
       </div>
+      
       <div class="middle danmaku_form">
-        <input>
+        <div class="button intern-button danmaku-style">&#xe6a1;</div>
+        <input placeholder="输入弹幕内容">
         <button>发送</button>
       </div>
       <div class="right">
@@ -59,9 +62,10 @@ interface PlayerOptions extends Object {
   // 音量
   volume: number
 
-  // 视频控制条隐藏的时间
+  // ui 的隐藏时间
   uiFadeOutDelay: number
 
+  // 视频寸尺
   width: number | string
   height: number | string
 
@@ -71,7 +75,12 @@ interface PlayerOptions extends Object {
   // 扩展按钮
   extraButtons: Element[]
 
+  // 弹幕层的配置
   danmaku: DanmakuLayerOptions
+
+  fullScreen: boolean
+
+  danmakuForm: boolean
 
   onlyOne: boolean
 }
@@ -84,19 +93,23 @@ function MakeDefaultOptions ({
   uiFadeOutDelay = 3000,
   extraButtons = [],
   src = '',
+  danmakuForm = true,
+  fullScreen = true,
   danmaku = MakeDanmakuLayerOptions(),
   onlyOne = false
 }: Partial<PlayerOptions>): PlayerOptions {
   return {
     live,
-    volume,
-    width,
     height,
+    danmaku,
+    danmakuForm,
+    fullScreen,
     src,
     uiFadeOutDelay,
     extraButtons,
-    danmaku,
-    onlyOne
+    onlyOne,
+    volume,
+    width
   }
 }
 
@@ -105,7 +118,6 @@ export class Player {
   $root: HTMLElement
   $video: HTMLVideoElement
   hls?: Hls
-  private _fontSize: number = 16
   public ui: UI
 
   // 尺寸
@@ -139,7 +151,6 @@ export class Player {
     $e.remove()
 
     this.$root.addEventListener('keypress', (e: KeyboardEvent) => {
-      console.log('空格', e)
       if (e.key !== ' ') return
       if (this.$video.paused) {
         this.$video.play()
@@ -261,6 +272,11 @@ export class Player {
     this.ui.danmakuLayer.send(danmaku)
   }
 
+  sendDanmakuWithStyle (danmaku: Danmaku) {
+    Object.assign(danmaku, this.ui.styleLayer.getStyle())
+    this.ui.danmakuLayer.send(danmaku)
+  }
+
   get paused () {
     return this.$video.paused
   }
@@ -332,8 +348,10 @@ export class Player {
     this.isFullScreen = !this.isFullScreen
     if (this.isFullScreen) {
       await this.$root.requestFullscreen()
+      this.ui.danmakuForm.show()
     } else {
       await document.exitFullscreen()
+      this.ui.danmakuForm.hide()
     }
     this.resize()
   }
