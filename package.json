@@ -17,7 +17,6 @@
     "vue-property-decorator": "^8.1.0"
   },
   "devDependencies": {
-    "@types/fabric": "^3.0.1",
     "@types/hls.js": "^0.12.4",
     "@types/lodash": "^4.14.138",
     "@vue/cli-plugin-babel": "^3.11.0",
@@ -27,16 +26,15 @@
     "@vue/eslint-config-standard": "^4.0.0",
     "@vue/eslint-config-typescript": "^4.0.0",
     "babel-eslint": "^10.0.1",
+    "element-ui": "^2.12.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "fabric": "^3.4.0",
     "lint-staged": "^8.1.5",
     "lodash": "^4.17.15",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.1.0",
     "typescript": "^3.4.3",
-    "vue-template-compiler": "^2.6.10",
-    "element-ui": "^2.12.0"
+    "vue-template-compiler": "^2.6.10"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

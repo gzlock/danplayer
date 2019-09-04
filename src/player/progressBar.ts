@@ -4,7 +4,7 @@ import { UI } from '@/player/UI'
 export class ProgressBar {
   private player: Player
   private ui: UI
-  private $bar: HTMLElement
+  private $root: HTMLElement
   private $controller: HTMLElement
   private $current: HTMLElement
   private $buffer: HTMLElement
@@ -12,15 +12,18 @@ export class ProgressBar {
   private barWidth!: number
   private _currentTime = 0
   private percent = 0
+  private offsetWidth = 0
 
   constructor (ui: UI) {
     this.player = ui.player
     this.ui = ui
-    this.$bar = this.player.$root.querySelector('.progress-bar') as HTMLElement
-    this.$controller = this.$bar.querySelector('.bar-controller') as HTMLElement
-    this.$current = this.$bar.querySelector('.bar-current') as HTMLElement
-    this.$buffer = this.$bar.querySelector('.bar-buffer') as HTMLElement
-    this.resize()
+    this.$root = this.player.$root.querySelector('.progress-bar') as HTMLElement
+    this.$controller = this.$root.querySelector('.bar-controller') as HTMLElement
+    this.$current = this.$root.querySelector('.bar-current') as HTMLElement
+
+    this.$controller.style.background = this.$current.style.background = this.player.options.color
+
+    this.$buffer = this.$root.querySelector('.bar-buffer') as HTMLElement
     this.player.$video.addEventListener('timeupdate', () => {
       this._currentTime = this.player.$video.currentTime
       this.percent = this._currentTime / this.player.$video.duration
@@ -31,7 +34,7 @@ export class ProgressBar {
     })
 
     const mouseMoveChangeTime = (e: MouseEvent) => {
-      const barRect = this.$bar.getBoundingClientRect()
+      const barRect = this.$root.getBoundingClientRect()
       this.percent = (e.pageX - barRect.left) / barRect.width
       if (e.pageX < barRect.left) {
         this.player.$video.currentTime = 0
@@ -47,26 +50,20 @@ export class ProgressBar {
       document.removeEventListener('mousemove', mouseMoveChangeTime)
       document.removeEventListener('mouseup', mouseup)
     }
-    this.$bar.addEventListener('mousedown', () => {
+    this.$root.addEventListener('mousedown', () => {
       document.addEventListener('mousemove', mouseMoveChangeTime)
       document.addEventListener('mouseup', mouseup)
     })
 
-    this.$bar.addEventListener('click', mouseMoveChangeTime)
-  }
+    this.$root.addEventListener('click', mouseMoveChangeTime)
 
-  set currentTime (duration: number) {
-    this._currentTime = duration
-    this.update()
-  }
-
-  get currentTime () {
-    return this._currentTime
+    this.offsetWidth = this.player.width - this.$root.clientWidth
+    this.resize()
   }
 
   resize () {
-    this.barWidth = this.$bar.clientWidth
-    console.log('进度条', this.barWidth)
+    this.barWidth = this.player.width - this.offsetWidth
+    console.log('进度条 长度', this.barWidth, this.$root)
     this.update()
     this.updateBufferBar()
   }

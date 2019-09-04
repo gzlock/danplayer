@@ -30,6 +30,10 @@
         </div>
         <el-button @click="sendRandomDanmaku" type="primary">填充弹幕！</el-button>
       </el-form-item>
+      <el-form-item label="中途改变视频网址">
+        <el-input v-model="form.src"/>
+        <el-button @click="setSrc">设置</el-button>
+      </el-form-item>
     </el-form>
     <h3>Debug信息</h3>
     <pre>{{info}}</pre>
@@ -50,7 +54,13 @@ let updateInterval: number = -1
 
   @Component
 export default class App extends Vue {
-    private form = { danmaku: '', flowDuration: 1, fadeoutDuration: 1, type: 1 }
+    private form = {
+      danmaku: '',
+      flowDuration: 1,
+      fadeoutDuration: 1,
+      type: 1,
+      src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8'
+    }
     private random = { count: 100, timeRange: 10 }
     private info = ''
 
@@ -72,6 +82,10 @@ export default class App extends Vue {
     set flowDuration (val: number) {
       this.form.flowDuration = val
       player.options.danmaku.flowDuration = val
+    }
+
+    setSrc () {
+      player.set({ src: this.form.src })
     }
 
     sendRandomDanmaku () {
@@ -118,7 +132,6 @@ export default class App extends Vue {
               return items
             }
           })
-          // src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
         })
         console.log('player 配置', player.options)
         this.form.flowDuration = player.options.danmaku.flowDuration

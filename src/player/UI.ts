@@ -5,6 +5,7 @@ import { ProgressBar } from '@/player/progressBar'
 import { DanmakuLayer } from '@/player/danmaku/danmakuLayer'
 import { DanmakuStyleLayer } from '@/player/danmaku/danmakuStyleLayer'
 import { DanmakuForm } from '@/player/danmaku/danmakuForm'
+import { Canvas } from '@/player/danmaku/canvas'
 
 export class UI {
   qualitySelector: QualitySelector
@@ -34,7 +35,7 @@ export class UI {
   private extraButtons: Element[] = []
 
   private volume: VolumeLayer
-  private progressBar: ProgressBar
+  progressBar: ProgressBar
   styleLayer: DanmakuStyleLayer
   danmakuForm: DanmakuForm
 

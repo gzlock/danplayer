@@ -7,9 +7,13 @@ import { MakeDanmakuLayerOptions, DanmakuLayerOptions } from '@/player/danmaku/d
 const template = `{video-layer}
 <div class="interactive-layer">
   <canvas class="danmaku-layer"></canvas>
+  
   <div class="bg-gradient show"></div>
+  
   <div class="float danmaku-context-menu" tabIndex="2"></div>
+  
   <div class="float danmaku-style-layer"></div>
+  
   <div class="float volume-bar">
     <div class="volume-num-label"></div>
     <div class="volume-column-bar">
@@ -18,7 +22,9 @@ const template = `{video-layer}
       <div class="bar-controller"></div>
     </div>
   </div>
+  
   <div class="float quality-menu"></div>
+  
   <div class="controller-bottom-bar">
     <div class="progress-bar live-hide">
       <div class="bar-full"></div>
@@ -26,6 +32,7 @@ const template = `{video-layer}
       <div class="bar-current"></div>
       <div class="bar-controller"></div>    
     </div>
+    
     <div class="buttons">
       <div class="left">
         <div class="button intern-button play" data-on="&#xe6a4;" data-off="&#xe6a5;"
@@ -52,15 +59,14 @@ const template = `{video-layer}
 interface PlayerOptions extends Object {
   /**
    * 直播模式
-   * 弹幕使用 {@link Danmaku} 不携带发视频当前的播放进度
-   *
-   * 普通视频模式
-   * 弹幕使用 {@link Danmaku} 携带弹幕视频当前的播放进度 {@see DanmakuOptions#currentTime}
+   * 没有进度条
    */
   live: boolean
 
   // 音量
   volume: number
+
+  autoplay: boolean,
 
   // ui 的隐藏时间
   uiFadeOutDelay: number
@@ -83,9 +89,13 @@ interface PlayerOptions extends Object {
   danmakuForm: boolean
 
   onlyOne: boolean
+
+  color: string
 }
 
 function MakeDefaultOptions ({
+  autoplay = false,
+  color = '#00a1d6',
   live = false,
   volume = 0.7,
   width = 600,
@@ -99,6 +109,8 @@ function MakeDefaultOptions ({
   onlyOne = false
 }: Partial<PlayerOptions>): PlayerOptions {
   return {
+    autoplay,
+    color,
     live,
     height,
     danmaku,
@@ -135,6 +147,12 @@ export class Player {
   private isFullScreen: boolean = false
 
   private _duration: number = 0
+  private _loading = true
+  private _paused = true
+
+  get loading () {
+    return this._loading
+  }
 
   public options: PlayerOptions
 
@@ -195,7 +213,7 @@ export class Player {
 
     window.addEventListener('resize', () => this.resizeEvt(1000))
 
-    this.options = MakeDefaultOptions(options || {})
+    this.options = MakeDefaultOptions(options || { autoplay: this.$video.hasAttribute('autoplay') })
 
     this.ui = new UI(this)
 
@@ -217,11 +235,28 @@ export class Player {
       })
     }
 
+    console.log('_set', { autoplay: this.options.autoplay, paused: this._paused })
+    if (this.options.autoplay || !this.paused) {
+      console.log('_set 播放')
+      this.play()
+    }
+
+    this.ui.updatePlayButton()
+
     this.resize()
   }
 
   set (options: Partial<PlayerOptions>) {
-    this.options = MakeDefaultOptions(options)
+    const newOptions = Object.assign({}, this.options, options)
+    const hasSrcChanged = newOptions.src !== this.options.src
+    if (hasSrcChanged) {
+      if (this.hls) {
+        this.hls.detachMedia()
+        this.hls = undefined
+      }
+      this.ui.progressBar.resize()
+    }
+    this.options = newOptions
     this._set().then()
   }
 
@@ -278,7 +313,7 @@ export class Player {
   }
 
   get paused () {
-    return this.$video.paused
+    return this._paused
   }
 
   toggle () {
@@ -290,10 +325,13 @@ export class Player {
   }
 
   play () {
+    console.warn('player')
+    this._paused = false
     this.$video.play().then()
     if (this.options.onlyOne) {
       Player.instances.forEach(player => {
         if (player !== this) {
+          console.log('暂停其它实例')
           player.pause()
         }
       })
@@ -301,6 +339,8 @@ export class Player {
   }
 
   pause () {
+    console.warn('pause')
+    this._paused = true
     this.$video.pause()
   }
 
@@ -310,6 +350,7 @@ export class Player {
     console.log('视频网址', src)
     if (src) {
       useHLS = !!src.match(/\.m3u[8]/)
+      this.options.src = src
     }
     if (useHLS) {
       console.log('使用Hls.js')
@@ -335,7 +376,7 @@ export class Player {
         })
         console.log({ contentType })
         if (contentType && this.$video.canPlayType(contentType)) {
-          this.$video.src = src
+          this.options.src = this.$video.src = src
         }
       }
     }
@@ -365,14 +406,16 @@ export class Player {
 
   get debug (): Object {
     let quality = '默认'
-    let src = this.$video.src
+    let src = this.options.src
     if (this.hls) {
       if (this.ui.qualitySelector.currentLevel === -1) {
         quality = '自动 '
       } else {
         quality = ''
       }
-      quality += this.hls.levels[this.hls.currentLevel].name + 'P'
+      if (this.hls.currentLevel !== -1) {
+        quality += this.hls.levels[this.hls.currentLevel].name + 'P'
+      }
     }
     return {
       width: this.width,

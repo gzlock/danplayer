@@ -26,7 +26,7 @@ export interface DanmakuOptions {
 export function MakeDanmakuOptions ({
   currentTime = 0,
   borderColor = '',
-  fill = 'white',
+  fill = '#ffffff',
   type = DanmakuType.Flow,
   id = '',
   fontSize = 28
