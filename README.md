@@ -1,4 +1,6 @@
-![logo](./logo.png)
+<p align="center">
+<img src="./logo.png" alt="DanPlayer" width="100">
+</p>
 
 # 弹幕播放器
 
