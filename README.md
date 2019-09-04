@@ -4,6 +4,9 @@
 
 # 弹幕播放器
 
+- 使用Canvas绘制弹幕
+- 丰富的自定义选项
+
 ## 安装依赖
 ```
 yarn install
@@ -28,15 +31,16 @@ yarn run lint
 
 ### 自动播放
     
-依赖`<video autoplay>`属性，有autoplay属性就自动播放，没有autoplay就不会自动播放
+1. video元素的autoplay属性 `<video autoplay>`
+2. 配置参数的autoplay字段
     
 ### 配置播放资源网址
     
-1. 元素属性，`<video src="">`Video网页元素有src属性，会使用src属性
-2. 参数src属性，如果创建Player的参数有赋予src，则会使用参数的src
+1. video元素的src属性 `<video src="">`
+2. 配置参数的src字段
 3. 1和2都有的情况下，会使用参数的src资源
 
-### 添加扩展按钮(放置在控制栏右方区域，画质选项按钮 或 全屏按钮的左侧)
+### 添加自定义按钮(放置在控制栏右方区域，画质选项按钮 或 全屏按钮的左侧)
 
 ```typescript
 import Player from './src/player/player'
