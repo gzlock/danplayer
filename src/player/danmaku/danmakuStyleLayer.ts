@@ -5,9 +5,9 @@ import { DanmakuOptions, DanmakuType, MakeDanmakuOptions } from '@/player/danmak
 const template =
   `<div>类型
 <div class="types">
-  <div class="type" data-type="1"><div><icon>&#xe69f;</icon></div>流动</div>
-  <div class="type" data-type="0"><div><icon>&#xe69b;</icon></div>顶部</div>
-  <div class="type" data-type="2"><div><icon>&#xe69d;</icon></div>底部</div>
+  <div class="type" data-type="1"><div><svg class="icon"><use xlink:href="#danplayer-danmugundongkai"></use></svg></div>流动</div>
+  <div class="type" data-type="0"><div><svg class="icon"><use xlink:href="#danplayer-danmudingbukai"></use></svg></div>顶部</div>
+  <div class="type" data-type="2"><div><svg class="icon"><use xlink:href="#danplayer-danmudibukai"></use></svg></div>底部</div>
 </div>
 </div>
 <div>颜色

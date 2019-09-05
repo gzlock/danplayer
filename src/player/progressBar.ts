@@ -4,12 +4,13 @@ import { UI } from '@/player/UI'
 export class ProgressBar {
   private player: Player
   private ui: UI
-  private $root: HTMLElement
+  private readonly $root: HTMLElement
   private $controller: HTMLElement
   private $current: HTMLElement
   private $buffer: HTMLElement
+  private $time: HTMLElement
 
-  private barWidth!: number
+  private barWidth: number = 0
   private _currentTime = 0
   private percent = 0
   private offsetWidth = 0
@@ -20,6 +21,7 @@ export class ProgressBar {
     this.$root = this.player.$root.querySelector('.progress-bar') as HTMLElement
     this.$controller = this.$root.querySelector('.bar-controller') as HTMLElement
     this.$current = this.$root.querySelector('.bar-current') as HTMLElement
+    this.$time = this.player.$root.querySelector('.controller-bottom-bar .time') as HTMLElement
 
     this.$controller.style.background = this.$current.style.background = this.player.options.color
 
@@ -27,22 +29,23 @@ export class ProgressBar {
     this.player.$video.addEventListener('timeupdate', () => {
       this._currentTime = this.player.$video.currentTime
       this.percent = this._currentTime / this.player.$video.duration
+      this.time()
       this.update()
     })
     this.player.$video.addEventListener('progress', () => {
       this.updateBufferBar()
+      this.time()
     })
-
     const mouseMoveChangeTime = (e: MouseEvent) => {
-      const barRect = this.$root.getBoundingClientRect()
-      this.percent = (e.pageX - barRect.left) / barRect.width
-      if (e.pageX < barRect.left) {
-        this.player.$video.currentTime = 0
-      } else if (e.pageX > barRect.right) {
-        this.player.$video.currentTime = this.player.$video.duration
-      } else {
-        this.player.$video.currentTime = this.percent * this.player.$video.duration
+      const playerRect = this.player.$root.getBoundingClientRect()
+      let x = e.pageX - playerRect.left - this.offsetWidth / 2
+      if (x < 0) {
+        x = 0
+      } else if (x > this.barWidth) {
+        x = this.barWidth
       }
+      this.percent = x / this.barWidth
+      this.player.$video.currentTime = this.percent * this.player.$video.duration
       this.update()
       this.ui.isMouseInUI = true
     }
@@ -61,9 +64,42 @@ export class ProgressBar {
     this.resize()
   }
 
+  private time () {
+    if (this.player.options.live) return
+    this.$time.innerText = ProgressBar.getTimeString(this.player.$video.currentTime) +
+      ' / ' + ProgressBar.getTimeString(this.player.$video.duration)
+  }
+
+  private static getTimeString (s: number): string {
+    let time = []
+    // 小时
+    let temp: string | number = Math.floor(s / (60 * 60))
+    if (temp > 0) {
+      if (temp.toString().length === 1) {
+        temp = '0' + temp
+      }
+      time.push(temp)
+    }
+
+    // 分
+    temp = Math.floor(s / 60) - Math.floor(s / 3600) * 60
+    if (temp.toString().length === 1) {
+      temp = '0' + temp
+    }
+    time.push(temp)
+
+    // 秒
+    temp = Math.floor(s) - Math.floor(s / 60) * 60
+    if (temp.toString().length === 1) {
+      temp = '0' + temp
+    }
+    time.push(temp)
+    return time.join(':')
+  }
+
   resize () {
     this.barWidth = this.player.width - this.offsetWidth
-    console.log('进度条 长度', this.barWidth, this.$root)
+    // console.log('进度条 长度', this.barWidth, this.$root)
     this.update()
     this.updateBufferBar()
   }
@@ -72,6 +108,14 @@ export class ProgressBar {
     const x = this.barWidth * this.percent
     this.$current.style.width = x + 'px'
     this.$controller.style.transform = `translateX(${x}px)`
+  }
+
+  resetTimeZone () {
+    if (this.player.options.live) {
+      this.$time.innerText = '直播'
+    } else {
+      this.$time.innerText = ''
+    }
   }
 
   updateBufferBar () {

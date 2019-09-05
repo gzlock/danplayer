@@ -46,6 +46,5 @@ export class Danmaku implements DanmakuOptions {
   constructor (text: string, options?: Partial<DanmakuOptions>) {
     this.text = text
     Object.assign(this, MakeDanmakuOptions(options || {}))
-    console.log('danmaku', this)
   }
 }

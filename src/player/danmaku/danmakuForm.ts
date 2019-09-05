@@ -32,7 +32,6 @@ export class DanmakuForm {
   }
 
   send () {
-    console.log('发弹幕')
     if (this.$input.value) {
       const options = this.styleLayer.getStyle()
       options.currentTime = this.ui.player.currentTime

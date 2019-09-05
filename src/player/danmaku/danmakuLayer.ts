@@ -6,6 +6,7 @@ import { EventEmitter } from 'events'
 import { Canvas } from '@/player/danmaku/canvas'
 
 export interface DanmakuLayerOptions {
+  alpha: number
   enable: boolean
   flowDuration: number
   fadeoutDuration: number
@@ -14,7 +15,7 @@ export interface DanmakuLayerOptions {
 
 const template = '<div class="content"></div><div class="buttons"><span class="copy">复制</span></div>'
 
-function MakeDanmakuDrawerMenu (d: DanmakuDrawer, menus: { [p: string]: () => void }): HTMLDivElement {
+function MakeDanmakuDrawerMenu (d: DanmakuDrawer, menus: { [p: string]: () => void }, copyFn: (text: string) => void): HTMLDivElement {
   const $div = document.createElement('div')
   $div.innerHTML = template
   const $content = $div.querySelector('.content') as HTMLElement
@@ -26,23 +27,28 @@ function MakeDanmakuDrawerMenu (d: DanmakuDrawer, menus: { [p: string]: () => vo
     $span.onclick = menus[key]
     $buttons.prepend($span)
   }
-  const $copy = $div.querySelector('.copy')
+  const $copy = $div.querySelector('.copy') as HTMLElement
+  if ($copy) {
+    $copy.addEventListener('click', () => copyFn(d.danmaku.text))
+  }
+
   return $div
 }
 
 export function MakeDanmakuLayerOptions ({
+  alpha = 1,
   enable = true,
   flowDuration = 8,
   fadeoutDuration = 5,
   contextMenu = undefined
 }: Partial<DanmakuLayerOptions> = {}): DanmakuLayerOptions {
-  return { enable, flowDuration, fadeoutDuration, contextMenu }
+  return { alpha, enable, flowDuration, fadeoutDuration, contextMenu }
 }
 
 export class DanmakuLayer {
   private player: Player
   private readonly canvas: Canvas
-  private $menu: HTMLElement
+  private $menu!: HTMLElement
 
   // 弹幕内容池
   danmakus: Danmaku[] = []
@@ -61,8 +67,8 @@ export class DanmakuLayer {
 
   // 上一帧的生成时间
   private frameTime: number = 0
-  // 最后一帧
-  private lastFrame: number = Date.now()
+  // 计算弹幕坐标的时间
+  private calcDanmakuTime: number = 0
 
   isShow = true
 
@@ -72,42 +78,44 @@ export class DanmakuLayer {
   private destroied: boolean = false
 
   private event: EventEmitter
+  private addDanmakuToCanvasTime: number = 0
+  private lastFrame: number = 0
 
   constructor (player: Player) {
     this.player = player
     this.event = new EventEmitter()
 
     this.canvas = new Canvas(player)
-    // @ts-ignore
-    window.canvas = this.canvas
-    DanmakuDrawer.canvas = this.canvas
 
-    this.$menu = player.$root.querySelector('.float.danmaku-context-menu') as HTMLElement
+    DanmakuDrawer.drawCanvas = this.canvas
 
     const hideMenu = () => {
-      this.$menu.classList.remove('show')
       document.removeEventListener('click', hideMenu)
       document.removeEventListener('contextmenu', hideMenu)
+      this.$menu.remove()
     }
 
     this.canvas.$canvas.addEventListener('contextmenu', (e: MouseEvent) => {
       const found = this.findDrawers(e)
-      if (found.length > 0 && this.player.options.danmaku.contextMenu) {
-        console.log('found', found)
-        this.$menu.classList.add('show')
-        this.$menu.innerHTML = ''
-        for (let i = 0; i < found.length; i++) {
-          const drawer = found[i]
-          const menu = MakeDanmakuDrawerMenu(drawer, this.player.options.danmaku.contextMenu(drawer))
-          this.$menu.append(menu)
+      if (found.length > 0) {
+        this.createDanmakuMenu(found)
+
+        let x = e.pageX
+        let y = e.pageY
+        const right = e.clientX + this.$menu.clientWidth
+        const bottom = e.clientY + this.$menu.clientHeight
+
+        if (right > document.body.clientWidth) {
+          x -= right - document.body.clientWidth
         }
-        this.$menu.style.left = e.offsetX + 'px'
-        this.$menu.style.top = e.offsetY + 'px'
-        this.$menu.focus()
+        if (bottom > document.body.clientHeight) {
+          y -= bottom - document.body.clientHeight
+        }
+        this.$menu.style.left = x + 'px'
+        this.$menu.style.top = y + 'px'
         document.addEventListener('click', hideMenu)
+        document.addEventListener('touchstart', hideMenu)
         document.addEventListener('contextmenu', hideMenu)
-      } else {
-        this.$menu.classList.remove('show')
       }
       e.preventDefault()
       e.stopPropagation()
@@ -115,7 +123,6 @@ export class DanmakuLayer {
     })
 
     this.player.$video.addEventListener('seeked', () => {
-      // console.log('video seeked 事件')
       this.clear()
     })
 
@@ -125,6 +132,20 @@ export class DanmakuLayer {
       this.hide()
     }
     this.loop()
+  }
+
+  private createDanmakuMenu (drawers: DanmakuDrawer[]) {
+    if (this.$menu) this.$menu.remove()
+    this.$menu = document.createElement('div')
+    this.$menu.className = 'float show danmaku-context-menu'
+    for (let i = 0; i < drawers.length; i++) {
+      const drawer = drawers[i]
+      if (this.player.options.danmaku.contextMenu) {
+        const $menu = MakeDanmakuDrawerMenu(drawer, this.player.options.danmaku.contextMenu(drawer), text => this.copyText(text))
+        this.$menu.append($menu)
+      }
+    }
+    document.body.append(this.$menu)
   }
 
   show () {
@@ -139,6 +160,7 @@ export class DanmakuLayer {
   clear () {
     this.showed.length = 0
     this.canvas.clear()
+    this.canvas.clearCache()
     this.topAndBottomDisables.push(...this.topEnables)
     this.topEnables.length = 0
     this.flowDisables.push(...this.flowEnables)
@@ -190,8 +212,13 @@ export class DanmakuLayer {
       hasChange = true
       this.showed.push(danmaku)
 
+      let top
       if (danmaku.type === DanmakuType.Flow) {
-        this.calcFlowTop()
+        top = this.calcFlowTop()
+        // 控制弹幕数据，但确保发弹幕的人看到自己的弹幕
+        if (top === -1 && !danmaku.borderColor) {
+          continue
+        }
         let drawer = this.flowDisables.shift()
         if (!drawer) {
           drawer = new DanmakuFlowDrawer()
@@ -199,29 +226,48 @@ export class DanmakuLayer {
         drawer.set(danmaku, this.width, this.flowTop)
         this.flowEnables.push(drawer)
         this.canvas.addDrawer(drawer)
+        drawer.update(this.width, this.player.options.danmaku.flowDuration, 0)
       } else {
         let drawer = this.topAndBottomDisables.shift()
         if (!drawer) {
           drawer = new DanmakuFixedDrawer()
         }
         if (danmaku.type === DanmakuType.Top) {
-          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, this.topTop)
-          this.calcTopTop(drawer)
+          top = this.calcTopTop(drawer)
+          if (top === -1 && !danmaku.borderColor) {
+            continue
+          }
+          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
           this.topEnables.push(drawer)
         } else {
-          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, this.bottomTop)
-          this.calcBottomTop(drawer)
+          top = this.calcBottomTop(drawer)
+          if (top === -1 && !danmaku.borderColor) {
+            continue
+          }
+          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
           this.bottomEnables.push(drawer)
         }
+        drawer.update(0)
         this.canvas.addDrawer(drawer)
       }
+      this.canvas.renderAll(this.player.options.danmaku.alpha)
     }
   }
 
-  private calcFlowTop () {
+  $input!: HTMLInputElement
+
+  copyText (text: string) {
+    if (!this.$input) {
+      this.$input = this.player.$root.querySelector('input.copy-tool') as HTMLInputElement
+    }
+    this.$input.value = text
+    this.$input.select()
+    document.execCommand('copy')
+  }
+
+  private calcFlowTop (): number {
     if (this.flowEnables.length === 0) {
-      this.flowTop = 0
-      return
+      return -1
     }
     const lineHeight = this.flowEnables[0].height
     // 按top坐标分组
@@ -240,34 +286,37 @@ export class DanmakuLayer {
     }
     if (top + lineHeight > this.height) {
       console.log('高度超出画布')
-      top = 0
+      top = -1
     }
-    console.log({ lineHeight, top, flowTop: this.flowTop })
-    this.flowTop = top
+    return -1
   }
 
-  private calcTopTop (drawer: DanmakuFixedDrawer) {
+  private calcTopTop (drawer: DanmakuFixedDrawer): number {
+    let top = -1
     if (drawer.enable) {
       const height = drawer.top + drawer.height
       if (height > this.height) {
         this.topTop = drawer.top = 0
       } else {
-        this.topTop = height
+        top = this.topTop = height
       }
     } else if (drawer.top < this.topTop) {
-      this.topTop = drawer.top
+      top = this.topTop = drawer.top
     }
+    return top
   }
 
-  private calcBottomTop (drawer: DanmakuFixedDrawer) {
+  private calcBottomTop (drawer: DanmakuFixedDrawer): number {
+    let top = -1
     if (drawer.enable) {
       if (drawer.top <= 0) {
         drawer.top = this.height - drawer.height
       }
-      this.bottomTop = drawer.top - drawer.height
+      top = this.bottomTop = drawer.top - drawer.height
     } else if (drawer.top > this.bottomTop) {
-      this.bottomTop = drawer.top
+      top = this.bottomTop = drawer.top
     }
+    return top
   }
 
   /**
@@ -308,27 +357,33 @@ export class DanmakuLayer {
         return false
       }
     })
-
-    if (!this.player.paused && this.isShow) {
-      this.canvas.renderAll()
-    }
   }
 
   private loop () {
     if (this.destroied) return
     this.addDanmakuToCanvas()
+    this.addDanmakuToCanvasTime = (Date.now() - this.lastFrame) / 1000
     if (!this.player.paused) {
       this.drawDanmaku()
+      this.calcDanmakuTime = (Date.now() - this.lastFrame) / 1000
+
+      if (this.isShow) {
+        this.canvas.renderAll(this.player.options.danmaku.alpha)
+      } else {
+        this.canvas.clear()
+      }
     }
     this.frameTime = (Date.now() - this.lastFrame) / 1000
     this.lastFrame = Date.now()
-
     window.requestAnimationFrame(() => { this.loop() })
   }
 
   destroy () {
     this.destroied = true
     clearInterval(this.calcTopInterval)
+    if (this.$menu) {
+      this.$menu.remove()
+    }
   }
 
   get debug (): Object {
@@ -336,6 +391,12 @@ export class DanmakuLayer {
       isShow: this.isShow,
       all: this.danmakus.length,
       showed: this.showed.length,
+      // 耗时
+      time: {
+        addDanmakuToCanvas: this.addDanmakuToCanvasTime,
+        drawDanmaku: this.calcDanmakuTime,
+        frameTime: this.frameTime
+      },
       fixed: {
         top: this.topEnables.length,
         bottom: this.bottomEnables.length,

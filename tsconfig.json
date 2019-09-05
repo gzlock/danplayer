@@ -34,7 +34,6 @@
     "tests/**/*.tsx"
   ],
   "exclude": [
-    "node_modules",
-    "README.md"
+    "node_modules"
   ]
 }

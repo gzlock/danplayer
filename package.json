@@ -1,5 +1,5 @@
 {
-  "name": "noname-player",
+  "name": "danplayer",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -34,7 +34,8 @@
     "node-sass": "^4.9.0",
     "sass-loader": "^7.1.0",
     "typescript": "^3.4.3",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "worker-loader": "^2.0.0"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

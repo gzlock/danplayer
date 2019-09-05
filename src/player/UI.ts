@@ -5,36 +5,26 @@ import { ProgressBar } from '@/player/progressBar'
 import { DanmakuLayer } from '@/player/danmaku/danmakuLayer'
 import { DanmakuStyleLayer } from '@/player/danmaku/danmakuStyleLayer'
 import { DanmakuForm } from '@/player/danmaku/danmakuForm'
-import { Canvas } from '@/player/danmaku/canvas'
+import { IconButton } from '@/player/IconButton'
 
 export class UI {
   qualitySelector: QualitySelector
 
   private _isMouseInUI: boolean = false
   danmakuLayer: DanmakuLayer
-
-  set isMouseInUI (val: boolean) {
-    this._isMouseInUI = val
-    this.cancelHideUIDelay()
-  }
-
-  get isMouseInUI () {
-    return this._isMouseInUI
-  }
-
   player: Player
   isShow: boolean = false
 
   private $root: HTMLElement
 
   // 控制器按钮
-  private $btnPlay: Element
-  private $btnFullScreen: Element
-  private $btnShowDanmaku: Element
+  private btnPlay: IconButton
+  private btnFullScreen: IconButton
+  private btnShowDanmaku: IconButton
   private $gradientBG: HTMLElement
   private extraButtons: Element[] = []
 
-  private volume: VolumeLayer
+  volume: VolumeLayer
   progressBar: ProgressBar
   styleLayer: DanmakuStyleLayer
   danmakuForm: DanmakuForm
@@ -62,20 +52,21 @@ export class UI {
     this.danmakuForm = new DanmakuForm(this)
 
     this.$controllerButtonsRightLayout = this.$root.querySelector('.buttons .right') as Element
-    this.$btnFullScreen = this.$root.querySelector('.button.full-screen') as Element
-    this.$btnFullScreen.addEventListener('click', async () => {
+
+    this.btnFullScreen = new IconButton(this.$root.querySelector('.button.full-screen') as HTMLElement)
+    this.btnFullScreen.$root.addEventListener('click', async () => {
       await this.player.toggleFullScreen()
       this.updateFullScreenButton()
     })
 
-    this.$btnPlay = this.$root.querySelector('.button.play') as Element
-    this.$btnPlay.addEventListener('click', () => {
+    this.btnPlay = new IconButton(this.$root.querySelector('.button.play') as HTMLElement)
+    this.btnPlay.$root.addEventListener('click', () => {
       this.player.toggle()
       this.updatePlayButton()
     })
 
-    this.$btnShowDanmaku = this.$root.querySelector('.button.toggle-danamaku') as Element
-    this.$btnShowDanmaku.addEventListener('click', () => {
+    this.btnShowDanmaku = new IconButton(this.$root.querySelector('.button.toggle-danamaku') as HTMLElement)
+    this.btnShowDanmaku.$root.addEventListener('click', () => {
       this.danmakuLayer.toggle()
       this.updateDanmakuButton()
     })
@@ -85,19 +76,28 @@ export class UI {
     this.insertExtraButtons()
   }
 
-  public show () {
+  set isMouseInUI (val: boolean) {
+    this._isMouseInUI = val
+    this.cancelHideUIDelay()
+  }
+
+  get isMouseInUI () {
+    return this._isMouseInUI
+  }
+
+  show () {
     this.isShow = true
     this.$root.style.display = ''
     this.$gradientBG.classList.add('show')
   }
 
-  public hide () {
+  hide () {
     this.isShow = false
     this.$root.style.display = 'none'
     this.$gradientBG.classList.remove('show')
   }
 
-  public hideUIDelay () {
+  hideUIDelay () {
     this.cancelHideUIDelay()
     return new Promise(resolve => {
       this.hideTimeout = window.setTimeout(() => {
@@ -109,16 +109,16 @@ export class UI {
     })
   }
 
-  public cancelHideUIDelay () {
+  cancelHideUIDelay () {
     clearTimeout(this.hideTimeout)
   }
 
-  public clearExtraButtons () {
+  clearExtraButtons () {
     this.extraButtons.forEach($btn => $btn.remove())
     this.extraButtons.length = 0
   }
 
-  public insertExtraButtons () {
+  insertExtraButtons () {
     this.clearExtraButtons()
     if (this.player.options.extraButtons) {
       this.player.options.extraButtons.forEach($btn => {
@@ -130,21 +130,28 @@ export class UI {
     }
   }
 
-  updatePlayButton () {
-    let attr: string
-    let attrTitle: string
-    if (this.player.paused) {
-      attr = 'data-on'
-      attrTitle = 'data-on-title'
-    } else {
-      attr = 'data-off'
-      attrTitle = 'data-off-title'
-    }
-    this.$btnPlay.innerHTML = this.$btnPlay.getAttribute(attr) as string
-    this.$btnPlay.setAttribute('title', this.$btnPlay.getAttribute(attrTitle) as string)
+  update () {
+    this.updateDanmakuButton()
+    this.updateFullScreenButton()
+    this.updatePlayButton()
   }
 
-  private updateFullScreenButton () {}
+  updatePlayButton () {
+    if (this.player.paused) {
+      this.btnPlay.switch('data-on', 'data-on-title')
+    } else {
+      this.btnPlay.switch('data-off', 'data-off-title')
+    }
+  }
+
+  private updateFullScreenButton () {
+    console.log('全屏', this.player.isFullScreen)
+    if (this.player.isFullScreen) {
+      this.btnFullScreen.switch('data-off', 'data-off-title')
+    } else {
+      this.btnFullScreen.switch('data-on', 'data-on-title')
+    }
+  }
 
   private updateDanmakuButton () {
     let attr: string
@@ -156,8 +163,7 @@ export class UI {
       attr = 'data-on'
       title = 'data-on-title'
     }
-    this.$btnShowDanmaku.innerHTML = this.$btnShowDanmaku.getAttribute(attr) as string
-    this.$btnShowDanmaku.setAttribute('title', this.$btnShowDanmaku.getAttribute(title) as string)
+    this.btnShowDanmaku.switch(attr, title)
   }
 
   resize () {

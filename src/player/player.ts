@@ -1,16 +1,18 @@
 import './style.scss'
 import Hls from 'hls.js'
-import { Danmaku, DanmakuOptions } from '@/player/danmaku/danmaku'
+import { Danmaku } from '@/player/danmaku/danmaku'
 import { UI } from '@/player/UI'
-import { MakeDanmakuLayerOptions, DanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
+import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
+
+const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
 
 const template = `{video-layer}
+<input class="copy-tool" />
 <div class="interactive-layer">
   <canvas class="danmaku-layer"></canvas>
   
   <div class="bg-gradient show"></div>
   
-  <div class="float danmaku-context-menu" tabIndex="2"></div>
   
   <div class="float danmaku-style-layer"></div>
   
@@ -35,28 +37,44 @@ const template = `{video-layer}
     
     <div class="buttons">
       <div class="left">
-        <div class="button intern-button play" data-on="&#xe6a4;" data-off="&#xe6a5;"
-          data-on-title="播放视频" data-off-title="暂停播放">&#xe6a4;</div>
-        <div class="button intern-button volume" data-on="&#xe63d;" data-off="&#xe63e;" title="音量">&#xe63d;</div>
-        <div class="button intern-button toggle-danamaku" title="隐藏弹幕"
-          data-on="&#xe697;" data-off="&#xe696;" 
-          data-on-title="显示弹幕" data-off-title="隐藏弹幕">&#xe696;</div>
+        <div class="button intern-button play" data-on="danplayer-bofang" data-off="danplayer-zanting"
+          data-on-title="播放视频" data-off-title="暂停播放">
+          <svg class="icon" aria-hidden="true"><use xlink:href="#danplayer-bofang"></use></svg>
+        </div>
+        <div class="time"></div>
       </div>
       
       <div class="middle danmaku_form">
-        <div class="button intern-button danmaku-style">&#xe6a1;</div>
+        <div class="button intern-button danmaku-style">
+          <svg class="icon"><use xlink:href="#danplayer-style"></use></svg>
+        </div>
         <input placeholder="输入弹幕内容">
         <button>发送</button>
       </div>
       <div class="right">
+      
+        <div class="button intern-button volume" data-on="danplayer-yinliang" data-off="danplayer-jingyin" title="音量">
+          <svg class="icon"><use xlink:href="#danplayer-yinliang"></use></svg>
+        </div>
+        
+        <div class="button intern-button toggle-danamaku" title="隐藏弹幕"
+          data-on="danplayer-danmukai" data-off="danplayer-danmuguan" 
+          data-on-title="显示弹幕" data-off-title="隐藏弹幕">
+          <svg class="icon"><use xlink:href="#danplayer-danmukai"></use></svg>
+        </div>
+        
         <div class="button quality" title="切换画质"></div>
-        <div class="button intern-button full-screen" data-on="&#xe6d9;" data-off="&#xe6e8;">&#xe6d9;</div>
+        
+        <div class="button intern-button full-screen" data-on="danplayer-quanping" data-off="danplayer-zuixiaohua"
+        data-on-title="全屏观看" data-off-title="取消全屏">
+          <svg class="icon"><use xlink:href="#danplayer-quanping"></use></svg>
+        </div>
       </div>
     </div>
   </div>
 </div>`
 
-interface PlayerOptions extends Object {
+interface PlayerOptions {
   /**
    * 直播模式
    * 没有进度条
@@ -78,11 +96,53 @@ interface PlayerOptions extends Object {
   // 视频来源，也可以在<video src=""></video>的src设置
   src: string
 
+  // iconfont Symbol方式 代码
+  iconSrc: string
+
   // 扩展按钮
   extraButtons: Element[]
 
   // 弹幕层的配置
   danmaku: DanmakuLayerOptions
+
+  fullScreen: boolean
+
+  danmakuForm: boolean
+
+  onlyOne: boolean
+
+  color: string
+}
+
+export interface PlayerPublicOptions {
+  /**
+   * 直播模式
+   * 没有进度条
+   */
+  live: boolean
+
+  // 音量
+  volume: number
+
+  autoplay: boolean,
+
+  // ui 的隐藏时间
+  uiFadeOutDelay: number
+
+  // 视频寸尺
+  width: number | string
+  height: number | string
+
+  // 视频来源，也可以在<video src=""></video>的src设置
+  src: string
+
+  iconSrc: string
+
+  // 扩展按钮
+  extraButtons: Element[]
+
+  // 弹幕层的配置
+  danmaku: Partial<DanmakuLayerOptions>
 
   fullScreen: boolean
 
@@ -103,20 +163,22 @@ function MakeDefaultOptions ({
   uiFadeOutDelay = 3000,
   extraButtons = [],
   src = '',
+  iconSrc = icon,
   danmakuForm = true,
   fullScreen = true,
-  danmaku = MakeDanmakuLayerOptions(),
+  danmaku = {},
   onlyOne = false
-}: Partial<PlayerOptions>): PlayerOptions {
+}: Partial<PlayerOptions> | Partial<PlayerPublicOptions>): PlayerOptions {
   return {
     autoplay,
     color,
     live,
     height,
-    danmaku,
+    danmaku: MakeDanmakuLayerOptions(danmaku),
     danmakuForm,
     fullScreen,
     src,
+    iconSrc,
     uiFadeOutDelay,
     extraButtons,
     onlyOne,
@@ -144,7 +206,7 @@ export class Player {
     return this.$root.clientHeight
   }
 
-  private isFullScreen: boolean = false
+  isFullScreen: boolean = false
 
   private _duration: number = 0
   private _loading = true
@@ -156,11 +218,15 @@ export class Player {
 
   public options: PlayerOptions
 
-  constructor ($e: HTMLVideoElement, options?: Partial<PlayerOptions>) {
+  constructor ($e: HTMLVideoElement, options?: Partial<PlayerPublicOptions>) {
+    const $icon = document.createElement('script')
+    $icon.src = icon
+    document.body.append($icon)
+
     Player.instances.push(this)
     const parent = $e.parentElement as Element
     this.$root = document.createElement('div')
-    this.$root.setAttribute('tabIndex', '1')
+    this.$root.setAttribute('tabIndex', '0')
     this.$root.classList.add('video-player')
     parent.insertBefore(this.$root, $e)
     $e.classList.add('video-layer')
@@ -169,11 +235,32 @@ export class Player {
     $e.remove()
 
     this.$root.addEventListener('keypress', (e: KeyboardEvent) => {
-      if (e.key !== ' ') return
-      if (this.$video.paused) {
-        this.$video.play()
-      } else {
-        this.$video.pause()
+      console.log('keypress', e.key)
+      let stop = true
+      if (e.key === ' ') {
+        this.toggle()
+      } else { stop = false }
+      if (stop) {
+        e.stopPropagation()
+        e.preventDefault()
+      }
+    })
+
+    this.$root.addEventListener('keydown', (e: KeyboardEvent) => {
+      console.log('keydown', e.key)
+      let stop = true
+      if (e.key === 'ArrowLeft' && !this.options.live) {
+        this.$video.currentTime -= 5
+      } else if (e.key === 'ArrowRight' && !this.options.live) {
+        this.$video.currentTime += 5
+      } else if (e.key === 'ArrowUp') {
+        this.ui.volume.up()
+      } else if (e.key === 'ArrowDown') {
+        this.ui.volume.down()
+      } else { stop = false }
+      if (stop) {
+        e.stopPropagation()
+        e.preventDefault()
       }
     })
 
@@ -202,7 +289,7 @@ export class Player {
     this.$video = this.$root.querySelector('.video-layer') as HTMLVideoElement
     this.$video.removeAttribute('controls')
     this.$video.addEventListener('durationchange', () => {
-      console.log('视频长度', this.$video.duration)
+      // console.log('视频长度', this.$video.duration)
       this._duration = this.$video.duration
     })
 
@@ -216,6 +303,7 @@ export class Player {
     this.options = MakeDefaultOptions(options || { autoplay: this.$video.hasAttribute('autoplay') })
 
     this.ui = new UI(this)
+    this.ui.update()
 
     this._set().then()
   }
@@ -229,10 +317,12 @@ export class Player {
 
     await this.getContentType()
 
+    this.ui.qualitySelector.hideButton()
     if (this.hls) {
       this.hls.on(Hls.Events.LEVEL_LOADED, () => {
         this.ui.qualitySelector.updateLevel(this.hls as Hls)
       })
+      this.ui.qualitySelector.showButton()
     }
 
     console.log('_set', { autoplay: this.options.autoplay, paused: this._paused })
@@ -241,14 +331,22 @@ export class Player {
       this.play()
     }
 
+    if (this.options.live) {
+      this.$root.classList.add('live')
+    } else {
+      this.$root.classList.remove('live')
+    }
+
     this.ui.updatePlayButton()
+
+    this.ui.progressBar.resetTimeZone()
 
     this.resize()
   }
 
-  set (options: Partial<PlayerOptions>) {
+  set (options: Partial<PlayerPublicOptions>) {
     const newOptions = Object.assign({}, this.options, options)
-    const hasSrcChanged = newOptions.src !== this.options.src
+    const hasSrcChanged = newOptions.src !== this.options.src && this.options.live !== newOptions.live
     if (hasSrcChanged) {
       if (this.hls) {
         this.hls.detachMedia()

@@ -1,17 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>my_player</title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but my_player doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/stats.js"></script>
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title>my_player</title>
+</head>
+<body>
+<noscript>
+  <strong>We're sorry but my_player doesn't work properly without JavaScript enabled. Please enable it to
+    continue.</strong>
+</noscript>
+<div id="app"></div>
+<!-- built files will be auto injected -->
+<script>
+  window.addEventListener('load', () => {
+    var stats = new Stats()
+    stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(stats.dom)
+
+    function animate () {
+
+      stats.begin()
+
+      // monitored code goes here
+
+      stats.end()
+
+      requestAnimationFrame(animate)
+
+    }
+
+    requestAnimationFrame(animate)
+  })
+</script>
+</body>
 </html>

@@ -1,6 +1,5 @@
 import { Player } from '@/player/player'
-import { DanmakuDrawer, DanmakuFixedDrawer, DanmakuFlowDrawer } from '@/player/danmaku/danmakuDrawer'
-import { Danmaku } from '@/player/danmaku/danmaku'
+import { DanmakuDrawer } from '@/player/danmaku/danmakuDrawer'
 
 const font = 'px "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif'
 
@@ -16,9 +15,7 @@ export class Canvas {
     this.$canvas = player.$root.querySelector('canvas') as HTMLCanvasElement
     this.ctx = this.$canvas.getContext('2d') as CanvasRenderingContext2D
 
-    console.warn('初始化 canvas')
     this.$canvas.addEventListener('click', () => {
-      console.log('canvas click ')
       player.toggle()
     })
   }
@@ -32,22 +29,13 @@ export class Canvas {
     if (index > -1) this.caches.splice(index, 1)
   }
 
-  renderAll () {
+  renderAll (alpha: number) {
     this.clear()
-    this.ctx.textBaseline = 'top'
-    this.ctx.textAlign = 'left'
     if (this.caches.length > 0) {
-      this.ctx.font = this.caches[0].danmaku.fontSize + font
       for (let i = 0; i < this.caches.length; i++) {
         const drawer = this.caches[i]
-        if (drawer.danmaku.borderColor) {
-          this.ctx.strokeStyle = drawer.danmaku.borderColor
-          this.ctx.strokeRect(drawer.left, drawer.top, drawer.width, drawer.height)
-        }
-        this.ctx.strokeStyle = '#000000'
-        this.ctx.strokeText(drawer.danmaku.text, drawer.left, drawer.top)
-        this.ctx.fillStyle = drawer.danmaku.fill
-        this.ctx.fillText(drawer.danmaku.text, drawer.left, drawer.top)
+        this.ctx.globalAlpha = alpha
+        this.ctx.drawImage(drawer.selfCanvas, drawer.left, drawer.top)
       }
     }
   }

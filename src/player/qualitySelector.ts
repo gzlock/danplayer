@@ -57,6 +57,7 @@ export class QualitySelector extends ButtonAndLayer {
   private _updateLevel () {
     this.$layer.innerHTML = ''
     this.hls.levels.forEach((level, index) => {
+      if (!level.name) return
       const $item = document.createElement('div') as HTMLElement
 
       if (index === this.currentLevel) {
