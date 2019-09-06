@@ -122,4 +122,8 @@ export class VolumeLayer extends ButtonAndLayer {
     this.areaHeight = this.$dragArea.clientHeight
     this.updateController()
   }
+
+  update () {
+    this.$controller.style.background = this.$current.style.background = this.player.options.color
+  }
 }

@@ -15,6 +15,10 @@
           <el-slider v-model="fadeoutDuation" :min="1" :max="20"/>
         </el-form-item>
         <el-form-item>
+          <div slot="label">配色</div>
+          <el-color-picker v-model="color"></el-color-picker>
+        </el-form-item>
+        <el-form-item>
           <div slot="label">全局弹幕透明度: {{danmakuAlpha}} 范围在 0 ~ 1</div>
           <el-slider v-model="danmakuAlpha" :min="0.1" :max="1.0" :step="0.1"/>
         </el-form-item>
@@ -57,7 +61,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { Player } from '@/player/player'
+import Player from '@/player/player'
 import { Danmaku } from '@/player/danmaku/danmaku'
 import { DanmakuDrawer } from '@/player/danmaku/danmakuDrawer'
 
@@ -75,7 +79,8 @@ export default class App extends Vue {
       type: 1,
       alpha: 1,
       live: true,
-      src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8'
+      src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+      color: ''
     }
     private random = { count: 100, timeRange: 10 }
     private info = ''
@@ -114,6 +119,15 @@ export default class App extends Vue {
       player.options.danmaku.fadeoutDuration = val
     }
 
+    set color (val: string) {
+      this.form.color = val
+      player.set({ color: val })
+    }
+
+    get color () {
+      return this.form.color
+    }
+
     get fadeoutDuation () {
       return this.form.fadeoutDuration
     }
@@ -150,6 +164,7 @@ export default class App extends Vue {
       if ($e) {
         player = new Player($e, {
           // live: true,
+          color: '#f1f0cf',
           width: 600,
           volume: 0,
           danmaku: {
@@ -177,6 +192,7 @@ export default class App extends Vue {
         this.form.flowDuration = player.options.danmaku.flowDuration
         this.form.fadeoutDuration = player.options.danmaku.fadeoutDuration
         this.form.alpha = player.options.danmaku.alpha
+        this.form.color = player.options.color
 
         updateInterval = setInterval(() => {
           this.info = JSON.stringify(player.debug, null, 2)

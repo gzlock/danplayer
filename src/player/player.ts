@@ -44,12 +44,12 @@ const template = `{video-layer}
         <div class="time"></div>
       </div>
       
-      <div class="middle danmaku_form">
+      <div class="middle danmaku-form">
         <div class="button intern-button danmaku-style">
           <svg class="icon"><use xlink:href="#danplayer-style"></use></svg>
         </div>
-        <input placeholder="输入弹幕内容">
-        <button>发送</button>
+        <input placeholder="输入弹幕内容" tabindex="1">
+        <div class="send">发送</div>
       </div>
       <div class="right">
       
@@ -187,7 +187,7 @@ function MakeDefaultOptions ({
   }
 }
 
-export class Player {
+export default class Player {
   private static instances: Player[] = []
   $root: HTMLElement
   $video: HTMLVideoElement
@@ -239,11 +239,15 @@ export class Player {
       let stop = true
       if (e.key === ' ') {
         this.toggle()
+      } else if (e.key === 'Enter') {
+        this.ui.show()
+        this.ui.danmakuForm.focus()
       } else { stop = false }
       if (stop) {
         e.stopPropagation()
         e.preventDefault()
       }
+      this.ui.hideUIDelay()
     })
 
     this.$root.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -337,7 +341,7 @@ export class Player {
       this.$root.classList.remove('live')
     }
 
-    this.ui.updatePlayButton()
+    this.ui.update()
 
     this.ui.progressBar.resetTimeZone()
 
@@ -405,11 +409,6 @@ export class Player {
     this.ui.danmakuLayer.send(danmaku)
   }
 
-  sendDanmakuWithStyle (danmaku: Danmaku) {
-    Object.assign(danmaku, this.ui.styleLayer.getStyle())
-    this.ui.danmakuLayer.send(danmaku)
-  }
-
   get paused () {
     return this._paused
   }
@@ -423,13 +422,11 @@ export class Player {
   }
 
   play () {
-    console.warn('player')
     this._paused = false
     this.$video.play().then()
     if (this.options.onlyOne) {
       Player.instances.forEach(player => {
         if (player !== this) {
-          console.log('暂停其它实例')
           player.pause()
         }
       })
@@ -437,7 +434,6 @@ export class Player {
   }
 
   pause () {
-    console.warn('pause')
     this._paused = true
     this.$video.pause()
   }
@@ -487,10 +483,8 @@ export class Player {
     this.isFullScreen = !this.isFullScreen
     if (this.isFullScreen) {
       await this.$root.requestFullscreen()
-      this.ui.danmakuForm.show()
     } else {
       await document.exitFullscreen()
-      this.ui.danmakuForm.hide()
     }
     this.resize()
   }

@@ -77,7 +77,11 @@ $controller-color: #00a1d6;
   }
 
   &.mouse-idle {
-    cursor: none;
+    cursor: none !important;
+
+    .danmaku-layer {
+      cursor: none !important;
+    }
   }
 
   // 视频层
@@ -289,13 +293,32 @@ $controller-color: #00a1d6;
     }
 
     .controller-bottom-bar {
-      padding: 0 12px 4px 12px;
       position: absolute;
       left: 0;
       bottom: 0;
       width: 100%;
       z-index: 3;
       box-sizing: border-box;
+
+      &.show {
+        padding: 0 12px 4px 12px;
+
+        .progress-bar {
+          display: block;
+          cursor: pointer;
+          margin-bottom: 10px;
+          padding: 4px 0;
+
+          .bar-controller {
+            display: block;
+          }
+        }
+
+        .buttons {
+          display: flex;
+        }
+      }
+
 
       .time {
         color: white;
@@ -304,15 +327,13 @@ $controller-color: #00a1d6;
 
       .progress-bar {
         position: relative;
-        padding: 4px 0;
-        height: 4px;
+        height: 2px;
         cursor: pointer;
-        margin-bottom: 10px;
+        display: block;
 
         .bar-full, .bar-buffer, .bar-current {
-          height: 4px;
+          height: 2px;
           position: absolute;
-          border-radius: 2px;
         }
 
         .bar-full {
@@ -333,18 +354,19 @@ $controller-color: #00a1d6;
 
         .bar-controller {
           position: absolute;
-          top: 0;
+          top: -1px;
           left: -6px;
           width: 12px;
           height: 12px;
           border-radius: 2px;
           background: $controller-color;
           z-index: 4;
+          display: none;
         }
       }
 
       .buttons {
-        display: flex;
+        display: none;
         justify-content: space-between;
 
         > * {
@@ -384,9 +406,41 @@ $controller-color: #00a1d6;
 
         .button.volume, .button.full-screen {
           svg {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
           }
+        }
+      }
+
+      .danmaku-form {
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.5);
+        display: flex;
+        align-items: center;
+        flex: 1;
+        padding: 0 4px;
+        min-width: 200px;
+        max-width: 350px;
+        color: white;
+
+        .danmaku-style {
+        }
+
+        input {
+          border: none;
+          height: 20px;
+          outline: none;
+          background: transparent;
+          color: white;
+          flex: 1;
+        }
+
+        .send {
+          color: white;
+          border: none;
+          font-size: 12px;
+          cursor: pointer;
+          margin-left: 10px;
         }
       }
 

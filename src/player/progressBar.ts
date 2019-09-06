@@ -1,4 +1,4 @@
-import { Player } from '@/player/player'
+import Player from '@/player/player'
 import { UI } from '@/player/UI'
 
 export class ProgressBar {
@@ -22,8 +22,6 @@ export class ProgressBar {
     this.$controller = this.$root.querySelector('.bar-controller') as HTMLElement
     this.$current = this.$root.querySelector('.bar-current') as HTMLElement
     this.$time = this.player.$root.querySelector('.controller-bottom-bar .time') as HTMLElement
-
-    this.$controller.style.background = this.$current.style.background = this.player.options.color
 
     this.$buffer = this.$root.querySelector('.bar-buffer') as HTMLElement
     this.player.$video.addEventListener('timeupdate', () => {
@@ -108,6 +106,8 @@ export class ProgressBar {
     const x = this.barWidth * this.percent
     this.$current.style.width = x + 'px'
     this.$controller.style.transform = `translateX(${x}px)`
+    this.$controller.style.background = this.player.options.color
+    this.$current.style.background = this.player.options.color
   }
 
   resetTimeZone () {

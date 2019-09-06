@@ -1,4 +1,4 @@
-import { Player } from '@/player/player'
+import Player from '@/player/player'
 import { DanmakuDrawer } from '@/player/danmaku/danmakuDrawer'
 
 const font = 'px "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif'

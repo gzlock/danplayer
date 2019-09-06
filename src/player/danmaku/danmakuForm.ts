@@ -14,30 +14,38 @@ export class DanmakuForm {
     this.ui = ui
     this.styleLayer = new DanmakuStyleLayer(ui)
 
-    this.$root = ui.player.$root.querySelector('.danmaku_form') as HTMLElement
+    this.$root = ui.player.$root.querySelector('.danmaku-form') as HTMLElement
     this.$input = this.$root.querySelector('input') as HTMLInputElement
-    this.$btn = this.$root.querySelector('button') as HTMLElement
-    this.$btn.addEventListener('click', () => {
-      this.send()
-    })
+    this.$btn = this.$root.querySelector('.send') as HTMLElement
+    this.$btn.addEventListener('click', () => this.send())
     this.$input.addEventListener('keypress', (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
+      console.log('弹幕表单', e.key)
+      if (e.key === 'Enter' && this.ui.isShow && this.$input.value) {
         this.send()
       }
-      if (e.key === ' ') {
+    })
+    this.$input.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key.startsWith('Arrow')) {
         e.stopPropagation()
-        return false
       }
     })
+    this.$input.addEventListener('keyup', (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        this.ui.player.$root.focus()
+        this.ui.hide()
+      }
+      e.stopPropagation()
+    })
+    this.$input.addEventListener('focus', () => { this.ui.isMouseInUI = true })
+    this.$input.addEventListener('blur', () => { this.ui.isMouseInUI = false })
   }
 
   send () {
-    if (this.$input.value) {
-      const options = this.styleLayer.getStyle()
-      options.currentTime = this.ui.player.currentTime
-      this.ui.danmakuLayer.send(new Danmaku(this.$input.value, options))
-      this.$input.value = ''
-    }
+    const options = this.styleLayer.getStyle()
+    options.currentTime = this.ui.player.currentTime
+    this.ui.danmakuLayer.send(new Danmaku(this.$input.value, options))
+    this.$input.value = ''
+    this.ui.player.$root.focus()
   }
 
   toggle () {
@@ -56,5 +64,12 @@ export class DanmakuForm {
   hide () {
     this.isShow = false
     this.$root.style.display = 'none'
+  }
+
+  update () {
+  }
+
+  focus () {
+    this.$input.focus()
   }
 }

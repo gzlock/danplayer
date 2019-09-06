@@ -1,4 +1,3 @@
-import { Player } from '@/player/player'
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
 import { UI } from '@/player/UI'
 

@@ -1,4 +1,4 @@
-import { Player } from '@/player/player'
+import Player from '@/player/player'
 import { VolumeLayer } from '@/player/volumeLayer'
 import { QualitySelector } from '@/player/qualitySelector'
 import { ProgressBar } from '@/player/progressBar'
@@ -87,14 +87,18 @@ export class UI {
 
   show () {
     this.isShow = true
-    this.$root.style.display = ''
+    this.$root.classList.add('show')
     this.$gradientBG.classList.add('show')
   }
 
   hide () {
     this.isShow = false
-    this.$root.style.display = 'none'
+    this.$root.classList.remove('show')
     this.$gradientBG.classList.remove('show')
+    this.qualitySelector.hideLayer()
+    this.volume.hideLayer()
+    this.danmakuForm.styleLayer.hideLayer()
+    this.player.$root.focus()
   }
 
   hideUIDelay () {
@@ -102,8 +106,6 @@ export class UI {
     return new Promise(resolve => {
       this.hideTimeout = window.setTimeout(() => {
         this.hide()
-        this.volume.hideLayer()
-        this.qualitySelector.hideLayer()
         resolve()
       }, this.player.options.uiFadeOutDelay)
     })
@@ -134,6 +136,9 @@ export class UI {
     this.updateDanmakuButton()
     this.updateFullScreenButton()
     this.updatePlayButton()
+    this.danmakuForm.update()
+    this.progressBar.update()
+    this.volume.update()
   }
 
   updatePlayButton () {

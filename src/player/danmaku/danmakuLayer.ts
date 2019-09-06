@@ -1,4 +1,4 @@
-import { Player } from '@/player/player'
+import Player from '@/player/player'
 import { Danmaku, DanmakuType } from '@/player/danmaku/danmaku'
 import { sortBy, groupBy } from 'lodash'
 import { DanmakuDrawer, DanmakuFlowDrawer, DanmakuFixedDrawer } from './danmakuDrawer'
