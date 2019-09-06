@@ -501,6 +501,7 @@ export default class Player {
    * 销毁
    */
   destroy () {
+    Player.instances.splice(Player.instances.indexOf(this), 1)
     this.ui.destroy()
   }
 
