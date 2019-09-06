@@ -247,7 +247,6 @@ export default class Player {
         e.stopPropagation()
         e.preventDefault()
       }
-      this.ui.hideUIDelay()
     })
 
     this.$root.addEventListener('keydown', (e: KeyboardEvent) => {

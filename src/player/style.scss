@@ -15,7 +15,6 @@ $controller-color: #00a1d6;
   border-radius: 2px;
   display: none;
   position: absolute;
-  z-index: 4;
 
   &.show {
     display: block;
@@ -25,10 +24,10 @@ $controller-color: #00a1d6;
 // 弹幕右键菜单
 .danmaku-context-menu {
   font-size: 12px;
-  z-index: 5;
   outline: none;
   color: white;
   padding: 0 15px;
+  z-index: 999;
 
   > div {
     height: 42px;
@@ -104,23 +103,11 @@ $controller-color: #00a1d6;
     width: 100%;
     height: 100%;
 
-    .bg-gradient {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 100px;
-      background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .8));
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-      z-index: 2;
-
-      &.show {
-        opacity: 1;
-      }
+    .float {
+      z-index: 4
     }
 
-
+    // 弹幕样式菜单
     .danmaku-style-layer {
       font-size: 12px;
       padding: 10px;
@@ -215,6 +202,7 @@ $controller-color: #00a1d6;
       }
     }
 
+    // 音量 菜单
     .volume-bar {
       width: 32px;
       height: 100px;
@@ -268,6 +256,7 @@ $controller-color: #00a1d6;
       }
     }
 
+    // 画质 菜单
     .quality-menu {
       font-size: 14px;
       padding: 5px;
@@ -292,6 +281,7 @@ $controller-color: #00a1d6;
       }
     }
 
+    // 底部控制栏，第三层
     .controller-bottom-bar {
       position: absolute;
       left: 0;
@@ -404,6 +394,10 @@ $controller-color: #00a1d6;
           margin-left: 10px;
         }
 
+        .button.danmaku-style{
+          margin-top: 4px;
+        }
+
         .button.volume, .button.full-screen {
           svg {
             width: 22px;
@@ -446,7 +440,24 @@ $controller-color: #00a1d6;
 
     }
 
-    // 弹幕层
+    // 底部控制栏后的渐变背景，第二层
+    .bg-gradient {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .8));
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      z-index: 2;
+
+      &.show {
+        opacity: 1;
+      }
+    }
+
+    // 弹幕层，最底层
     .danmaku-layer {
       position: absolute;
       left: 0;
