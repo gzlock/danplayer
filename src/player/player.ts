@@ -219,10 +219,12 @@ export default class Player {
   public options: PlayerOptions
 
   constructor ($e: HTMLVideoElement, options?: Partial<PlayerPublicOptions>) {
-    const $icon = document.createElement('script')
-    $icon.src = icon
-    document.body.append($icon)
-
+    if (!document.querySelector('script#danplayer-icon')) {
+      const $icon = document.createElement('script')
+      $icon.src = icon
+      $icon.id = 'danplayer-icon'
+      document.body.append($icon)
+    }
     Player.instances.push(this)
     const parent = $e.parentElement as Element
     this.$root = document.createElement('div')
@@ -308,12 +310,11 @@ export default class Player {
     this.ui = new UI(this)
     this.ui.update()
 
-    this._set().then()
+    this._setSrc().then()
+    this._setUI()
   }
 
-  private async _set () {
-    this.ui.insertExtraButtons()
-
+  private async _setSrc () {
     if (this.options.src) {
       this.$video.setAttribute('src', this.options.src)
     }
@@ -339,8 +340,14 @@ export default class Player {
     } else {
       this.$root.classList.remove('live')
     }
+  }
+
+  private _setUI () {
+    this.ui.insertExtraButtons()
 
     this.ui.update()
+
+    this.ui.progressBar.resize()
 
     this.ui.progressBar.resetTimeZone()
 
@@ -349,16 +356,17 @@ export default class Player {
 
   set (options: Partial<PlayerPublicOptions>) {
     const newOptions = Object.assign({}, this.options, options)
-    const hasSrcChanged = newOptions.src !== this.options.src && this.options.live !== newOptions.live
-    if (hasSrcChanged) {
+    const hasChange = newOptions.src !== this.options.src || this.options.live !== newOptions.live
+    console.log('set hasChange', hasChange, { nowLive: this.options.live, newLive: newOptions.live })
+    this.options = newOptions
+    if (hasChange) {
       if (this.hls) {
         this.hls.detachMedia()
         this.hls = undefined
       }
-      this.ui.progressBar.resize()
+      this._setSrc().then()
     }
-    this.options = newOptions
-    this._set().then()
+    this._setUI()
   }
 
   resize () {
@@ -449,6 +457,7 @@ export default class Player {
       console.log('使用Hls.js')
       if (Hls.isSupported()) {
         this.hls = new Hls()
+        this.hls.config.capLevelToPlayerSize = true
         this.hls.attachMedia(this.$video)
         this.hls.loadSource(src)
       } else {

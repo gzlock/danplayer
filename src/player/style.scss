@@ -71,7 +71,7 @@ $controller-color: #00a1d6;
 
   &.live {
     .live-hide {
-      display: none;
+      display: none !important;
     }
   }
 
