@@ -109,9 +109,9 @@ export default class App extends Vue {
       return this.form.alpha
     }
 
-    set danmakuAlpha (val: number) {
-      this.form.alpha = val
-      player.options.danmaku.alpha = val
+    set danmakuAlpha (alpha: number) {
+      this.form.alpha = alpha
+      player.set({ danmaku: { alpha } })
     }
 
     set fadeoutDuation (val: number) {

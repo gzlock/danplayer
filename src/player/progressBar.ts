@@ -97,7 +97,7 @@ export class ProgressBar {
 
   resize () {
     this.barWidth = this.player.width - this.offsetWidth
-    // console.log('进度条 长度', this.barWidth, this.$root)
+    // console.log('进度条 长度', this.barWidth, this.player.$root.clientWidth)
     this.update()
     this.updateBufferBar()
   }

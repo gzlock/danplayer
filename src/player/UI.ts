@@ -149,8 +149,7 @@ export class UI {
     }
   }
 
-  private updateFullScreenButton () {
-    console.log('全屏', this.player.isFullScreen)
+  updateFullScreenButton () {
     if (this.player.isFullScreen) {
       this.btnFullScreen.switch('data-off', 'data-off-title')
     } else {
@@ -158,7 +157,7 @@ export class UI {
     }
   }
 
-  private updateDanmakuButton () {
+  updateDanmakuButton () {
     let attr: string
     let title: string
     if (this.danmakuLayer.isShow) {

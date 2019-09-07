@@ -1,5 +1,6 @@
 import Player from '@/player/player'
 import { DanmakuDrawer } from '@/player/danmaku/danmakuDrawer'
+import { Danmaku } from '@/player/danmaku/danmaku'
 
 const font = 'px "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif'
 
@@ -29,12 +30,11 @@ export class Canvas {
     if (index > -1) this.caches.splice(index, 1)
   }
 
-  renderAll (alpha: number) {
+  renderAll () {
     this.clear()
     if (this.caches.length > 0) {
       for (let i = 0; i < this.caches.length; i++) {
         const drawer = this.caches[i]
-        this.ctx.globalAlpha = alpha
         this.ctx.drawImage(drawer.selfCanvas, drawer.left, drawer.top)
       }
     }
@@ -48,8 +48,12 @@ export class Canvas {
     this.caches.length = 0
   }
 
-  fontHeight (drawer: DanmakuDrawer): number {
-    this.ctx.font = drawer.danmaku.fontSize + font
+  set alpha (val: number) {
+    this.ctx.globalAlpha = val
+  }
+
+  fontHeight (fontSize: number): number {
+    this.ctx.font = fontSize + font
     const size = this.ctx.measureText('M')
     return size.width * 1.2
   }

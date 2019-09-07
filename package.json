@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "test:unit": "vue-cli-service test:unit",
     "build-lib": "vue-cli-service build --target=lib ./src/player/player.ts"
   },
   "dependencies": {
@@ -35,7 +36,12 @@
     "sass-loader": "^7.1.0",
     "typescript": "^3.4.3",
     "vue-template-compiler": "^2.6.10",
-    "worker-loader": "^2.0.0"
+    "worker-loader": "^2.0.0",
+    "chai": "^4.1.2",
+    "@vue/test-utils": "1.0.0-beta.29",
+    "@types/chai": "^4.1.0",
+    "@types/mocha": "^5.2.4",
+    "@vue/cli-plugin-unit-mocha": "^3.11.0"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

@@ -1,10 +1,8 @@
 import { Danmaku } from '@/player/danmaku/danmaku'
-import { Canvas } from '@/player/danmaku/canvas'
 
 const font = 'px "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif'
 
 export class DanmakuDrawer {
-  static drawCanvas: Canvas
   selfCanvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   danmaku!: Danmaku
@@ -17,7 +15,17 @@ export class DanmakuDrawer {
 
   constructor () {
     this.selfCanvas = document.createElement('canvas')
+    this.selfCanvas.width = 100
+    this.selfCanvas.height = 100
     this.ctx = this.selfCanvas.getContext('2d') as CanvasRenderingContext2D
+  }
+
+  protected getSize () {
+    this.ctx.textBaseline = 'top'
+    this.ctx.textAlign = 'left'
+    this.ctx.font = this.danmaku.fontSize + font
+    this.width = this.ctx.measureText(this.danmaku.text).width
+    this.height = this.ctx.measureText('M').width * 1.2
   }
 
   protected draw () {
@@ -46,15 +54,14 @@ export class DanmakuFlowDrawer extends DanmakuDrawer {
     this.enable = true
     this.left = left
     this.top = top
-    this.width = DanmakuDrawer.drawCanvas.fontWidth(this)
-    this.height = DanmakuDrawer.drawCanvas.fontHeight(this)
+    this.getSize()
     this.draw()
   }
 
   update (canvasWidth: number, duration: number, lastFrameTime: number) {
     const speed = (canvasWidth + this.width) / duration * lastFrameTime
     this.left = this.left - speed
-    this.enable = this.left > -this.width
+    this.enable = (this.left + this.width) > 0
   }
 }
 
@@ -65,8 +72,7 @@ export class DanmakuFixedDrawer extends DanmakuDrawer {
     this.danmaku = danmaku
     this.timeout = timeout
     this.enable = true
-    this.width = DanmakuDrawer.drawCanvas.fontWidth(this)
-    this.height = DanmakuDrawer.drawCanvas.fontHeight(this)
+    this.getSize()
     this.left = (canvasWidth - this.width) / 2
     this.top = top
     this.draw()

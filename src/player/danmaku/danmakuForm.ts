@@ -19,17 +19,19 @@ export class DanmakuForm {
     this.$btn = this.$root.querySelector('.send') as HTMLElement
     this.$btn.addEventListener('click', () => this.send())
     this.$input.addEventListener('keypress', (e: KeyboardEvent) => {
-      console.log('弹幕表单', e.key)
+      // console.log('弹幕表单 keypress', e.key)
       if (e.key === 'Enter' && this.ui.isShow && this.$input.value) {
         this.send()
       }
     })
     this.$input.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key.startsWith('Arrow')) {
+      // console.log('弹幕表单 keydown', e.key)
+      if (e.key.startsWith('Arrow') || e.key === ' ') {
         e.stopPropagation()
       }
     })
     this.$input.addEventListener('keyup', (e: KeyboardEvent) => {
+      // console.log('弹幕表单 keyup', e.key)
       if (e.key === 'Escape') {
         this.ui.player.$root.focus()
         this.ui.hide()

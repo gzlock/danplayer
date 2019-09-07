@@ -86,6 +86,8 @@ interface PlayerOptions {
 
   autoplay: boolean,
 
+  fontSize: number,
+
   // ui 的隐藏时间
   uiFadeOutDelay: number
 
@@ -126,6 +128,8 @@ export interface PlayerPublicOptions {
 
   autoplay: boolean,
 
+  fontSize: number,
+
   // ui 的隐藏时间
   uiFadeOutDelay: number
 
@@ -158,6 +162,7 @@ function MakeDefaultOptions ({
   color = '#00a1d6',
   live = false,
   volume = 0.7,
+  fontSize = 28,
   width = 600,
   height = 350,
   uiFadeOutDelay = 3000,
@@ -173,6 +178,7 @@ function MakeDefaultOptions ({
     autoplay,
     color,
     live,
+    fontSize,
     height,
     danmaku: MakeDanmakuLayerOptions(danmaku),
     danmakuForm,
@@ -237,11 +243,9 @@ export default class Player {
     $e.remove()
 
     this.$root.addEventListener('keypress', (e: KeyboardEvent) => {
-      console.log('keypress', e.key)
+      // console.log('keypress', e.key)
       let stop = true
-      if (e.key === ' ') {
-        this.toggle()
-      } else if (e.key === 'Enter') {
+      if (e.key === 'Enter') {
         this.ui.show()
         this.ui.danmakuForm.focus()
       } else { stop = false }
@@ -250,9 +254,16 @@ export default class Player {
         e.preventDefault()
       }
     })
+    this.$root.addEventListener('keyup', (e: KeyboardEvent) => {
+      if (e.key === ' ') this.toggle()
+    })
+    document.addEventListener('fullscreenchange', () => {
+      this.isFullScreen = document.fullscreenElement === this.$root
+      this.ui.updateFullScreenButton()
+    })
 
     this.$root.addEventListener('keydown', (e: KeyboardEvent) => {
-      console.log('keydown', e.key)
+      // console.log('keydown', e.key)
       let stop = true
       if (e.key === 'ArrowLeft' && !this.options.live) {
         this.$video.currentTime -= 5
@@ -355,9 +366,10 @@ export default class Player {
   }
 
   set (options: Partial<PlayerPublicOptions>) {
+    options.danmaku = Object.assign({}, this.options.danmaku, options.danmaku)
     const newOptions = Object.assign({}, this.options, options)
     const hasChange = newOptions.src !== this.options.src || this.options.live !== newOptions.live
-    console.log('set hasChange', hasChange, { nowLive: this.options.live, newLive: newOptions.live })
+    // console.log('set hasChange', hasChange, { nowLive: this.options.live, newLive: newOptions.live })
     this.options = newOptions
     if (hasChange) {
       if (this.hls) {
@@ -384,7 +396,7 @@ export default class Player {
         this._height = this.options.height
       }
     }
-    console.log('resize options', this.options, { width: this._width, height: this._height })
+    // console.log('resize options', this.options, { width: this._width, height: this._height })
     if (!this.isFullScreen) {
       this.$root.style.width = this._width
       this.$root.style.height = this._height
