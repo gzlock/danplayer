@@ -30,6 +30,7 @@ deploy:
   file: "./dist"
   on:
     repo: gzlock/danplayer
+    tags: true
 
 cache:
   directories:
