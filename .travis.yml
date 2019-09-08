@@ -1,34 +1,22 @@
 language: node_js
-
 node_js:
-  - node
-
+- node
 matrix:
   fast_finish: true
-
 install:
-  - npm uninstall typescript --no-save
-  - npm uninstall tslint --no-save
-  - npm install
-
+- npm uninstall typescript --no-save
+- npm uninstall tslint --no-save
+- npm install
 script:
-  - npm run build-lib
-
-after_success:
-  - git init
-  - cd ./dist
-  - git add ./
+- npm run build-lib
 
 deploy:
-  provider: releases
+  provider: npm
+  email: gzlock88@gmail.com
   api_key:
-    secure: AZuRGhh1ylVlw6Ee46GK8rTcOjMxxIfLr8Phd6OCbi8MKEVLgCLf4wFYhn1lOCnpuLN+uLEYCb4+zxhUZQIYuTn0Ke4O7Z046PdTA0sYauw9heg9JWmoJ9v9MpzjGYZl0vnTNOiFxhYMYG2y12Vv175AWnTZ9yqQrm8hspQ2Fav+F0/v/ar4+Adas8Ha9r6ZChvsQMjOdGrb/ZXHZw2xB2xOKX3fvClQnXEN0+LIscaViDv5uIt2ZTBT1ta8Oy0VuuYFucWyZ9cF1KgZdDczC8vteuXxq6yOno8ZJ7l6teGcJaLrFdOsbOYHpS9pwpZ9hHE2FWmloigXGF4EDvtxlcCRtdRAv74ey7Q3DFjIGoEro1uorQqDv2Fv7YS+p/aqonum3jgcon/eKZ/QWdRFsOGj2U3GOk/+jFvJZoyk3M+MHk9fFj/7hQgq8bikehIYXBeOJ0sdJjd6tA0JTrPZMOe+t4GQc0AO+e2wNBsTzqfgoJSnmJjBqGXjVAUWOvRKqDiZjH9UGy+o9aSI2kY8u1WvAcFDeGO5SCoybWaaZqBhTPCiLMWYxDnq0R/CHwfoZ6tmCNz4r9BrX9ff91FTcA8McMAgOyVXLH8j4dNTcuh4ptsp4H9vbxQPFArS3lobGyNrFbyTGoQo3l8gmW2cyGkgYY+9Wsx0obH52BCS/Xo=
-  skip-cleanup: true
+    secure: SF8GAuCtgXsHDAjQmkQYY8MXe2EoWGMPHmLxPPY0TtobKgMqgl/feaA9GPZ0HYuEZeSQ/ZLiJZ5HE44dIDpchpYJOuetqF/TMDIc0ZfWxDFTSTC+XRiLd/3PN9sTK15cljdAhkyR8g0ZKYeJPeL40G8XNAD3om/q1rm4Cy3lX/rZqKNOlWKFb9oRHkHwb1sGHZxEi2MNoLnXl9nMJnexsVOZE+s8TT8rIkKVP1JnsnEbqjyOfHI+OWAK3UpJtosA/bJNuCfIl3I0avmsXRCP8yw1HbmQ7eY5EfWHsJ+h6WYqF6Go1jgiMEQZeczckWTX9841z8xEBpMLdIx2XMG8XHE3slSx76y5Pgrw/FYHg3l6HWiiOz7ajvb3X8INj95tWG5O4kAfEzkPql/vUdnWG0dOJXhDBgEbO/Nn6IWaq/UpD4TAX55aed2kFqBMGsfib1vyJCgM1fkwCAp1qwAFzUqjHjubfMuG7/aVlGSPspCqPvx4cVbEUPYGDkAHB9M4fCSEUJmMfMpmwZoxjnpNXs7Rho65vxw66zMG94jOwBiVCf2vZptZ4sE7PA+B2STc7VjbroikyMUS7lV8u9aaTm/tBGYYk74P3GQu0667bn6f8w9+Y/hdmStLrfCw9WgUlyslyJ8XCZT0IEtA3Z8lZCoUhBPejR9caKhjYPpo4vg=
   on:
-    branch: master
-    repo: gzlock/danplayer
     tags: true
-
 cache:
   directories:
-    - node_modules
+  - node_modules
