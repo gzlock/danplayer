@@ -9,11 +9,6 @@ env:
 matrix:
   fast_finish: true
 
-branches:
-  only:
-    - master
-    - "/^release-.*/"
-
 install:
   - npm uninstall typescript --no-save
   - npm uninstall tslint --no-save
