@@ -18,6 +18,8 @@ install:
   - npm uninstall typescript --no-save
   - npm uninstall tslint --no-save
   - npm install
+
+script:
   - npm run build-lib
 
 cache:
