@@ -1,4 +1,4 @@
-import Player from './player'
+import { Player } from './player'
 import { UI } from '@/player/UI'
 
 export class ButtonAndLayer {

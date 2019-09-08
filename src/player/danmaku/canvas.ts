@@ -1,4 +1,4 @@
-import Player from '@/player/player'
+import { Player } from '@/player/player'
 import { DanmakuDrawer } from '@/player/danmaku/danmakuDrawer'
 import { Danmaku } from '@/player/danmaku/danmaku'
 

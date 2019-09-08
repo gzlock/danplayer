@@ -1,4 +1,4 @@
-import Player from '@/player/player'
+import { Player } from '@/player/player'
 import { VolumeLayer } from '@/player/volumeLayer'
 import { QualitySelector } from '@/player/qualitySelector'
 import { ProgressBar } from '@/player/progressBar'

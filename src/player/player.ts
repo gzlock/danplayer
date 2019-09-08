@@ -199,7 +199,7 @@ function MakeDefaultOptions ({
   }
 }
 
-export default class Player {
+export class Player {
   private static instances: Player[] = []
   $root: HTMLElement
   $video: HTMLVideoElement

@@ -61,7 +61,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Player from '@/player/player'
+import { Player } from '@/player/player'
 import { Danmaku } from '@/player/danmaku/danmaku'
 import { DanmakuDrawer } from '@/player/danmaku/danmakuDrawer'
 

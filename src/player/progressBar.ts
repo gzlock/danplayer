@@ -1,4 +1,4 @@
-import Player from '@/player/player'
+import { Player } from '@/player/player'
 import { UI } from '@/player/UI'
 
 export class ProgressBar {
