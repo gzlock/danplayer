@@ -5,16 +5,21 @@
   "publishConfig": {
     "access": "public"
   },
+  "author": {
+    "name": "GzLock",
+    "email": "gzlock88@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/gzlock/danplayer",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint --fix",
     "test:unit": "vue-cli-service test:unit",
-    "build-lib": "vue-cli-service build --target=lib ./src/player/player.ts"
+    "build-lib": "vue-cli-service build --target=lib ./src/player/index.ts"
   },
   "dependencies": {
     "core-js": "^3.2.1",
-    "hls.js": "^0.12.4",
     "number-precision": "^1.3.1",
     "vue": "^2.6.10",
     "vue-class-component": "^7.1.0",
@@ -38,6 +43,7 @@
     "element-ui": "^2.12.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "hls.js": "^0.12.4",
     "lint-staged": "^8.1.5",
     "lodash": "^4.17.15",
     "node-sass": "^4.9.0",

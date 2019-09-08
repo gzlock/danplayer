@@ -1,5 +1,4 @@
 import './style.scss'
-import Hls from 'hls.js'
 import { Danmaku } from '@/player/danmaku/danmaku'
 import { UI } from '@/player/UI'
 import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
@@ -205,6 +204,7 @@ export class Player {
   $video: HTMLVideoElement
   type = VideoType.Normal
   hls?: Hls
+
   public ui: UI
 
   // 尺寸

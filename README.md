@@ -42,6 +42,9 @@ yarn run lint
 
 ### 添加自定义按钮(放置在控制栏右方区域，画质选项按钮 或 全屏按钮的左侧)
 
+```html
+<script land="ts"></script>
+```
 ```typescript
 import Player from './src/player/player'
 // 选取<video>元素
@@ -65,7 +68,6 @@ new Player($video, {extraButtons: [$btn, $btn2]})
 import Player from './src/player/player'
 import { DanmakuDrawer } from './src/player/danmaku/danmakuDrawer'
 import { Danmaku, DanmakuType } from './src/player/danmaku/danmaku' 
-import { MakeDanmakuLayerOptions } from './src/player/danmaku/danmakuLayer'
 
 // 选取<video>元素
 const $video = document.querySelector('video')
@@ -78,8 +80,7 @@ const danmaku1 = new Danmaku('其他人发送的弹幕', {id:'other',type:Danmak
 const player = new Player($video, {
           width: 600,
           volume: 0,
-          // 使用MakeDanmakuLayerOptions函数来辅助补全其余的配置参数
-          danmaku: MakeDanmakuLayerOptions({
+          danmaku: {
             contextMenu: (drawer: DanmakuDrawer) => {
               const items: any = {}
               if (drawer.danmaku.id === 'myself') { // 自己的弹幕，添加【撤回】按钮，按钮的逻辑需要你自己实现
@@ -93,7 +94,7 @@ const player = new Player($video, {
               }
               return items
             }
-          })
+          }
         })
 
 // 一次填充多条弹幕
