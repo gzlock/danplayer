@@ -27,20 +27,7 @@ yarn run build-lib
 yarn run lint
 ```
 
-### HTML
-```html
-<!--如果需要播放HLS视频资源，必须引入hls.js-->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@0.12.4/dist/hls.min.js"></script>
-
-<script src="//cdn.jsdelivr.net/gh/gzlock/danplayer/dist/danplayer.umd.min.js"></script>
-```
-
-### NPM(TODO)
-```
-npm install danplayer
-```
-
-## 全局配置
+## 配置
 
 ### 自动播放
     
@@ -53,9 +40,14 @@ npm install danplayer
 2. 配置参数的src字段
 3. 1和2都有的情况下，会使用参数的src资源
 
-[javascript 使用范例](./README.js.md)
+### HTML使用DanPlayer
+```html
+<script src="//cdn.jsdelivr.net/gh/gzlock/danplayer/dist/danplayer.umd.min.js"></script>
+```
 
-[typescript 使用范例](./README.ts.md)
+typescript 使用范例
+
+[javascript 使用范例](./README.ts.md)
 
 ### 添加自定义按钮(放置在控制栏右方区域，画质选项按钮 或 全屏按钮的左侧)
 
