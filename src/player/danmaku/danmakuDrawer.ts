@@ -80,6 +80,7 @@ export class DanmakuFixedDrawer extends DanmakuDrawer {
   }
 
   update (lastFrameTime: number) {
+    console.log({ timeout: this.timeout, lastFrameTime })
     this.timeout -= lastFrameTime
     this.enable = this.timeout > 0
   }

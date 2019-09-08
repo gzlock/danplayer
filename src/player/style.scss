@@ -130,6 +130,10 @@ $controller-color: #00a1d6;
             color: white;
           }
 
+          >div{
+            height: 30px;
+          }
+
           &.selected {
             color: $controller-color;
           }

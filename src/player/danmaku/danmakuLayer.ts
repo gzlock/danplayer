@@ -1,7 +1,6 @@
 import Player from '@/player/player'
 import { Danmaku, DanmakuType } from '@/player/danmaku/danmaku'
-import { sortBy, groupBy } from 'lodash'
-import { DanmakuDrawer, DanmakuFlowDrawer, DanmakuFixedDrawer } from './danmakuDrawer'
+import { DanmakuDrawer, DanmakuFixedDrawer, DanmakuFlowDrawer } from './danmakuDrawer'
 import { EventEmitter } from 'events'
 import { Canvas } from '@/player/danmaku/canvas'
 
@@ -263,9 +262,9 @@ export class DanmakuLayer {
         let drawer = this.flowDisables.shift() || new DanmakuFlowDrawer()
         drawer.enable = true
         drawer.set(danmaku, this.width, this.calcFlowTop(drawer))
+        drawer.update(this.width, this.player.options.danmaku.flowDuration, 0)
         this.flowEnables.push(drawer)
         this.canvas.addDrawer(drawer)
-        drawer.update(this.width, this.player.options.danmaku.flowDuration, 0)
       } else {
         let drawer = this.topAndBottomDisables.shift() || new DanmakuFixedDrawer()
         drawer.enable = true
@@ -355,31 +354,34 @@ export class DanmakuLayer {
     this.topEnables = this.topEnables.filter(drawer => {
       if (drawer.enable) {
         drawer.update(this.frameTime)
+        return true
       } else {
         this.canvas.removeDrawer(drawer)
         this.topAndBottomDisables.push(drawer)
+        return false
       }
-      return drawer.enable
     })
 
     this.bottomEnables = this.bottomEnables.filter(drawer => {
       if (drawer.enable) {
         drawer.update(this.frameTime)
+        return true
       } else {
         this.canvas.removeDrawer(drawer)
         this.topAndBottomDisables.push(drawer)
+        return false
       }
-      return drawer.enable
     })
 
     this.flowEnables = this.flowEnables.filter(drawer => {
       if (drawer.enable) {
         drawer.update(this.width, this.player.options.danmaku.flowDuration, this.frameTime)
+        return true
       } else {
         this.canvas.removeDrawer(drawer)
         this.flowDisables.push(drawer)
+        return false
       }
-      return drawer.enable
     })
   }
 
@@ -421,16 +423,16 @@ export class DanmakuLayer {
         drawDanmaku: this.calcDanmakuTime,
         frameTime: this.frameTime
       },
-      fixed: {
+      'on screen danmakus': {
         top: this.topEnables.length,
         bottom: this.bottomEnables.length,
-        disabled: this.topAndBottomDisables.length
+        flow: this.flowEnables.length
       },
-      flow: {
-        enables: this.flowEnables.length,
-        disabled: this.flowDisables.length
+      'danmaku pool': {
+        fixed: this.topAndBottomDisables.length,
+        flow: this.flowDisables.length
       },
-      top: {
+      positionY: {
         top: this.topY,
         flow: this.flowY,
         bottom: this.bottomY

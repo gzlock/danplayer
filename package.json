@@ -18,15 +18,20 @@
     "vue-property-decorator": "^8.1.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.0",
     "@types/hls.js": "^0.12.4",
     "@types/lodash": "^4.14.138",
+    "@types/mocha": "^5.2.4",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-eslint": "^3.11.0",
     "@vue/cli-plugin-typescript": "^3.11.0",
+    "@vue/cli-plugin-unit-mocha": "^3.11.0",
     "@vue/cli-service": "^3.11.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "@vue/eslint-config-typescript": "^4.0.0",
+    "@vue/test-utils": "1.0.0-beta.29",
     "babel-eslint": "^10.0.1",
+    "chai": "^4.1.2",
     "element-ui": "^2.12.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
@@ -36,12 +41,7 @@
     "sass-loader": "^7.1.0",
     "typescript": "^3.4.3",
     "vue-template-compiler": "^2.6.10",
-    "worker-loader": "^2.0.0",
-    "chai": "^4.1.2",
-    "@vue/test-utils": "1.0.0-beta.29",
-    "@types/chai": "^4.1.0",
-    "@types/mocha": "^5.2.4",
-    "@vue/cli-plugin-unit-mocha": "^3.11.0"
+    "worker-loader": "^2.0.0"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

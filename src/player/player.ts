@@ -157,6 +157,12 @@ export interface PlayerPublicOptions {
   color: string
 }
 
+enum VideoType {
+  Normal,
+  Hls,
+  Dash
+}
+
 function MakeDefaultOptions ({
   autoplay = false,
   color = '#00a1d6',
@@ -197,6 +203,7 @@ export default class Player {
   private static instances: Player[] = []
   $root: HTMLElement
   $video: HTMLVideoElement
+  type = VideoType.Normal
   hls?: Hls
   public ui: UI
 
@@ -458,14 +465,14 @@ export default class Player {
   }
 
   private async getContentType () {
-    let useHLS = false
     const src = this.$video.getAttribute('src') as string
     console.log('视频网址', src)
     if (src) {
-      useHLS = !!src.match(/\.m3u[8]/)
+      if (src.match(/\.m3u[8]/)) this.type = VideoType.Hls
+      if (src.match(/\.mpd/)) this.type = VideoType.Dash
       this.options.src = src
     }
-    if (useHLS) {
+    if (this.type === VideoType.Hls) {
       console.log('使用Hls.js')
       if (Hls.isSupported()) {
         this.hls = new Hls()
@@ -493,6 +500,8 @@ export default class Player {
           this.options.src = this.$video.src = src
         }
       }
+    } else if (this.type === VideoType.Dash) {
+      console.log('使用dash.js')
     }
   }
 
@@ -515,6 +524,9 @@ export default class Player {
   destroy () {
     Player.instances.splice(Player.instances.indexOf(this), 1)
     this.ui.destroy()
+    if (this.hls) {
+      this.hls.detachMedia()
+    }
   }
 
   get debug (): Object {
