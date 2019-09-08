@@ -18,8 +18,10 @@ deploy:
   provider: releases
   api_key:
     secure: AZuRGhh1ylVlw6Ee46GK8rTcOjMxxIfLr8Phd6OCbi8MKEVLgCLf4wFYhn1lOCnpuLN+uLEYCb4+zxhUZQIYuTn0Ke4O7Z046PdTA0sYauw9heg9JWmoJ9v9MpzjGYZl0vnTNOiFxhYMYG2y12Vv175AWnTZ9yqQrm8hspQ2Fav+F0/v/ar4+Adas8Ha9r6ZChvsQMjOdGrb/ZXHZw2xB2xOKX3fvClQnXEN0+LIscaViDv5uIt2ZTBT1ta8Oy0VuuYFucWyZ9cF1KgZdDczC8vteuXxq6yOno8ZJ7l6teGcJaLrFdOsbOYHpS9pwpZ9hHE2FWmloigXGF4EDvtxlcCRtdRAv74ey7Q3DFjIGoEro1uorQqDv2Fv7YS+p/aqonum3jgcon/eKZ/QWdRFsOGj2U3GOk/+jFvJZoyk3M+MHk9fFj/7hQgq8bikehIYXBeOJ0sdJjd6tA0JTrPZMOe+t4GQc0AO+e2wNBsTzqfgoJSnmJjBqGXjVAUWOvRKqDiZjH9UGy+o9aSI2kY8u1WvAcFDeGO5SCoybWaaZqBhTPCiLMWYxDnq0R/CHwfoZ6tmCNz4r9BrX9ff91FTcA8McMAgOyVXLH8j4dNTcuh4ptsp4H9vbxQPFArS3lobGyNrFbyTGoQo3l8gmW2cyGkgYY+9Wsx0obH52BCS/Xo=
-  file: "./dist"
+  skip-cleanup: true
+  local-dir: dist
   on:
+    branch: master
     repo: gzlock/danplayer
     tags: true
 
