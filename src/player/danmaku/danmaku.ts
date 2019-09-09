@@ -1,4 +1,4 @@
-export const enum DanmakuType {
+export enum DanmakuType {
   Top,
   Flow,
   Bottom

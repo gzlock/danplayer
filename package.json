@@ -16,7 +16,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint --fix",
     "test:unit": "vue-cli-service test:unit",
-    "build-lib": "vue-cli-service build --target=lib ./src/player/index.ts"
+    "build-lib": "vue-cli-service build --target=lib ./src/player/index.ts --fix"
   },
   "dependencies": {
     "core-js": "^3.2.1",
@@ -40,6 +40,7 @@
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-eslint": "^10.0.1",
     "chai": "^4.1.2",
+    "dashjs": "^3.0.0",
     "element-ui": "^2.12.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",

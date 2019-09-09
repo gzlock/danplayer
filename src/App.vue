@@ -79,7 +79,8 @@ export default class App extends Vue {
       type: 1,
       alpha: 1,
       live: true,
-      src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+      // src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+      src: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd',
       color: ''
     }
     private random = { count: 100, timeRange: 10 }
@@ -133,6 +134,7 @@ export default class App extends Vue {
     }
 
     setSrc () {
+      document.body.scrollTo(0, 0)
       player.set({ live: this.form.live, src: this.form.src })
     }
 
@@ -169,15 +171,15 @@ export default class App extends Vue {
           volume: 0,
           danmaku: {
             alpha: 0.5,
-            contextMenu: (drawer: DanmakuDrawer) => {
+            contextMenu: (danmaku: Danmaku) => {
               const items: any = {}
-              if (drawer.danmaku.id === 'myself') { // 自己的弹幕
+              if (danmaku.id === 'myself') { // 自己的弹幕
                 items['撤回'] = () => {
-                  alert('弹幕内容：' + drawer.danmaku.text)
+                  alert('弹幕内容：' + danmaku.text)
                 }
               } else { // 别人的弹幕
                 items['举报'] = () => {
-                  alert('举报内容：' + drawer.danmaku.text)
+                  alert('举报内容：' + danmaku.text)
                 }
               }
               return items
@@ -188,6 +190,7 @@ export default class App extends Vue {
         // 扩展按钮
         const btn1 = document.createElement('div') as HTMLElement
         btn1.innerText = '扩展按钮'
+        btn1.onclick = () => { alert('扩展按钮') }
         player.set({ extraButtons: [btn1] })
         this.form.flowDuration = player.options.danmaku.flowDuration
         this.form.fadeoutDuration = player.options.danmaku.fadeoutDuration

@@ -1,29 +1,26 @@
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
 import { UI } from '@/player/UI'
+import { QualityLevel } from '@/player/qualityLevelAdapter'
 
 export class QualitySelector extends ButtonAndLayer {
-  hls!: Hls
-  private readonly $autoLevel: Element
+  private readonly autoLevel: QualityLevel = { selected: false, name: '自动', index: -1, bitrate: 0 }
+  private readonly levels: QualityLevel[] = []
   currentLevel = -1
 
   constructor (ui: UI) {
     super(ui)
     this.$btn = this.player.$root.querySelector('.button.quality') as HTMLElement
     this.$layer = this.player.$root.querySelector('.float.quality-menu') as HTMLElement
-    this.$autoLevel = document.createElement('div')
-    this.$autoLevel.innerHTML = '自动'
-    this.$autoLevel.setAttribute('data-value', (-1).toString())
     this.init()
     this.$layer.addEventListener('click', (e: MouseEvent) => {
       if (e.target) {
         const $item = e.target as HTMLElement
         if ($item.hasAttribute('data-value')) {
           const value = parseInt($item.getAttribute('data-value') as string)
-          console.log('click', value)
-          if (this.player.hls) {
-            this.player.hls.currentLevel = this.player.hls.loadLevel = value
-            this.currentLevel = value
-          }
+          console.log('level click', value)
+          this.levels.forEach(level => {
+            level.selected = level.index === value
+          })
         }
       }
       this.updateButton()
@@ -43,39 +40,43 @@ export class QualitySelector extends ButtonAndLayer {
     super.showLayer()
     this._updateLevel()
     this.updateLayerPosition()
+    this.updateButton()
   }
 
   updateButton () {
-    let name = '自动'
-    if (this.currentLevel > -1 && this.hls.levels[this.hls.loadLevel]) {
-      name = this.hls.levels[this.hls.loadLevel].name + 'p'
-    }
-    this.$btn.innerText = name
+    this.levels.every(level => {
+      if (level.selected) {
+        this.$btn.innerText = level.name
+      }
+      return !level.selected
+    })
+  }
+
+  reset () {
+    this.currentLevel = -1
+    this.$layer.innerHTML = ''
   }
 
   private _updateLevel () {
+    // 清空菜单内容
     this.$layer.innerHTML = ''
-    this.hls.levels.forEach((level, index) => {
-      if (!level.name) return
+    this.levels.forEach((level: QualityLevel, index: number) => {
       const $item = document.createElement('div') as HTMLElement
 
       if (index === this.currentLevel) {
         $item.classList.add('current')
       }
-      $item.innerText = level.name + 'P'
-      $item.setAttribute('data-value', index.toString())
+      $item.innerText = level.name
+      $item.setAttribute('data-value', level.index.toString())
       this.$layer.append($item)
     })
-    if (this.currentLevel === -1) {
-      this.$autoLevel.classList.add('current')
-    } else {
-      this.$autoLevel.classList.remove('current')
-    }
-    this.$layer.append(this.$autoLevel)
   }
 
-  updateLevel (video: Hls) {
-    this.hls = video
+  updateLevel (levels: QualityLevel[]) {
+    console.log('update level', levels)
+    this.levels.length = 0
+    this.autoLevel.selected = true
+    this.levels.push(...levels, this.autoLevel)
     this._updateLevel()
     this.updateLayerPosition()
     this.updateButton()

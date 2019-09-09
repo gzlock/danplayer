@@ -151,35 +151,6 @@ $controller-color: #00a1d6;
 
       }
 
-      .sizes {
-        margin-top: 4px;
-
-        span {
-          padding: 3px;
-          display: inline-block;
-          width: 40px;
-          text-align: center;
-          background: rgba(255, 255, 255, 0.1);
-          cursor: pointer;
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.4);
-          }
-
-          &.selected {
-            background: $controller-color;
-          }
-        }
-
-        span:first-child {
-          border-radius: 5px 0 0 5px;
-        }
-
-        span:last-child {
-          border-radius: 0 5px 5px 0;
-        }
-      }
-
       .colors {
         margin-top: 4px;
         display: flex;

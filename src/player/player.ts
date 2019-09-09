@@ -2,6 +2,7 @@ import './style.scss'
 import { Danmaku } from '@/player/danmaku/danmaku'
 import { UI } from '@/player/UI'
 import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
+import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
 
 const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
 
@@ -204,8 +205,13 @@ export class Player {
   $video: HTMLVideoElement
   type = VideoType.Normal
   hls?: Hls
+  dash?: dashjs.MediaPlayerClass
 
   public ui: UI
+
+  private adapter: QualityLevelAdapter
+
+  private $style!: HTMLStyleElement
 
   // 尺寸
   private _width: string = ''
@@ -255,14 +261,18 @@ export class Player {
       if (e.key === 'Enter') {
         this.ui.show()
         this.ui.danmakuForm.focus()
-      } else { stop = false }
+      } else if (e.key === ' ') {} else { stop = false }
       if (stop) {
         e.stopPropagation()
         e.preventDefault()
       }
     })
     this.$root.addEventListener('keyup', (e: KeyboardEvent) => {
-      if (e.key === ' ') this.toggle()
+      if (e.key === ' ') {
+        this.toggle()
+        e.stopPropagation()
+        e.preventDefault()
+      }
     })
     document.addEventListener('fullscreenchange', () => {
       this.isFullScreen = document.fullscreenElement === this.$root
@@ -325,8 +335,12 @@ export class Player {
 
     this.options = MakeDefaultOptions(options || { autoplay: this.$video.hasAttribute('autoplay') })
 
+    this.adapter = new QualityLevelAdapter()
     this.ui = new UI(this)
     this.ui.update()
+    this.adapter.on(QualityLevelAdapter.Events['OnLoad'], (levels: QualityLevel[]) => {
+      this.ui.qualitySelector.updateLevel(levels)
+    })
 
     this._setSrc().then()
     this._setUI()
@@ -339,11 +353,15 @@ export class Player {
 
     await this.getContentType()
 
-    this.ui.qualitySelector.hideButton()
     if (this.hls) {
-      this.hls.on(Hls.Events.LEVEL_LOADED, () => {
-        this.ui.qualitySelector.updateLevel(this.hls as Hls)
-      })
+      this.adapter.useHls(this.hls)
+    } else if (this.dash) {
+      this.adapter.useDash(this.dash)
+    }
+
+    if (this.type === VideoType.Normal) {
+      this.ui.qualitySelector.hideButton()
+    } else {
       this.ui.qualitySelector.showButton()
     }
 
@@ -370,6 +388,14 @@ export class Player {
     this.ui.progressBar.resetTimeZone()
 
     this.resize()
+
+    if (this.$style) {
+      this.$style.remove()
+    }
+    this.$style = document.createElement('style') as HTMLStyleElement
+    this.$style.innerHTML = `.video-player .colors .selected{border-color:${this.options.color} !important}
+.video-player .types .selected{color:${this.options.color} !important}`
+    document.body.append(this.$style)
   }
 
   set (options: Partial<PlayerPublicOptions>) {
@@ -382,6 +408,10 @@ export class Player {
       if (this.hls) {
         this.hls.detachMedia()
         this.hls = undefined
+      }
+      if (this.dash) {
+        this.dash.reset()
+        this.dash = undefined
       }
       this._setSrc().then()
     }
@@ -468,40 +498,48 @@ export class Player {
     const src = this.$video.getAttribute('src') as string
     console.log('视频网址', src)
     if (src) {
+      this.options.src = src
       if (src.match(/\.m3u[8]/)) this.type = VideoType.Hls
       if (src.match(/\.mpd/)) this.type = VideoType.Dash
-      this.options.src = src
     }
     if (this.type === VideoType.Hls) {
       console.log('使用Hls.js')
+      if (!Hls) {
+        throw Error('播放Hls视频资源请加载hls.js的代码')
+      }
       if (Hls.isSupported()) {
         this.hls = new Hls()
         this.hls.config.capLevelToPlayerSize = true
         this.hls.attachMedia(this.$video)
         this.hls.loadSource(src)
-      } else {
-        const http = new XMLHttpRequest()
-        http.open('Get', src)
-        http.send()
-        const contentType: string | null = await new Promise(resolve => {
-          http.onreadystatechange = () => {
-            if (http.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
-              if (http.status === 200) {
-                resolve(http.getResponseHeader('Content-Type') as string)
-              } else {
-                resolve(null)
-              }
-              http.abort()
-            }
-          }
-        })
-        console.log({ contentType })
-        if (contentType && this.$video.canPlayType(contentType)) {
-          this.options.src = this.$video.src = src
-        }
       }
     } else if (this.type === VideoType.Dash) {
       console.log('使用dash.js')
+      if (!dashjs) {
+        throw Error('播放MPD视频资源前加载dash.js的代码')
+      }
+      this.dash = dashjs.MediaPlayer().create()
+      this.dash.initialize(this.$video, src, false)
+    } else {
+      const http = new XMLHttpRequest()
+      http.open('Get', src)
+      http.send()
+      const contentType: string | null = await new Promise(resolve => {
+        http.onreadystatechange = () => {
+          if (http.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
+            if (http.status === 200) {
+              resolve(http.getResponseHeader('Content-Type') as string)
+            } else {
+              resolve(null)
+            }
+            http.abort()
+          }
+        }
+      })
+      console.log({ contentType })
+      if (contentType && this.$video.canPlayType(contentType)) {
+        this.options.src = this.$video.src = src
+      }
     }
   }
 
@@ -527,6 +565,12 @@ export class Player {
     if (this.hls) {
       this.hls.detachMedia()
     }
+    if (this.dash) {
+      this.dash.reset()
+    }
+    if (this.$style) {
+      this.$style.remove()
+    }
   }
 
   get debug (): Object {
@@ -542,9 +586,18 @@ export class Player {
         quality += this.hls.levels[this.hls.currentLevel].name + 'P'
       }
     }
+    let type = 'native'
+    if (this.type === VideoType.Normal) {
+      type = 'native'
+    } else if (this.type === VideoType.Dash) {
+      type = 'dash.js'
+    } else {
+      type = 'hls.js'
+    }
     return {
       width: this.width,
       height: this.height,
+      type,
       src,
       quality,
       ui: this.ui.debug

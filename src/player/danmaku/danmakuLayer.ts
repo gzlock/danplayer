@@ -18,7 +18,7 @@ export interface DanmakuLayerOptions {
   flowDuration: number
   fadeoutDuration: number
   limit: LimitType // 防重叠选项
-  contextMenu: ((d: DanmakuDrawer) => { [name: string]: () => void }) | undefined
+  contextMenu: ((danmaku: Danmaku) => { [name: string]: () => void }) | undefined
 }
 
 const template = '<div class="content"></div><div class="buttons"><span class="copy">复制</span></div>'
@@ -134,6 +134,9 @@ export class DanmakuLayer {
       e.stopPropagation()
       return false
     })
+    this.canvas.$canvas.addEventListener('dblclick', () => {
+      this.player.toggleFullScreen()
+    })
 
     this.player.$video.addEventListener('seeked', () => {
       this.clear()
@@ -154,7 +157,7 @@ export class DanmakuLayer {
     for (let i = 0; i < drawers.length; i++) {
       const drawer = drawers[i]
       if (this.player.options.danmaku.contextMenu) {
-        const $menu = MakeDanmakuDrawerMenu(drawer, this.player.options.danmaku.contextMenu(drawer), text => this.copyText(text))
+        const $menu = MakeDanmakuDrawerMenu(drawer, this.player.options.danmaku.contextMenu(drawer.danmaku), text => this.copyText(text))
         this.$menu.append($menu)
       }
     }
