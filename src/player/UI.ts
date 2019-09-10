@@ -89,6 +89,7 @@ export class UI {
     this.isShow = true
     this.$root.classList.add('show')
     this.$gradientBG.classList.add('show')
+    this.progressBar.resize()
   }
 
   hide () {

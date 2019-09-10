@@ -5,16 +5,6 @@ const AdapterEvents = {
   OnChanged: 'OnChanged'
 }
 
-interface OnLoadEvent {
-  type: string,
-  levels: QualityLevel[]
-}
-
-interface OnChangedEvent {
-  type: string,
-  level: QualityLevel
-}
-
 export interface QualityLevel {
   selected: boolean,
   index: number,
@@ -30,7 +20,7 @@ function createLevelsFromHls (hls: Hls): QualityLevel[] {
     levels[name] = {
       selected: false,
       name,
-      index: item.level as number,
+      index,
       bitrate: item.bitrate
     }
   })
@@ -57,6 +47,11 @@ export class QualityLevelAdapter extends EventEmitter {
   static Events = AdapterEvents
   private hls?: Hls
   private dash?: dashjs.MediaPlayerClass
+  private _level!: QualityLevel
+
+  get currentLevel () {
+    return this._level
+  }
 
   constructor () {
     super()
@@ -65,6 +60,7 @@ export class QualityLevelAdapter extends EventEmitter {
 
   useHls (hls: Hls) {
     this.hls = hls
+    this.dash = undefined
 
     hls.on(Hls.Events.LEVEL_LOADED, () => {
       this.emit(QualityLevelAdapter.Events.OnLoad, createLevelsFromHls(hls))
@@ -73,12 +69,28 @@ export class QualityLevelAdapter extends EventEmitter {
 
   useDash (dash: dashjs.MediaPlayerClass) {
     this.dash = dash
+    this.hls = undefined
     dash.on('streamInitialized', () => {
       this.emit(QualityLevelAdapter.Events.OnLoad, createLevelsFromDash(dash))
     })
   }
 
-  trigger (event: string, ...data: Array<any>) {
-    this.emit(event, event, ...data)
+  changeLevelTo (level: QualityLevel) {
+    this._level = level
+    if (this.hls) {
+      this.hls.currentLevel = level.index
+    } else if (this.dash) {
+      console.log('dash 改变 level', level)
+      const setting = this.dash.getSettings()
+      if (level.index === -1) {
+        setting.streaming.abr.autoSwitchBitrate.video = true
+        setting.streaming.abr.limitBitrateByPortal = true
+      } else {
+        this.dash.setQualityFor('video', level.index)
+        setting.streaming.abr.autoSwitchBitrate.video = false
+        setting.streaming.abr.limitBitrateByPortal = false
+      }
+      this.dash.updateSettings(setting)
+    }
   }
 }

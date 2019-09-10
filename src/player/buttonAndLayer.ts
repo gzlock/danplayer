@@ -1,7 +1,8 @@
+import { EventEmitter } from 'eventemitter3'
 import { Player } from './player'
 import { UI } from '@/player/UI'
 
-export class ButtonAndLayer {
+export class ButtonAndLayer extends EventEmitter {
   player: Player
   ui: UI
   $btn!: HTMLElement
@@ -17,6 +18,7 @@ export class ButtonAndLayer {
   }
 
   constructor (ui: UI) {
+    super()
     this.ui = ui
     this.player = ui.player
   }

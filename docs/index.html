@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><script src=https://cdn.jsdelivr.net/npm/stats.js></script><script src=https://cdn.jsdelivr.net/npm/hls.js@0.12.4/dist/hls.min.js></script><script src=https://cdn.jsdelivr.net/npm/dashjs@3.0.0/dist/dash.mediaplayer.min.js></script><link rel=icon href=/favicon.ico><title>my_player</title><link href=/css/app.6aa6660d.css rel=preload as=style><link href=/css/chunk-vendors.728eb7d9.css rel=preload as=style><link href=/js/app.65b70a51.js rel=preload as=script><link href=/js/chunk-vendors.f35f962c.js rel=preload as=script><link href=/css/chunk-vendors.728eb7d9.css rel=stylesheet><link href=/css/app.6aa6660d.css rel=stylesheet></head><body><noscript><strong>We're sorry but my_player doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=app></div><script>window.addEventListener('load', () => {
+    var stats = new Stats()
+    stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(stats.dom)
+
+    function animate () {
+
+      stats.begin()
+
+      // monitored code goes here
+
+      stats.end()
+
+      requestAnimationFrame(animate)
+
+    }
+
+    requestAnimationFrame(animate)
+  })</script><script src=/js/chunk-vendors.f35f962c.js></script><script src=/js/app.65b70a51.js></script></body></html>

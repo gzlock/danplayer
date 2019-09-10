@@ -13,18 +13,20 @@ export class QualitySelector extends ButtonAndLayer {
     this.$layer = this.player.$root.querySelector('.float.quality-menu') as HTMLElement
     this.init()
     this.$layer.addEventListener('click', (e: MouseEvent) => {
-      if (e.target) {
-        const $item = e.target as HTMLElement
-        if ($item.hasAttribute('data-value')) {
-          const value = parseInt($item.getAttribute('data-value') as string)
-          console.log('level click', value)
-          this.levels.forEach(level => {
-            level.selected = level.index === value
-          })
-        }
+      const $item = e.target as HTMLElement
+      if ($item.hasAttribute('data-value')) {
+        const value = parseInt($item.getAttribute('data-value') as string)
+        console.log('level click', value)
+        this.levels.forEach(level => {
+          level.selected = level.index === value
+          if (level.selected) {
+            this.emit('selectLevel', level)
+            this.currentLevel = value
+          }
+        })
+        this.updateButton()
+        this.hideLayer()
       }
-      this.updateButton()
-      this.hideLayer()
     })
   }
 
@@ -58,12 +60,13 @@ export class QualitySelector extends ButtonAndLayer {
   }
 
   private _updateLevel () {
+    console.warn('_updateLevel')
     // 清空菜单内容
     this.$layer.innerHTML = ''
-    this.levels.forEach((level: QualityLevel, index: number) => {
+    this.levels.forEach((level: QualityLevel) => {
       const $item = document.createElement('div') as HTMLElement
 
-      if (index === this.currentLevel) {
+      if (level.index === this.currentLevel) {
         $item.classList.add('current')
       }
       $item.innerText = level.name
@@ -76,7 +79,7 @@ export class QualitySelector extends ButtonAndLayer {
     console.log('update level', levels)
     this.levels.length = 0
     this.autoLevel.selected = true
-    this.levels.push(...levels, this.autoLevel)
+    this.levels.push(...levels.reverse(), this.autoLevel)
     this._updateLevel()
     this.updateLayerPosition()
     this.updateButton()

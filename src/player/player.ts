@@ -3,6 +3,7 @@ import { Danmaku } from '@/player/danmaku/danmaku'
 import { UI } from '@/player/UI'
 import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
+import { MediaPlayerSettingClass } from 'dashjs'
 
 const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
 
@@ -158,9 +159,9 @@ export interface PlayerPublicOptions {
 }
 
 enum VideoType {
-  Normal,
-  Hls,
-  Dash
+  Normal = 'native',
+  Hls = 'hls.js',
+  Dash = 'dash.js'
 }
 
 function MakeDefaultOptions ({
@@ -299,7 +300,6 @@ export class Player {
 
     this.$root.addEventListener('mousemove', () => {
       this.$root.classList.remove('mouse-idle')
-      this.ui.show()
       if (this.paused) {
 
       } else {
@@ -310,11 +310,13 @@ export class Player {
       }
     })
 
-    this.$root.addEventListener('mouseenter', () => {
+    this.$root.addEventListener('mouseover', () => {
+      if (this.ui.isShow) return
       this.ui.show()
       this.ui.cancelHideUIDelay()
     })
     this.$root.addEventListener('mouseleave', () => {
+      if (!this.ui.isShow) return
       this.ui.hide()
       this.ui.cancelHideUIDelay()
     })
@@ -338,8 +340,13 @@ export class Player {
     this.adapter = new QualityLevelAdapter()
     this.ui = new UI(this)
     this.ui.update()
+
     this.adapter.on(QualityLevelAdapter.Events['OnLoad'], (levels: QualityLevel[]) => {
       this.ui.qualitySelector.updateLevel(levels)
+    })
+    this.ui.qualitySelector.on('selectLevel', (level: QualityLevel) => {
+      console.log('选择画质级别', level)
+      this.adapter.changeLevelTo(level)
     })
 
     this._setSrc().then()
@@ -394,15 +401,16 @@ export class Player {
     }
     this.$style = document.createElement('style') as HTMLStyleElement
     this.$style.innerHTML = `.video-player .colors .selected{border-color:${this.options.color} !important}
-.video-player .types .selected{color:${this.options.color} !important}`
+.video-player .types .selected{color:${this.options.color} !important}
+.video-player .quality-menu .current{color:${this.options.color} !important}`
     document.body.append(this.$style)
+    this.ui.qualitySelector.reset()
   }
 
   set (options: Partial<PlayerPublicOptions>) {
     options.danmaku = Object.assign({}, this.options.danmaku, options.danmaku)
     const newOptions = Object.assign({}, this.options, options)
-    const hasChange = newOptions.src !== this.options.src || this.options.live !== newOptions.live
-    // console.log('set hasChange', hasChange, { nowLive: this.options.live, newLive: newOptions.live })
+    const hasChange = newOptions.src !== this.options.src
     this.options = newOptions
     if (hasChange) {
       if (this.hls) {
@@ -497,6 +505,7 @@ export class Player {
   private async getContentType () {
     const src = this.$video.getAttribute('src') as string
     console.log('视频网址', src)
+    this.type = VideoType.Normal
     if (src) {
       this.options.src = src
       if (src.match(/\.m3u[8]/)) this.type = VideoType.Hls
@@ -520,6 +529,9 @@ export class Player {
       }
       this.dash = dashjs.MediaPlayer().create()
       this.dash.initialize(this.$video, src, false)
+      const setting = this.dash.getSettings()
+      setting.streaming.abr.limitBitrateByPortal = true
+      this.dash.updateSettings(setting)
     } else {
       const http = new XMLHttpRequest()
       http.open('Get', src)
@@ -538,7 +550,7 @@ export class Player {
       })
       console.log({ contentType })
       if (contentType && this.$video.canPlayType(contentType)) {
-        this.options.src = this.$video.src = src
+        this.$video.src = src
       }
     }
   }
@@ -576,28 +588,17 @@ export class Player {
   get debug (): Object {
     let quality = '默认'
     let src = this.options.src
-    if (this.hls) {
-      if (this.ui.qualitySelector.currentLevel === -1) {
-        quality = '自动 '
+    if (this.type !== VideoType.Normal) {
+      if (this.adapter.currentLevel) {
+        quality = this.adapter.currentLevel.name
       } else {
-        quality = ''
+        quality = '自动'
       }
-      if (this.hls.currentLevel !== -1) {
-        quality += this.hls.levels[this.hls.currentLevel].name + 'P'
-      }
-    }
-    let type = 'native'
-    if (this.type === VideoType.Normal) {
-      type = 'native'
-    } else if (this.type === VideoType.Dash) {
-      type = 'dash.js'
-    } else {
-      type = 'hls.js'
     }
     return {
       width: this.width,
       height: this.height,
-      type,
+      type: this.type,
       src,
       quality,
       ui: this.ui.debug

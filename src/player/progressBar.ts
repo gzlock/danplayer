@@ -1,5 +1,6 @@
 import { Player } from '@/player/player'
 import { UI } from '@/player/UI'
+import { SecondsToString } from '@/player/utils'
 
 export class ProgressBar {
   private player: Player
@@ -57,47 +58,19 @@ export class ProgressBar {
     })
 
     this.$root.addEventListener('click', mouseMoveChangeTime)
-
-    this.offsetWidth = this.player.width - this.$root.clientWidth
     this.resize()
   }
 
   private time () {
     if (this.player.options.live) return
-    this.$time.innerText = ProgressBar.getTimeString(this.player.$video.currentTime) +
-      ' / ' + ProgressBar.getTimeString(this.player.$video.duration)
-  }
-
-  private static getTimeString (s: number): string {
-    let time = []
-    // 小时
-    let temp: string | number = Math.floor(s / (60 * 60))
-    if (temp > 0) {
-      if (temp.toString().length === 1) {
-        temp = '0' + temp
-      }
-      time.push(temp)
-    }
-
-    // 分
-    temp = Math.floor(s / 60) - Math.floor(s / 3600) * 60
-    if (temp.toString().length === 1) {
-      temp = '0' + temp
-    }
-    time.push(temp)
-
-    // 秒
-    temp = Math.floor(s) - Math.floor(s / 60) * 60
-    if (temp.toString().length === 1) {
-      temp = '0' + temp
-    }
-    time.push(temp)
-    return time.join(':')
+    this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
+      ' / ' + SecondsToString(this.player.$video.duration)
   }
 
   resize () {
+    this.offsetWidth = this.player.width - this.$root.offsetWidth
     this.barWidth = this.player.width - this.offsetWidth
-    // console.log('进度条 长度', this.barWidth, this.player.$root.clientWidth)
+    console.warn('reset', this.player.width, this.$root.clientWidth, this.$root)
     this.update()
     this.updateBufferBar()
   }
@@ -119,6 +92,7 @@ export class ProgressBar {
   }
 
   updateBufferBar () {
+    console.log('updateBufferBar', this.barWidth)
     for (let i = 0; i < this.player.$video.buffered.length; i++) {
       const start = this.player.$video.buffered.start(i)
       const end = this.player.$video.buffered.end(i)
