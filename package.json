@@ -13,10 +13,10 @@
   "homepage": "https://github.com/gzlock/danplayer",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "cross-env TARGET=docs vue-cli-service build",
     "lint": "vue-cli-service lint --fix",
     "test:unit": "vue-cli-service test:unit",
-    "build-lib": "vue-cli-service build --target=lib ./src/player/index.ts --fix"
+    "build-lib": "cross-env TARGET=lib vue-cli-service build --target=lib ./src/player/index.ts --fix"
   },
   "dependencies": {
     "core-js": "^3.2.1",
@@ -52,7 +52,8 @@
     "typescript": "^3.4.3",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "vue-template-compiler": "^2.6.10",
-    "worker-loader": "^2.0.0"
+    "worker-loader": "^2.0.0",
+    "cross-env": "^5.2.1"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"
