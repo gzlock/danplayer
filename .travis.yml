@@ -8,6 +8,7 @@ install:
   - npm uninstall tslint --no-save
   - npm install
 script:
+  - tsc -V
   - npm run build
   - npm run build-lib
 deploy:
