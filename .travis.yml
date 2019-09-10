@@ -1,21 +1,33 @@
 language: node_js
 node_js:
-- node
+  - node
 matrix:
   fast_finish: true
 install:
-- npm uninstall typescript --no-save
-- npm uninstall tslint --no-save
-- npm install
+  - npm uninstall typescript --no-save
+  - npm uninstall tslint --no-save
+  - npm install
 script:
-- npm run build-lib
+  - npm run build
 deploy:
-  provider: npm
-  email: gzlock88@gmail.com
-  api_key:
-    secure: khBKpU9w2TESNai1Q6gh7QoL257Gbvl9JasiBtkOiM90rADfDpYPXhbDaMmqAuq4AesqkGn+bxdo928h2BZmLdOztqNWAAXI6SmcT4guXY36/ZfkDmFlY3GvZ9Nw0wbo7LdK1zgvup+D06InYNBZ434MpSL+299YDw+x9a1KgkLsB4Bd+L3+MIPIeGg6yMFYLyYtWxwfTQ5ojdrzyqSKTvq+9XZFfSJmh34KBxkE2afZueWiLcEBPbKWVee+CrZkrqbu1O/rJ5z3I20C7WdVkSp0XmCCFL+9oTWmIdYoQkBOmEX8PFNPSdGa/rdDQIJm/X27kgbJjoBVblwbBD1cC3Wl5pwTuDayKI5gW8kBAJyBNt6ympgLt1I5WyyJ/HaJNZAogwbTL/sPfITxK9ejJCjterVpbp/AvJ1tJdfPiuNwmkjnhqMUSfEgnRHReVk/3WJ0QVeSCcIBzq6yoyoReaCL1DJxPi2k4BTLfFsP+nNu9df1lx6lHUe3DXXDvN7HyFa4Ods6TLj4qc1jjayWYvEDd2/sat4AH6Xe1daKW6Wm658cs1Ft9moKcmEqex5LNAxJGX9lCfkZIi25p1O6oaQy5Al7pWPKugVI7NO6oT1PZ/uCpGcewSxvkla9QK/YIeN1GGmiy+jWy1BKQEloQ+ncVWYwTg2jY8hBv9nmw9E=
-  on:
-    tags: true
+  - provider: pages
+    skip-cleanup: true
+    target-branch: gh-pages
+    local-dir: docs
+    email: gzlock88@gmail.com
+    api_key:
+      github_token: $GITHUB_TOKEN
+    on:
+      branch: master
+      tags: true
+  - provider: npm
+    before_deploy:
+      - cd ./dist
+    email: "$NPM_EMAIL"
+    api_key: "$NPM_AUTH_TOKEN"
+    skip_cleanup: true
+    on:
+      tags: true
 cache:
   directories:
-  - node_modules
+    - node_modules

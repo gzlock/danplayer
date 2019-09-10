@@ -55,7 +55,3 @@ const player = new Player($video, {
 // 一次填充多条弹幕
 player.fillDanmakus([danmaku,danmaku1])
 ```
-
-# 特别鸣谢
-暂无
-
