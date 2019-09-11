@@ -186,7 +186,7 @@ export class DanmakuLayer {
     this.lineHeight = Math.round(this.canvas.fontHeight(this.player.options.danmaku.fontSize))
 
     this.lineHeights.length = 0
-    // 每次resize都计算屏幕最大行数
+    // 每次resize都计算屏幕最大行数，因为有可能在多个不同分辨率的屏幕切换
     for (let y = 0; y < window.screen.height; y++) {
       const height = y * this.lineHeight
       if (height > window.screen.height) break

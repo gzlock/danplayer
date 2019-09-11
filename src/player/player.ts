@@ -1,8 +1,10 @@
 import './style.scss'
+import { EventEmitter } from 'eventemitter3'
 import { Danmaku } from '@/player/danmaku/danmaku'
 import { Ui } from '@/player/ui'
 import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
+import { LoadMimeType } from '@/player/utils'
 
 const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
 
@@ -195,7 +197,7 @@ function MakeDefaultOptions ({
   }
 }
 
-export class Player {
+export class Player extends EventEmitter {
   private static instances: Player[] = []
   $root: HTMLElement
   $video: HTMLVideoElement
@@ -221,11 +223,14 @@ export class Player {
     return this.$root.clientHeight
   }
 
-  isFullScreen: boolean = false
+  get isFullScreen () {
+    return this._isFullScreen
+  }
 
   private _duration: number = 0
   private _loading = true
   private _paused = true
+  private _isFullScreen: boolean = false
 
   get loading () {
     return this._loading
@@ -234,6 +239,7 @@ export class Player {
   public options: PlayerOptions
 
   constructor ($e: HTMLVideoElement, options?: Partial<PlayerPublicOptions>) {
+    super()
     if (!document.querySelector('script#danplayer-icon')) {
       const $icon = document.createElement('script')
       $icon.src = icon
@@ -275,7 +281,7 @@ export class Player {
       }
     })
     document.addEventListener('fullscreenchange', () => {
-      this.isFullScreen = document.fullscreenElement === this.$root
+      this._isFullScreen = document.fullscreenElement === this.$root
       this.ui.updateFullScreenButton()
     })
 
@@ -348,11 +354,11 @@ export class Player {
       this.adapter.changeLevelTo(level)
     })
 
-    this._setSrc().then()
-    this._setUI()
+    this.updateUI()
+    this.updateSrc().then()
   }
 
-  private async _setSrc () {
+  private async updateSrc () {
     if (this.options.src) {
       this.$video.setAttribute('src', this.options.src)
     }
@@ -378,7 +384,7 @@ export class Player {
     }
   }
 
-  private _setUI () {
+  private updateUI () {
     this.ui.insertExtraButtons()
 
     this.ui.update()
@@ -409,9 +415,10 @@ export class Player {
   set (options: Partial<PlayerPublicOptions>) {
     options.danmaku = Object.assign({}, this.options.danmaku, options.danmaku)
     const newOptions = Object.assign({}, this.options, options)
-    const hasChange = newOptions.src !== this.options.src
+    const optionsHasChanged = JSON.stringify(newOptions) === JSON.stringify(this.options)
+    const srcHasChanged = newOptions.src !== this.options.src
     this.options = newOptions
-    if (hasChange) {
+    if (srcHasChanged) {
       if (this.hls) {
         this.hls.detachMedia()
         this.hls = undefined
@@ -420,9 +427,13 @@ export class Player {
         this.dash.reset()
         this.dash = undefined
       }
-      this._setSrc().then()
+      this.updateSrc().then()
     }
-    this._setUI()
+    this.updateUI()
+
+    if (optionsHasChanged) {
+      this.emit('optionChanged', this)
+    }
   }
 
   resize () {
@@ -441,7 +452,7 @@ export class Player {
       }
     }
     // console.log('resize options', this.options, { width: this._width, height: this._height })
-    if (!this.isFullScreen) {
+    if (!this._isFullScreen) {
       this.$root.style.width = this._width
       this.$root.style.height = this._height
     }
@@ -505,51 +516,41 @@ export class Player {
     const src = this.$video.getAttribute('src') as string
     console.log('视频网址', src)
     this.type = VideoType.Normal
-    if (src) {
-      this.options.src = src
-      if (src.match(/\.m3u[8]/)) this.type = VideoType.Hls
-      if (src.match(/\.mpd/)) this.type = VideoType.Dash
-    }
-    if (this.type === VideoType.Hls) {
-      console.log('使用Hls.js')
-      if (!Hls) {
-        throw Error('播放Hls视频资源请加载hls.js的代码')
-      }
-      if (Hls.isSupported()) {
-        this.hls = new Hls()
-        this.hls.config.capLevelToPlayerSize = true
-        this.hls.attachMedia(this.$video)
-        this.hls.loadSource(src)
-      }
-    } else if (this.type === VideoType.Dash) {
-      console.log('使用dash.js')
-      if (!dashjs) {
-        throw Error('播放MPD视频资源前加载dash.js的代码')
-      }
-      this.dash = dashjs.MediaPlayer().create()
-      this.dash.initialize(this.$video, src, false)
-      const setting = this.dash.getSettings()
-      setting.streaming.abr.limitBitrateByPortal = true
-      this.dash.updateSettings(setting)
+    const contentType = await LoadMimeType(src)
+    if (this.hls) this.hls.destroy()
+    if (this.dash) this.dash.reset()
+
+    // 浏览器原生支持播放
+    if (this.$video.canPlayType(contentType)) {
+      this.$video.src = src
     } else {
-      const http = new XMLHttpRequest()
-      http.open('Get', src)
-      http.send()
-      const contentType: string | null = await new Promise(resolve => {
-        http.onreadystatechange = () => {
-          if (http.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
-            if (http.status === 200) {
-              resolve(http.getResponseHeader('Content-Type') as string)
-            } else {
-              resolve(null)
-            }
-            http.abort()
-          }
+      if (src) {
+        this.options.src = src
+        if (src.match(/\.m3u[8]/)) {
+          this.type = VideoType.Hls
+        } else if (src.match(/\.mpd/)) this.type = VideoType.Dash
+      }
+      if (this.type === VideoType.Hls) {
+        console.log('使用Hls.js')
+        if (!Hls) {
+          throw Error('播放Hls视频资源请加载hls.js的代码')
         }
-      })
-      console.log({ contentType })
-      if (contentType && this.$video.canPlayType(contentType)) {
-        this.$video.src = src
+        if (Hls.isSupported()) {
+          this.hls = new Hls()
+          this.hls.config.capLevelToPlayerSize = true
+          this.hls.attachMedia(this.$video)
+          this.hls.loadSource(src)
+        }
+      } else if (this.type === VideoType.Dash) {
+        console.log('使用dash.js')
+        if (!dashjs) {
+          throw Error('播放MPD视频资源前加载dash.js的代码')
+        }
+        this.dash = dashjs.MediaPlayer().create()
+        this.dash.initialize(this.$video, src, false)
+        const setting = this.dash.getSettings()
+        setting.streaming.abr.limitBitrateByPortal = true
+        this.dash.updateSettings(setting)
       }
     }
   }
@@ -559,8 +560,8 @@ export class Player {
    */
   async toggleFullScreen () {
     if (!this.options.fullScreen) return
-    this.isFullScreen = !this.isFullScreen
-    if (this.isFullScreen) {
+    this._isFullScreen = !this._isFullScreen
+    if (this._isFullScreen) {
       this.$root.classList.add('full-screen')
       await this.$root.requestFullscreen()
     } else {
@@ -568,6 +569,7 @@ export class Player {
       this.$root.classList.remove('full-screen')
     }
     this.resize()
+    this.emit('toggleFullscreen')
   }
 
   /**

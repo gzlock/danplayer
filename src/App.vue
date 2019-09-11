@@ -19,8 +19,8 @@
           <el-form size="mini" label-width="140px">
             <el-form-item label="播放器形态">
               <el-radio-group v-model="settings.live">
-                <el-radio-button :label="true">直播</el-radio-button>
                 <el-radio-button :label="false">普通视频</el-radio-button>
+                <el-radio-button :label="true">直播</el-radio-button>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="全屏功能">
@@ -38,6 +38,12 @@
                 关闭发弹幕的功能区域后，如果仍然需要支持观众发弹幕，则需要自行实行相关的功能
               </div>
             </el-form-item>
+            <el-form-item label="音量">
+              <div>
+                范围 0~1
+              </div>
+              <el-slider v-model="settings.volume"></el-slider>
+            </el-form-item>
             <el-form-item label="颜色">
               <el-color-picker v-model="settings.color"></el-color-picker>
               <div>视频进度条滑块，音量滑块，设置选项的高亮颜色</div>
@@ -45,7 +51,11 @@
             <el-form-item label="视频网址">
               <div>
                 <el-button @click="playMp4">播放Mp4视频资源(浏览器原生支持)</el-button>
+              </div>
+              <div>
                 <el-button @click="playHls">播放Hls视频资源(使用hls.js)</el-button>
+              </div>
+              <div>
                 <el-button @click="playMpd">播放MPD视频资源(使用dash.js)</el-button>
               </div>
               <br>
@@ -97,6 +107,16 @@
             </el-form-item>
           </el-form>
         </el-tab-pane>
+        <el-tab-pane label="事件相关" name="player_event">
+          <p>DanPlayer暴露了video元素(player.$video)，所以涉及到原生的视频事件需求，大家可以继续绑定到player.$video<br>例如：播放进度、音量的变化。</p>
+          <p>DanPlayer支持的事件：
+            <ul>
+              <li>optionChanged：当player的options即设置改变时触发，传入当前的player实例。</li>
+              <li>toggleFullscreen：当player切换全屏状态时触发，并传入当前的player实例<br>可以使用player.isFullScreen查询是否处于全屏状态。</li>
+              <li>postDanmaku：当观众在控制栏的发弹幕区域点击【发送】按钮后触发，并传入当前的player实例和Danmaku类的实例对象。</li>
+            </ul>
+          </p>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
     <div class="debug-info">
@@ -125,8 +145,9 @@ export default class App extends Vue {
       danmakuForm: true,
       flowDuration: 1,
       fadeoutDuration: 1,
+      volume: 0.7,
       alpha: 1,
-      live: true,
+      live: false,
       color: '',
       fullscreen: true
     }
@@ -153,6 +174,7 @@ export default class App extends Vue {
         fullScreen: this.settings.fullscreen,
         danmakuForm: this.settings.danmakuForm,
         live: this.settings.live,
+        volume: this.settings.volume,
         danmaku: {
           alpha: this.settings.alpha,
           fadeoutDuration: this.settings.fadeoutDuration,
@@ -212,7 +234,6 @@ export default class App extends Vue {
           width: 600,
           volume: 0,
           danmaku: {
-            alpha: 0.5,
             contextMenu: (danmaku: Danmaku) => {
               const items: any = {}
               if (danmaku.id === 'myself') { // 自己的弹幕
@@ -238,6 +259,7 @@ export default class App extends Vue {
         this.settings.fadeoutDuration = player.options.danmaku.fadeoutDuration
         this.settings.alpha = player.options.danmaku.alpha
         this.settings.color = player.options.color
+        this.settings.volume = player.options.volume
 
         const $debug = document.querySelector('.debug-info pre') as HTMLPreElement
         updateInterval = setInterval(() => {

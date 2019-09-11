@@ -70,7 +70,7 @@ export class ProgressBar {
   resize () {
     this.offsetWidth = this.player.width - this.$root.offsetWidth
     this.barWidth = this.player.width - this.offsetWidth
-    console.warn('reset', this.player.width, this.$root.clientWidth, this.$root)
+    // console.warn('reset', this.player.width, this.$root.clientWidth, this.$root)
     this.update()
     this.updateBufferBar()
   }
@@ -92,7 +92,7 @@ export class ProgressBar {
   }
 
   updateBufferBar () {
-    console.log('updateBufferBar', this.barWidth)
+    // console.log('updateBufferBar', this.barWidth)
     for (let i = 0; i < this.player.$video.buffered.length; i++) {
       const start = this.player.$video.buffered.start(i)
       const end = this.player.$video.buffered.end(i)

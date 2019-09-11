@@ -42,9 +42,11 @@ export class DanmakuDrawer {
       this.ctx.strokeStyle = this.danmaku.borderColor
       this.ctx.strokeRect(1, 1, width - 4, height - 4)
     }
-    this.ctx.lineWidth = 2
-    this.ctx.strokeStyle = '#000000'
-    this.ctx.strokeText(this.danmaku.text, 1, 1)
+    // this.ctx.lineWidth = 2
+    // this.ctx.strokeStyle = '#000000'
+    // this.ctx.strokeText(this.danmaku.text, 1, 1)
+    this.ctx.shadowBlur = 2
+    this.ctx.shadowColor = 'rgba(0,0,0,0.5)'
     this.ctx.fillStyle = this.danmaku.fill
     this.ctx.fillText(this.danmaku.text, 1, 1)
   }

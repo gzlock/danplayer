@@ -19,3 +19,26 @@ export function SecondsToString (seconds: number): string {
     return item
   }).join(':')
 }
+
+export function LoadMimeType (url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const http = new XMLHttpRequest()
+    http.open('GET', url)
+    http.send()
+    http.onreadystatechange = () => {
+      if (http.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
+        if (http.status === 200) {
+          const type = http.getResponseHeader('Content-Type')
+          if (type) {
+            resolve(type)
+          } else {
+            reject(new Error('No Content-Type'))
+          }
+        } else {
+          reject(new Error('Http Status Not 200, return:' + http.status))
+        }
+        http.abort()
+      }
+    }
+  })
+}

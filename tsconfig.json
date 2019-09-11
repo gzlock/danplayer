@@ -6,6 +6,8 @@
     "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "node",
+    "declaration": true,
+    "declarationDir": "/",
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "removeComments": true,
