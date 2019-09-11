@@ -13,8 +13,8 @@
   "homepage": "https://github.com/gzlock/danplayer",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "cross-env TARGET=docs vue-cli-service build",
-    "build-lib": "cross-env TARGET=lib vue-cli-service build --target=lib ./src/player/index.ts",
+    "build": "cross-env TARGET=docs vue-cli-service build --fix",
+    "build-lib": "cross-env TARGET=lib vue-cli-service build --target=lib ./src/player/index.ts --fix",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit"
   },
