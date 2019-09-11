@@ -61,7 +61,6 @@ export class DanmakuForm {
   }
 
   update () {
-    console.log('发弹幕功能', this.ui.player.options.danmakuForm)
     if (this.ui.player.options.danmakuForm) {
       this.show()
     } else {

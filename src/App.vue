@@ -14,6 +14,7 @@
              src="https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4"></video>
       <h3>功能调试区域</h3>
       <el-tabs value="player">
+        <!--    播放器相关    -->
         <el-tab-pane label="播放器相关" name="player">
           <el-form size="mini" label-width="140px">
             <el-form-item label="播放器形态">
@@ -48,11 +49,12 @@
                 <el-button @click="playMpd">播放MPD视频资源(使用dash.js)</el-button>
               </div>
               <br>
-              <el-input placeholder="输入网址" ref="src_input"/>
+              <el-input placeholder="输入网址" v-model="videoSrc"/>
               <el-button @click="setSrc">播放器自定义资源</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
+        <!--    弹幕相关    -->
         <el-tab-pane label="弹幕相关" name="danmaku_layer">
           <el-form size="mini" label-width="140px">
             <el-form-item>
@@ -61,13 +63,14 @@
                 <el-radio-button :label="true">显示</el-radio-button>
                 <el-radio-button :label="false">隐藏</el-radio-button>
               </el-radio-group>
-              <div>提示：只是不渲染弹幕，但是弹幕的逻辑还是在运作的</div>
+              <div>提示：弹幕的逻辑还是在运作的，只是不渲染弹幕</div>
             </el-form-item>
-            <el-form-item label="流动式弹幕的速度">
+            <el-form-item label="流动式弹幕的时间">
               <div>以秒单位，值越大速度越慢：{{settings.flowDuration}}秒</div>
+              <div>从右到左在屏幕的逗留时间，所以时间越小，弹幕的速度越快</div>
               <el-slider v-model="settings.flowDuration" :min="1" :max="20"/>
             </el-form-item>
-            <el-form-item label="固定式弹幕的显示">
+            <el-form-item label="固定式弹幕的时间">
               <div>以秒单位：{{settings.fadeoutDuration}}秒</div>
               <el-slider v-model="settings.fadeoutDuration" :min="1" :max="20"/>
             </el-form-item>
@@ -81,7 +84,7 @@
                 <el-option label="流动" :value="1">流动</el-option>
                 <el-option label="底部" :value="2">底部</el-option>
               </el-select>
-              <el-input @keypress.enter="sendDanmaku" placeholder="回车发送" ref="danmaku_input" v-model="danmaku">
+              <el-input @keypress.enter="sendDanmaku" placeholder="回车发送" v-model="danmaku">
                 <el-button slot="append" @click="sendDanmaku" type="primary">发送</el-button>
               </el-input>
             </el-form-item>
@@ -128,13 +131,13 @@ export default class App extends Vue {
       fullscreen: true
     }
     private danmaku = ''
+    private videoSrc = ''
     private random = { count: 100, timeRange: 10 }
 
     sendDanmaku () {
-      const $input = this.$refs['danmaku_input'] as HTMLInputElement
       const $danmakuType = this.$refs['danmaku-type'] as HTMLInputElement
-      if ($input.value) {
-        player.sendDanmaku(new Danmaku($input.value, {
+      if (this.danmaku) {
+        player.sendDanmaku(new Danmaku(this.danmaku, {
           type: Number($danmakuType.value),
           borderColor: 'white',
           currentTime: player.currentTime,
@@ -160,9 +163,8 @@ export default class App extends Vue {
     }
 
     setSrc () {
-      const $input = this.$refs['src_input'] as HTMLInputElement
-      if ($input.value) {
-        player.set({ live: this.settings.live, src: $input.value })
+      if (this.videoSrc) {
+        player.set({ live: this.settings.live, src: this.videoSrc })
       }
     }
 
