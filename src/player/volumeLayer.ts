@@ -1,6 +1,6 @@
 import NP from 'number-precision'
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
-import { UI } from '@/player/UI'
+import { Ui } from '@/player/UI'
 import { IconButton } from '@/player/IconButton'
 
 NP.enableBoundaryChecking(false)
@@ -16,7 +16,7 @@ export class VolumeLayer extends ButtonAndLayer {
   volumeValue: number = 0
   private areaHeight: number = 0
 
-  constructor (ui: UI) {
+  constructor (ui: Ui) {
     super(ui)
     this.$video = this.player.$video
     this.$video.addEventListener('volumechange', () => this.updateController())

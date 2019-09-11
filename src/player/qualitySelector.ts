@@ -1,5 +1,5 @@
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
-import { UI } from '@/player/UI'
+import { Ui } from '@/player/UI'
 import { QualityLevel } from '@/player/qualityLevelAdapter'
 
 export class QualitySelector extends ButtonAndLayer {
@@ -7,7 +7,7 @@ export class QualitySelector extends ButtonAndLayer {
   private readonly levels: QualityLevel[] = []
   currentLevel = -1
 
-  constructor (ui: UI) {
+  constructor (ui: Ui) {
     super(ui)
     this.$btn = this.player.$root.querySelector('.button.quality') as HTMLElement
     this.$layer = this.player.$root.querySelector('.float.quality-menu') as HTMLElement

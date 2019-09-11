@@ -7,7 +7,7 @@ import { DanmakuStyleLayer } from '@/player/danmaku/danmakuStyleLayer'
 import { DanmakuForm } from '@/player/danmaku/danmakuForm'
 import { IconButton } from '@/player/IconButton'
 
-export class UI {
+export class Ui {
   qualitySelector: QualitySelector
 
   private _isMouseInUI: boolean = false
@@ -151,6 +151,7 @@ export class UI {
   }
 
   updateFullScreenButton () {
+    this.btnFullScreen.$root.style.display = this.player.options.fullScreen ? '' : 'none'
     if (this.player.isFullScreen) {
       this.btnFullScreen.switch('data-off', 'data-off-title')
     } else {

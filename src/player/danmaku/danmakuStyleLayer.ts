@@ -1,5 +1,5 @@
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
-import { UI } from '@/player/UI'
+import { Ui } from '@/player/UI'
 import { DanmakuOptions, DanmakuType, MakeDanmakuOptions } from '@/player/danmaku/danmaku'
 
 const template =
@@ -26,7 +26,7 @@ export class DanmakuStyleLayer extends ButtonAndLayer {
     '#019899', '#4266BE', '#89D5FF', '#CC0273', '#222222', '#9B9B9B', '#FFFFFF'
   ]
 
-  constructor (ui: UI) {
+  constructor (ui: Ui) {
     super(ui)
     this.$layer = this.player.$root.querySelector('.float.danmaku-style-layer') as HTMLElement
     this.$btn = this.player.$root.querySelector('.intern-button.danmaku-style') as HTMLElement

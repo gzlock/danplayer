@@ -1,6 +1,6 @@
 import './style.scss'
 import { Danmaku } from '@/player/danmaku/danmaku'
-import { UI } from '@/player/UI'
+import { Ui } from '@/player/ui'
 import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
 
@@ -203,7 +203,7 @@ export class Player {
   hls?: Hls
   dash?: dashjs.MediaPlayerClass
 
-  public ui: UI
+  public ui: Ui
 
   private adapter: QualityLevelAdapter
 
@@ -262,6 +262,10 @@ export class Player {
         e.stopPropagation()
         e.preventDefault()
       }
+    })
+    this.$root.addEventListener('contextmenu', (e: MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
     })
     this.$root.addEventListener('keyup', (e: KeyboardEvent) => {
       if (e.key === ' ') {
@@ -333,7 +337,7 @@ export class Player {
     this.options = MakeDefaultOptions(options || { autoplay: this.$video.hasAttribute('autoplay') })
 
     this.adapter = new QualityLevelAdapter()
-    this.ui = new UI(this)
+    this.ui = new Ui(this)
     this.ui.update()
 
     this.adapter.on(QualityLevelAdapter.Events['OnLoad'], (levels: QualityLevel[]) => {
@@ -372,12 +376,6 @@ export class Player {
       console.log('_set 播放')
       this.play()
     }
-
-    if (this.options.live) {
-      this.$root.classList.add('live')
-    } else {
-      this.$root.classList.remove('live')
-    }
   }
 
   private _setUI () {
@@ -400,6 +398,12 @@ export class Player {
 .video-player .quality-menu .current{color:${this.options.color} !important}`
     document.body.append(this.$style)
     this.ui.qualitySelector.reset()
+
+    if (this.options.live) {
+      this.$root.classList.add('live')
+    } else {
+      this.$root.classList.remove('live')
+    }
   }
 
   set (options: Partial<PlayerPublicOptions>) {
@@ -554,11 +558,14 @@ export class Player {
    * 切换全屏模式
    */
   async toggleFullScreen () {
+    if (!this.options.fullScreen) return
     this.isFullScreen = !this.isFullScreen
     if (this.isFullScreen) {
+      this.$root.classList.add('full-screen')
       await this.$root.requestFullscreen()
     } else {
       await document.exitFullscreen()
+      this.$root.classList.remove('full-screen')
     }
     this.resize()
   }

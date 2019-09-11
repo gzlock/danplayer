@@ -1,10 +1,10 @@
 import { Player } from '@/player/player'
-import { UI } from '@/player/UI'
+import { Ui } from '@/player/UI'
 import { SecondsToString } from '@/player/utils'
 
 export class ProgressBar {
   private player: Player
-  private ui: UI
+  private ui: Ui
   private readonly $root: HTMLElement
   private $controller: HTMLElement
   private $current: HTMLElement
@@ -16,7 +16,7 @@ export class ProgressBar {
   private percent = 0
   private offsetWidth = 0
 
-  constructor (ui: UI) {
+  constructor (ui: Ui) {
     this.player = ui.player
     this.ui = ui
     this.$root = this.player.$root.querySelector('.progress-bar') as HTMLElement
@@ -66,6 +66,12 @@ export class ProgressBar {
     this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
       ' / ' + SecondsToString(this.player.$video.duration)
   }
+
+  show(){
+    this.$root.classList
+  }
+
+  hide(){}
 
   resize () {
     this.offsetWidth = this.player.width - this.$root.offsetWidth

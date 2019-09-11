@@ -15,23 +15,31 @@
       <h3>功能调试区域</h3>
       <el-tabs value="player">
         <el-tab-pane label="播放器相关" name="player">
-          <el-form size="mini" label-width="120px">
+          <el-form size="mini" label-width="140px">
             <el-form-item label="播放器形态">
-              <el-radio-group v-model="form.live">
+              <el-radio-group v-model="settings.live">
                 <el-radio-button :label="true">直播</el-radio-button>
                 <el-radio-button :label="false">普通视频</el-radio-button>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="弹幕功能">
-              <el-radio-group v-model="form.live">
+            <el-form-item label="全屏功能">
+              <el-radio-group v-model="settings.fullscreen">
+                <el-radio-button :label="true">允许</el-radio-button>
+                <el-radio-button :label="false">不允许</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="控制栏发弹幕功能">
+              <el-radio-group v-model="settings.danmakuForm">
                 <el-radio-button :label="true">开启</el-radio-button>
                 <el-radio-button :label="false">关闭</el-radio-button>
               </el-radio-group>
+              <div>
+                关闭发弹幕的功能区域后，如果仍然需要支持观众发弹幕，则需要自行实行相关的功能
+              </div>
             </el-form-item>
             <el-form-item label="颜色">
-              <el-color-picker v-model="color"></el-color-picker>
-              <br/>
-              (视频进度条滑块，音量滑块，设置选项的高亮颜色)
+              <el-color-picker v-model="settings.color"></el-color-picker>
+              <div>视频进度条滑块，音量滑块，设置选项的高亮颜色</div>
             </el-form-item>
             <el-form-item label="视频网址">
               <div>
@@ -40,36 +48,43 @@
                 <el-button @click="playMpd">播放MPD视频资源(使用dash.js)</el-button>
               </div>
               <br>
-              <el-input v-model="form.src" placeholder="输入网址"/>
+              <el-input placeholder="输入网址" ref="src_input"/>
               <el-button @click="setSrc">播放器自定义资源</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="弹幕相关" name="danmaku_layer">
-          <el-form label-position="top" size="mini">
+          <el-form size="mini" label-width="140px">
             <el-form-item>
-              <div slot="label">流动式弹幕的速度: {{flowDuration}} 值越大速度越慢</div>
-              <el-slider v-model="flowDuration" :min="1" :max="20"/>
+              <div slot="label">弹幕</div>
+              <el-radio-group v-model="settings.danmaku">
+                <el-radio-button :label="true">显示</el-radio-button>
+                <el-radio-button :label="false">隐藏</el-radio-button>
+              </el-radio-group>
             </el-form-item>
-            <el-form-item>
-              <div slot="label">顶部 / 底部弹幕的隐藏时间: {{fadeoutDuation}} 秒</div>
-              <el-slider v-model="fadeoutDuation" :min="1" :max="20"/>
+            <el-form-item label="流动式弹幕的速度">
+              <div>以秒单位，值越大速度越慢：{{settings.flowDuration}}秒</div>
+              <el-slider v-model="settings.flowDuration" :min="1" :max="20"/>
             </el-form-item>
-            <el-form-item>
-              <div slot="label">全局的弹幕透明度: {{danmakuAlpha}} 范围在 0 ~ 1</div>
-              <el-slider v-model="danmakuAlpha" :min="0.1" :max="1.0" :step="0.1"/>
+            <el-form-item label="固定式弹幕的显示">
+              <div>以秒单位：{{settings.fadeoutDuration}}秒</div>
+              <el-slider v-model="settings.fadeoutDuration" :min="1" :max="20"/>
+            </el-form-item>
+            <el-form-item label="弹幕透明度">
+              <div>范围在 0 ~ 1：{{settings.alpha}}</div>
+              <el-slider v-model="settings.alpha" :min="0.1" :max="1.0" :step="0.1"/>
             </el-form-item>
             <el-form-item label="发弹幕">
-              <el-select v-model="form.type" placeholder="请选择" :value="form.type">
+              <el-select placeholder="请选择" ref="danmaku-type" :value="1">
                 <el-option label="顶部" :value="0">顶部</el-option>
                 <el-option label="流动" :value="1">流动</el-option>
                 <el-option label="底部" :value="2">底部</el-option>
               </el-select>
-              <el-input v-model="form.danmaku" @keypress.enter.native="sendDanmaku" placeholder="回车发送">
+              <el-input @keypress.enter="sendDanmaku" placeholder="回车发送" ref="danmaku_input" v-model="danmaku">
                 <el-button slot="append" @click="sendDanmaku" type="primary">发送</el-button>
               </el-input>
             </el-form-item>
-            <el-form-item label="随机填充大量弹幕">
+            <el-form-item label="发随机弹幕">
               <div style="width: 200px">
                 <el-input v-model="random.timeRange"><span slot="append">秒内</span></el-input>
                 <el-input v-model="random.count"><span slot="append">条弹幕</span></el-input>
@@ -84,13 +99,13 @@
       <h3>
         Debug信息
       </h3>
-      <pre>{{info}}</pre>
+      <pre></pre>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Player } from '@/player/player'
 import { Danmaku } from '@/player/danmaku/danmaku'
 
@@ -101,24 +116,25 @@ let updateInterval: number = -1
 
   @Component
 export default class App extends Vue {
-    private form = {
-      danmaku_enable: true,
-      danmaku: '',
+    private settings = {
+      danmaku: true,
+      danmakuForm: true,
       flowDuration: 1,
       fadeoutDuration: 1,
-      type: 1,
       alpha: 1,
       live: true,
-      src: '',
-      color: ''
+      color: '',
+      fullscreen: true
     }
+    private danmaku = ''
     private random = { count: 100, timeRange: 10 }
-    private info = ''
 
     sendDanmaku () {
-      if (this.form.danmaku) {
-        player.sendDanmaku(new Danmaku(this.form.danmaku, {
-          type: this.form.type,
+      const $input = this.$refs['danmaku_input'] as HTMLInputElement
+      const $danmakuType = this.$refs['danmaku-type'] as HTMLInputElement
+      if ($input.value) {
+        player.sendDanmaku(new Danmaku($input.value, {
+          type: Number($danmakuType.value),
           borderColor: 'white',
           currentTime: player.currentTime,
           id: 'myself'
@@ -126,54 +142,25 @@ export default class App extends Vue {
       }
     }
 
-    get flowDuration () {
-      return this.form.flowDuration
-    }
-
-    set flowDuration (val: number) {
-      this.form.flowDuration = val
-      player.options.danmaku.flowDuration = val
-    }
-
-    get danmakuAlpha () {
-      return this.form.alpha
-    }
-
-    set danmakuAlpha (alpha: number) {
-      this.form.alpha = alpha
-      player.set({ danmaku: { alpha } })
-    }
-
-    set fadeoutDuation (val: number) {
-      this.form.fadeoutDuration = val
-      player.options.danmaku.fadeoutDuration = val
-    }
-
-    set color (val: string) {
-      this.form.color = val
-      player.set({ color: val })
-    }
-
-    get color () {
-      return this.form.color
-    }
-
-    get fadeoutDuation () {
-      return this.form.fadeoutDuration
-    }
-
-    get danmakuEnable () {
-      return this.form.danmaku_enable
-    }
-
-    set danmakuEnable (val: boolean) {
-      this.form.danmaku_enable = val
-      player.set({})
+    @Watch('settings', { deep: true })
+    formChanged () {
+      player.set({
+        color: this.settings.color,
+        fullScreen: this.settings.fullscreen,
+        danmakuForm: this.settings.danmakuForm,
+        live: this.settings.live,
+        danmaku: {
+          fadeoutDuration: this.settings.fadeoutDuration,
+          flowDuration: this.settings.flowDuration,
+          enable: this.settings.danmaku
+        }
+      })
     }
 
     setSrc () {
-      if (this.form.src) {
-        player.set({ live: this.form.live, src: this.form.src })
+      const $input = this.$refs['src_input'] as HTMLInputElement
+      if ($input.value) {
+        player.set({ live: this.settings.live, src: $input.value })
       }
     }
 
@@ -243,13 +230,14 @@ export default class App extends Vue {
         btn1.innerText = '扩展按钮'
         btn1.onclick = () => { alert('扩展按钮') }
         player.set({ extraButtons: [btn1] })
-        this.form.flowDuration = player.options.danmaku.flowDuration
-        this.form.fadeoutDuration = player.options.danmaku.fadeoutDuration
-        this.form.alpha = player.options.danmaku.alpha
-        this.form.color = player.options.color
+        this.settings.flowDuration = player.options.danmaku.flowDuration
+        this.settings.fadeoutDuration = player.options.danmaku.fadeoutDuration
+        this.settings.alpha = player.options.danmaku.alpha
+        this.settings.color = player.options.color
 
+        const $debug = document.querySelector('.debug-info pre') as HTMLPreElement
         updateInterval = setInterval(() => {
-          this.info = JSON.stringify(player.debug, null, 2)
+          $debug.innerText = JSON.stringify(player.debug, null, 2)
         }, 100)
       }
     }

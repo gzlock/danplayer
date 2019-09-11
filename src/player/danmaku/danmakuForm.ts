@@ -1,16 +1,16 @@
-import { UI } from '@/player/UI'
+import { Ui } from '@/player/UI'
 import { DanmakuStyleLayer } from '@/player/danmaku/danmakuStyleLayer'
 import { Danmaku } from '@/player/danmaku/danmaku'
 
 export class DanmakuForm {
-  ui: UI
+  ui: Ui
   $root: HTMLElement
   $btn: HTMLElement
   $input: HTMLInputElement
   isShow = false
   styleLayer: DanmakuStyleLayer
 
-  constructor (ui: UI) {
+  constructor (ui: Ui) {
     this.ui = ui
     this.styleLayer = new DanmakuStyleLayer(ui)
 
@@ -50,14 +50,6 @@ export class DanmakuForm {
     this.ui.player.$root.focus()
   }
 
-  toggle () {
-    if (this.isShow) {
-      this.hide()
-    } else {
-      this.show()
-    }
-  }
-
   show () {
     this.isShow = true
     this.$root.style.display = ''
@@ -69,6 +61,12 @@ export class DanmakuForm {
   }
 
   update () {
+    console.log('发弹幕功能', this.ui.player.options.danmakuForm)
+    if (this.ui.player.options.danmakuForm) {
+      this.show()
+    } else {
+      this.hide()
+    }
   }
 
   focus () {

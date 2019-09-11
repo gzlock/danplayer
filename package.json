@@ -13,10 +13,10 @@
   "homepage": "https://github.com/gzlock/danplayer",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "cross-env TARGET=docs vue-cli-service build --fix",
-    "lint": "vue-cli-service lint --fix",
-    "test:unit": "vue-cli-service test:unit",
-    "build-lib": "cross-env TARGET=lib vue-cli-service build --target=lib ./src/player/index.ts --fix"
+    "build": "cross-env TARGET=docs vue-cli-service build",
+    "build-lib": "cross-env TARGET=lib vue-cli-service build --target=lib ./src/player/index.ts",
+    "lint": "vue-cli-service lint",
+    "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
     "core-js": "^3.2.1",
@@ -41,7 +41,6 @@
     "babel-eslint": "^10.0.1",
     "chai": "^4.1.2",
     "cross-env": "^5.2.1",
-    "dashjs": "^3.0.0",
     "element-ui": "^2.12.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
