@@ -16,9 +16,22 @@ export interface DanmakuLayerOptions {
   alpha: number
   enable: boolean
   flowDuration: number
-  fadeoutDuration: number
+  fadeoutDuration: number,
+  fontSize: number,
   limit: LimitType // 防重叠选项
   contextMenu: ((danmaku: Danmaku) => { [name: string]: () => void }) | undefined
+}
+
+export function MakeDanmakuLayerOptions ({
+  alpha = 1,
+  enable = true,
+  flowDuration = 8,
+  fadeoutDuration = 5,
+  fontSize = 28,
+  limit = LimitType.UnOverlap,
+  contextMenu = undefined
+}: Partial<DanmakuLayerOptions> = {}): DanmakuLayerOptions {
+  return { alpha, enable, flowDuration, fontSize, limit, fadeoutDuration, contextMenu }
 }
 
 const template = '<div class="content"></div><div class="buttons"><span class="copy">复制</span></div>'
@@ -41,17 +54,6 @@ function MakeDanmakuDrawerMenu (d: DanmakuDrawer, menus: { [p: string]: () => vo
   }
 
   return $div
-}
-
-export function MakeDanmakuLayerOptions ({
-  alpha = 1,
-  enable = true,
-  flowDuration = 8,
-  fadeoutDuration = 5,
-  limit = LimitType.UnOverlap,
-  contextMenu = undefined
-}: Partial<DanmakuLayerOptions> = {}): DanmakuLayerOptions {
-  return { alpha, enable, flowDuration, limit, fadeoutDuration, contextMenu }
 }
 
 export class DanmakuLayer {
@@ -186,7 +188,7 @@ export class DanmakuLayer {
   resize () {
     this.width = this.player.$root.clientWidth
     this.height = this.player.$root.clientHeight
-    this.lineHeight = Math.round(this.canvas.fontHeight(this.player.options.fontSize))
+    this.lineHeight = Math.round(this.canvas.fontHeight(this.player.options.danmaku.fontSize))
 
     this.lineHeights.length = 0
     // 每次resize都计算屏幕最大行数

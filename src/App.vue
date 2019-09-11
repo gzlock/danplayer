@@ -1,10 +1,17 @@
 <template>
   <div>
     <el-card id="app">
-      <div><img src="/logo.png"/> DanPlayer</div>
+      <div slot="header" class="title">
+        <div class="left">
+          <img src="@/assets/logo.png" title="logo" alt="logo"/>
+          <div class="text">DanPlayer</div>
+        </div>
+        <div class="right">
+          <a class="el-button el-button--text" href="https://github.com/gzlock/danplayer" target="_blank">Github</a>
+        </div>
+      </div>
       <video id="player"
              src="https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4"></video>
-
       <h3>功能调试区域</h3>
       <el-tabs value="player">
         <el-tab-pane label="播放器相关" name="player">
@@ -276,6 +283,30 @@ export default class App extends Vue {
 
     .el-slider {
       width: 150px;
+    }
+
+    .title {
+      display: flex;
+      justify-content: space-between;
+
+      .left {
+        display: flex;
+
+        img {
+          height: 50px;
+        }
+
+        .text {
+          display: inline-block;
+          margin-left: 20px;
+          font-size: 40px;
+          font-weight: 100;
+          line-height: 50px;
+        }
+      }
+
+      .right {
+      }
     }
 
   }

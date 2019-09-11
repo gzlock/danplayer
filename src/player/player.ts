@@ -3,7 +3,6 @@ import { Danmaku } from '@/player/danmaku/danmaku'
 import { UI } from '@/player/UI'
 import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
-import { MediaPlayerSettingClass } from 'dashjs'
 
 const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
 
@@ -87,8 +86,6 @@ interface PlayerOptions {
 
   autoplay: boolean,
 
-  fontSize: number,
-
   // ui 的隐藏时间
   uiFadeOutDelay: number
 
@@ -112,7 +109,7 @@ interface PlayerOptions {
 
   danmakuForm: boolean
 
-  onlyOne: boolean
+  unique: boolean
 
   color: string
 }
@@ -153,7 +150,7 @@ export interface PlayerPublicOptions {
 
   danmakuForm: boolean
 
-  onlyOne: boolean
+  unique: boolean
 
   color: string
 }
@@ -169,7 +166,6 @@ function MakeDefaultOptions ({
   color = '#00a1d6',
   live = false,
   volume = 0.7,
-  fontSize = 28,
   width = 600,
   height = 350,
   uiFadeOutDelay = 3000,
@@ -179,13 +175,12 @@ function MakeDefaultOptions ({
   danmakuForm = true,
   fullScreen = true,
   danmaku = {},
-  onlyOne = false
+  unique = false
 }: Partial<PlayerOptions> | Partial<PlayerPublicOptions>): PlayerOptions {
   return {
     autoplay,
     color,
     live,
-    fontSize,
     height,
     danmaku: MakeDanmakuLayerOptions(danmaku),
     danmakuForm,
@@ -194,7 +189,7 @@ function MakeDefaultOptions ({
     iconSrc,
     uiFadeOutDelay,
     extraButtons,
-    onlyOne,
+    unique,
     volume,
     width
   }
@@ -488,7 +483,7 @@ export class Player {
   play () {
     this._paused = false
     this.$video.play().then()
-    if (this.options.onlyOne) {
+    if (this.options.unique) {
       Player.instances.forEach(player => {
         if (player !== this) {
           player.pause()
