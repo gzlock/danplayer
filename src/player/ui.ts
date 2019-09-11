@@ -140,6 +140,7 @@ export class Ui {
     this.danmakuForm.update()
     this.progressBar.update()
     this.volume.update()
+    this.danmakuLayer.update()
   }
 
   updatePlayButton () {

@@ -33,6 +33,13 @@ $controller-color: #00a1d6;
     height: 42px;
     display: flex;
     align-items: center;
+    cursor: default;
+
+    &:hover {
+      .buttons {
+        visibility: unset;
+      }
+    }
 
     .content {
       padding-right: 15px;
@@ -43,6 +50,7 @@ $controller-color: #00a1d6;
     }
 
     .buttons {
+      visibility: hidden;
 
       span {
         border-radius: 5px;
@@ -130,7 +138,7 @@ $controller-color: #00a1d6;
             color: white;
           }
 
-          >div{
+          > div {
             height: 30px;
           }
 
@@ -266,7 +274,7 @@ $controller-color: #00a1d6;
       box-sizing: border-box;
 
       &.show {
-        padding: 0 12px 4px 12px;
+        padding: 0 20px 4px 20px;
 
         .progress-bar {
           display: block;
@@ -369,7 +377,7 @@ $controller-color: #00a1d6;
           margin-left: 10px;
         }
 
-        .button.danmaku-style{
+        .button.danmaku-style {
           margin-top: 4px;
         }
 
@@ -390,6 +398,7 @@ $controller-color: #00a1d6;
         padding: 0 4px;
         min-width: 200px;
         max-width: 350px;
+        margin-right: 20px;
         color: white;
 
         .danmaku-style {

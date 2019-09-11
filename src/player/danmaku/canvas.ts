@@ -30,6 +30,10 @@ export class Canvas {
     if (index > -1) this.caches.splice(index, 1)
   }
 
+  clear () {
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
+  }
+
   renderAll () {
     this.clear()
     if (this.caches.length > 0) {
@@ -38,10 +42,6 @@ export class Canvas {
         this.ctx.drawImage(drawer.selfCanvas, drawer.left, drawer.top)
       }
     }
-  }
-
-  clear () {
-    this.ctx.clearRect(0, 0, this.player.width, this.player.height)
   }
 
   clearCache () {
@@ -56,12 +56,6 @@ export class Canvas {
     this.ctx.font = fontSize + font
     const size = this.ctx.measureText('M')
     return size.width * 1.2
-  }
-
-  fontWidth (drawer: DanmakuDrawer): number {
-    this.ctx.font = drawer.danmaku.fontSize + font
-    const size = this.ctx.measureText(drawer.danmaku.text)
-    return size.width
   }
 
   resize () {

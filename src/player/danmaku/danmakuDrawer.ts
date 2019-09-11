@@ -38,9 +38,11 @@ export class DanmakuDrawer {
     this.ctx.font = this.danmaku.fontSize + font
     this.ctx.clearRect(0, 0, width, height)
     if (this.danmaku.borderColor) {
+      this.ctx.lineWidth = 1
       this.ctx.strokeStyle = this.danmaku.borderColor
       this.ctx.strokeRect(1, 1, width - 4, height - 4)
     }
+    this.ctx.lineWidth = 2
     this.ctx.strokeStyle = '#000000'
     this.ctx.strokeText(this.danmaku.text, 1, 1)
     this.ctx.fillStyle = this.danmaku.fill
@@ -80,7 +82,6 @@ export class DanmakuFixedDrawer extends DanmakuDrawer {
   }
 
   update (lastFrameTime: number) {
-    console.log({ timeout: this.timeout, lastFrameTime })
     this.timeout -= lastFrameTime
     this.enable = this.timeout > 0
   }

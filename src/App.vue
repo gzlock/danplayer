@@ -61,6 +61,7 @@
                 <el-radio-button :label="true">显示</el-radio-button>
                 <el-radio-button :label="false">隐藏</el-radio-button>
               </el-radio-group>
+              <div>提示：只是不渲染弹幕，但是弹幕的逻辑还是在运作的</div>
             </el-form-item>
             <el-form-item label="流动式弹幕的速度">
               <div>以秒单位，值越大速度越慢：{{settings.flowDuration}}秒</div>
@@ -150,6 +151,7 @@ export default class App extends Vue {
         danmakuForm: this.settings.danmakuForm,
         live: this.settings.live,
         danmaku: {
+          alpha: this.settings.alpha,
           fadeoutDuration: this.settings.fadeoutDuration,
           flowDuration: this.settings.flowDuration,
           enable: this.settings.danmaku

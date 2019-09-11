@@ -144,11 +144,6 @@ export class DanmakuLayer {
       this.clear()
     })
 
-    if (this.player.options.danmaku.enable) {
-      this.show()
-    } else {
-      this.hide()
-    }
     this.loop()
   }
 
@@ -171,8 +166,8 @@ export class DanmakuLayer {
   }
 
   hide () {
-    this.isShow = false
     this.canvas.clear()
+    this.isShow = false
   }
 
   clear () {
@@ -388,6 +383,16 @@ export class DanmakuLayer {
         return false
       }
     })
+  }
+
+  update () {
+    if (this.player.options.danmaku.enable) {
+      this.show()
+    } else {
+      console.log('隐藏弹幕')
+      this.hide()
+      this.hide()
+    }
   }
 
   private loop () {
