@@ -1,9 +1,9 @@
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 module.exports = {
+  publicPath: './',
   outputDir: process.env.TARGET === 'lib' ? './dist' : './docs',
   configureWebpack: {
-    publicPath: './',
     output: {
       libraryExport: 'default'
     },
