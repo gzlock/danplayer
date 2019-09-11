@@ -1,4 +1,4 @@
-import { Ui } from '@/player/UI'
+import { Ui } from '@/player/ui'
 import { DanmakuStyleLayer } from '@/player/danmaku/danmakuStyleLayer'
 import { Danmaku } from '@/player/danmaku/danmaku'
 

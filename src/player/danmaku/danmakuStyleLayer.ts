@@ -1,5 +1,5 @@
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
-import { Ui } from '@/player/UI'
+import { Ui } from '@/player/ui'
 import { DanmakuOptions, DanmakuType, MakeDanmakuOptions } from '@/player/danmaku/danmaku'
 
 const template =

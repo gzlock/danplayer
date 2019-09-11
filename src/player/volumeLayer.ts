@@ -1,6 +1,6 @@
 import NP from 'number-precision'
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
-import { Ui } from '@/player/UI'
+import { Ui } from '@/player/ui'
 import { IconButton } from '@/player/IconButton'
 
 NP.enableBoundaryChecking(false)

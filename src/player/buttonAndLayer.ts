@@ -1,6 +1,6 @@
 import { EventEmitter } from 'eventemitter3'
 import { Player } from './player'
-import { Ui } from '@/player/UI'
+import { Ui } from '@/player/ui'
 
 export class ButtonAndLayer extends EventEmitter {
   player: Player

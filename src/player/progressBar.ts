@@ -1,5 +1,5 @@
 import { Player } from '@/player/player'
-import { Ui } from '@/player/UI'
+import { Ui } from '@/player/ui'
 import { SecondsToString } from '@/player/utils'
 
 export class ProgressBar {
@@ -66,12 +66,6 @@ export class ProgressBar {
     this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
       ' / ' + SecondsToString(this.player.$video.duration)
   }
-
-  show(){
-    this.$root.classList
-  }
-
-  hide(){}
 
   resize () {
     this.offsetWidth = this.player.width - this.$root.offsetWidth

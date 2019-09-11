@@ -1,5 +1,5 @@
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
-import { Ui } from '@/player/UI'
+import { Ui } from '@/player/ui'
 import { QualityLevel } from '@/player/qualityLevelAdapter'
 
 export class QualitySelector extends ButtonAndLayer {
