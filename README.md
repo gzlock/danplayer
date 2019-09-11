@@ -3,6 +3,7 @@
 </p>
 
 # 弹幕播放器
+[![Build Status](https://www.travis-ci.org/gzlock/danplayer.svg?branch=master)](https://www.travis-ci.org/gzlock/danplayer)
 
 - 使用Canvas绘制弹幕
 - 丰富的自定义选项
