@@ -9,14 +9,12 @@ script:
   - tsc -V
   - npm run build
   - npm run build-lib
+
 deploy:
   - provider: pages
     skip-cleanup: true
     local-dir: docs
     github_token: $GITHUB_TOKEN
-    on:
-      branch: master
-      tags: true
 
   - provider: npm
     skip_cleanup: true
@@ -24,8 +22,7 @@ deploy:
       - cd ./dist
     email: "$NPM_EMAIL"
     api_key: "$NPM_AUTH_TOKEN"
-    on:
-      tags: true
+
 cache:
   directories:
     - node_modules
