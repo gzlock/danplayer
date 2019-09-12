@@ -1,3 +1,4 @@
+import { LimitType } from './player/danmaku/danmakuLayer'
 <template>
   <div>
     <el-card id="app">
@@ -11,7 +12,8 @@
         </div>
       </div>
       <video id="player"
-             src="https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4"></video>
+             src="https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4">
+      </video>
       <h3>功能调试区域</h3>
       <el-tabs value="player">
         <!--    播放器相关    -->
@@ -67,13 +69,21 @@
         <!--    弹幕相关    -->
         <el-tab-pane label="弹幕相关" name="danmaku_layer">
           <el-form size="mini" label-width="140px">
-            <el-form-item>
-              <div slot="label">弹幕</div>
+            <el-form-item label="弹幕">
               <el-radio-group v-model="settings.danmaku">
                 <el-radio-button :label="true">显示</el-radio-button>
                 <el-radio-button :label="false">隐藏</el-radio-button>
               </el-radio-group>
               <div>提示：弹幕的逻辑还是在运作的，只是不渲染弹幕</div>
+            </el-form-item>
+            <el-form-item label="弹幕显示">
+              <el-radio-group v-model="settings.danmakuLimit">
+                <el-radio-button label="UnLimited">不作限制</el-radio-button>
+                <el-radio-button label="UnOverlap">防止重叠</el-radio-button>
+                <el-radio-button label="Percent25">25%屏幕显示</el-radio-button>
+                <el-radio-button label="Half">50%屏幕显示</el-radio-button>
+                <el-radio-button label="Percent75">75%屏幕显示</el-radio-button>
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="流动式弹幕的时间">
               <div>以秒单位，值越大速度越慢：{{settings.flowDuration}}秒</div>
@@ -110,11 +120,11 @@
         <el-tab-pane label="事件相关" name="player_event">
           <p>DanPlayer暴露了video元素(player.$video)，所以涉及到原生的视频事件需求，大家可以继续绑定到player.$video<br>例如：播放进度、音量的变化。</p>
           <p>DanPlayer支持的事件：
-            <ul>
-              <li>optionChanged：当player的options即设置改变时触发，传入当前的player实例。</li>
-              <li>toggleFullscreen：当player切换全屏状态时触发，并传入当前的player实例<br>可以使用player.isFullScreen查询是否处于全屏状态。</li>
-              <li>postDanmaku：当观众在控制栏的发弹幕区域点击【发送】按钮后触发，并传入当前的player实例和Danmaku类的实例对象。</li>
-            </ul>
+          <ul>
+            <li>optionChanged：当player的options即设置改变时触发，传入当前的player实例。</li>
+            <li>toggleFullscreen：当player切换全屏状态时触发，并传入当前的player实例<br>可以使用player.isFullScreen查询是否处于全屏状态。</li>
+            <li>postDanmaku：当观众在控制栏的发弹幕区域点击【发送】按钮后触发，并传入当前的player实例和Danmaku类的实例对象。</li>
+          </ul>
           </p>
         </el-tab-pane>
       </el-tabs>
@@ -132,6 +142,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Player } from '@/player/player'
 import { Danmaku } from '@/player/danmaku/danmaku'
+import { LimitType } from './player/danmaku/danmakuLayer'
 
 let player: Player
 const min = parseInt('4E00', 16)
@@ -149,7 +160,8 @@ export default class App extends Vue {
       alpha: 1,
       live: false,
       color: '',
-      fullscreen: true
+      fullscreen: true,
+      danmakuLimit: Object.keys(LimitType)[0]
     }
     private danmaku = ''
     private videoSrc = ''
@@ -179,7 +191,8 @@ export default class App extends Vue {
           alpha: this.settings.alpha,
           fadeoutDuration: this.settings.fadeoutDuration,
           flowDuration: this.settings.flowDuration,
-          enable: this.settings.danmaku
+          enable: this.settings.danmaku,
+          limit: LimitType[this.settings.danmakuLimit]
         }
       })
     }
@@ -191,7 +204,7 @@ export default class App extends Vue {
     }
 
     playMp4 () {
-      player.set({ src: 'https://api.dogecloud.com/player/get.mp4?vcode=5ac682e6f8231991&userId=17&ext=.mp4' })
+      player.set({ src: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4' })
     }
 
     playMpd () {
@@ -260,6 +273,7 @@ export default class App extends Vue {
         this.settings.alpha = player.options.danmaku.alpha
         this.settings.color = player.options.color
         this.settings.volume = player.options.volume
+        this.settings.danmakuLimit = Object.keys(LimitType)[Object.values(LimitType).indexOf(player.options.danmaku.limit)]
 
         const $debug = document.querySelector('.debug-info pre') as HTMLPreElement
         updateInterval = setInterval(() => {

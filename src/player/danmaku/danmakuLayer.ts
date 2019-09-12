@@ -5,11 +5,11 @@ import { EventEmitter } from 'events'
 import { Canvas } from '@/player/danmaku/canvas'
 
 export enum LimitType {
-  UnLimited = 0, // 不限
-  UnOverlap = 1, // 防重叠
-  Percent25 = 1 / 4, // 25%屏显示弹幕
-  Half = 0.5, // 50%屏显示弹幕
-  Percent75 = 1 / 4, // 75%屏显示弹幕
+  UnLimited = 'unLimited', // 不限
+  UnOverlap = 'unOverlap', // 防重叠
+  Percent25 = 'percent25', // 25%屏显示弹幕
+  Half = 'half', // 50%屏显示弹幕
+  Percent75 = 'percent75', // 75%屏显示弹幕
 }
 
 export interface DanmakuLayerOptions {
@@ -77,7 +77,7 @@ export class DanmakuLayer {
   private readonly flowLines: any = {}
   private displayArea: number = 0
 
-  private topY = 0
+  private topLineIndex = 0
   private flowY = 0
   private bottomY = 0
 
@@ -99,6 +99,8 @@ export class DanmakuLayer {
   private lineHeight!: number
 
   constructor (player: Player) {
+    // @ts-ignore
+    window.danmaku = this
     this.player = player
     this.event = new EventEmitter()
 
@@ -204,6 +206,8 @@ export class DanmakuLayer {
     }
 
     this.canvas.resize()
+
+    // 检查限高
     const limit = this.player.options.danmaku.limit
     if (limit === LimitType.Percent75) {
       this.displayArea = this.player.height * 0.75
@@ -214,6 +218,8 @@ export class DanmakuLayer {
     } else {
       this.displayArea = this.player.height
     }
+    console.log('弹幕层 displayArea', this.displayArea)
+
     this.canvas.alpha = this.player.options.danmaku.alpha
     this.canvas.renderAll()
   }
@@ -260,25 +266,45 @@ export class DanmakuLayer {
       let top
       if (danmaku.type === DanmakuType.Flow) {
         let drawer = this.flowDisables.shift() || new DanmakuFlowDrawer()
-        drawer.enable = true
-        drawer.set(danmaku, this.width, this.calcFlowTop(drawer))
-        drawer.update(this.width, this.player.options.danmaku.flowDuration, 0)
-        this.flowEnables.push(drawer)
-        this.canvas.addDrawer(drawer)
+        top = this.calcFlowTop()
+        if (top > -1) {
+          drawer.enable = true
+          drawer.set(danmaku, this.width, top)
+          drawer.update(this.width, this.player.options.danmaku.flowDuration, 0)
+          this.flowEnables.push(drawer)
+          this.flowLines[top] = drawer
+          this.canvas.addDrawer(drawer)
+        } else {
+          this.flowDisables.push(drawer)
+        }
       } else {
         let drawer = this.topAndBottomDisables.shift() || new DanmakuFixedDrawer()
-        drawer.enable = true
         if (danmaku.type === DanmakuType.Top) {
-          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, this.calcTopTop(drawer))
-          this.topEnables.push(drawer)
+          top = this.calcTopTop()
+          if (top > -1) {
+            drawer.enable = true
+            drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
+            this.topLines[top.toString()] = drawer
+            this.topEnables.push(drawer)
+            drawer.update(0)
+            this.canvas.addDrawer(drawer)
+          } else {
+            this.topAndBottomDisables.push(drawer)
+          }
         } else {
-          let top = this.calcBottomTop(drawer) + this.lineHeight
-          top = this.height - top
-          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
-          this.bottomEnables.push(drawer)
+          let top = this.calcBottomTop()
+          if (top > -1) {
+            drawer.enable = true
+            this.bottomLines[top] = drawer
+            top = this.height - (top + this.lineHeight)
+            drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
+            this.bottomEnables.push(drawer)
+            drawer.update(0)
+            this.canvas.addDrawer(drawer)
+          } else {
+            this.topAndBottomDisables.push(drawer)
+          }
         }
-        drawer.update(0)
-        this.canvas.addDrawer(drawer)
       }
       this.canvas.renderAll()
     }
@@ -295,55 +321,68 @@ export class DanmakuLayer {
     document.execCommand('copy')
   }
 
-  private calcFlowTop (drawer: DanmakuFlowDrawer): number {
+  private calcFlowTop (): number {
     for (let key in this.flowLines) {
       const _d: DanmakuDrawer = this.flowLines[key]
+
+      if (_d && _d.enable) {
+        const right = _d.left + _d.width
+        if (right > this.width) continue
+      }
+
       const height = Number(key)
-      const right = _d.left + _d.width
-      if (_d && _d.enable && right > this.width) continue
       if (height > this.displayArea) break
       console.log('发现空行', key)
-      this.flowLines[key] = drawer
       this.flowY = height
       return height
     }
+    if (this.player.options.danmaku.limit !== LimitType.UnLimited) {
+      return -1
+    }
+    // 无限制，就可以重复将新的弹幕显示到屏幕上
     this.flowY += this.lineHeight
     if (this.flowY > this.displayArea) this.flowY = 0
-    this.flowLines[this.flowY] = drawer
     return this.flowY
   }
 
-  private calcTopTop (drawer: DanmakuFixedDrawer): number {
+  private calcTopTop (): number {
     for (let key in this.topLines) {
       const _d = this.topLines[key]
       const height = Number(key)
-      if (_d && _d.enable) continue
+      if (_d) continue
       if (height > this.displayArea) break
-      console.log('发现空行', key)
-      this.topLines[key] = drawer
-      this.topY = height
+      this.topLineIndex = height
       return height
     }
-    this.topY += this.lineHeight
-    if (this.topY > this.displayArea) this.topY = 0
-    this.topLines[this.topY] = drawer
-    return this.topY
+    if (this.player.options.danmaku.limit !== LimitType.UnLimited) {
+      return -1
+    }
+    // 无限制，就可以重复将新的弹幕显示到屏幕上
+    this.topLineIndex += this.lineHeight
+    if (this.topLineIndex > this.displayArea) {
+      this.topLineIndex = 0
+    }
+    return this.topLineIndex
   }
 
-  private calcBottomTop (drawer: DanmakuFixedDrawer): number {
+  private calcBottomTop (): number {
     for (let key in this.bottomLines) {
       const _d = this.bottomLines[key]
       const height = Number(key)
-      if (_d && _d.enable) continue
+      if (_d) continue
       if (height > this.displayArea) break
       console.log('发现空行', key)
-      this.bottomLines[key] = drawer
       this.bottomY = height
       return height
     }
+    if (this.player.options.danmaku.limit !== LimitType.UnLimited) {
+      return -1
+    }
+    // 无限制，就可以重复将新的弹幕显示到屏幕上
     this.bottomY += this.lineHeight
-    if (this.bottomY > this.displayArea) this.bottomY = 0
-    this.bottomLines[this.bottomY] = drawer
+    if (this.bottomY > this.displayArea) {
+      this.bottomY = 0
+    }
     return this.bottomY
   }
 
@@ -358,6 +397,9 @@ export class DanmakuLayer {
       } else {
         this.canvas.removeDrawer(drawer)
         this.topAndBottomDisables.push(drawer)
+        if (this.topLines[drawer.height] === drawer) {
+          this.topLines[drawer.height] = null
+        }
         return false
       }
     })
@@ -369,6 +411,9 @@ export class DanmakuLayer {
       } else {
         this.canvas.removeDrawer(drawer)
         this.topAndBottomDisables.push(drawer)
+        if (this.bottomLines[drawer.height] === drawer) {
+          this.bottomLines[drawer.height] = null
+        }
         return false
       }
     })
@@ -380,6 +425,9 @@ export class DanmakuLayer {
       } else {
         this.canvas.removeDrawer(drawer)
         this.flowDisables.push(drawer)
+        if (this.flowLines[drawer.height] === drawer) {
+          this.flowLines[drawer.height] = null
+        }
         return false
       }
     })
@@ -390,7 +438,6 @@ export class DanmakuLayer {
       this.show()
     } else {
       console.log('隐藏弹幕')
-      this.hide()
       this.hide()
     }
   }
@@ -443,7 +490,7 @@ export class DanmakuLayer {
         flow: this.flowDisables.length
       },
       positionY: {
-        top: this.topY,
+        top: this.topLineIndex,
         flow: this.flowY,
         bottom: this.bottomY
       }

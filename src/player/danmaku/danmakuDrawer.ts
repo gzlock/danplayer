@@ -24,8 +24,8 @@ export class DanmakuDrawer {
     this.ctx.textBaseline = 'top'
     this.ctx.textAlign = 'left'
     this.ctx.font = this.danmaku.fontSize + font
-    this.width = this.ctx.measureText(this.danmaku.text).width
-    this.height = this.ctx.measureText('M').width * 1.2
+    this.width = Math.round(this.ctx.measureText(this.danmaku.text).width)
+    this.height = Math.round(this.ctx.measureText('M').width * 1.2)
   }
 
   protected draw () {

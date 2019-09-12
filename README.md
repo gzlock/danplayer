@@ -5,6 +5,13 @@
 # 弹幕播放器
 [![Build Status](https://www.travis-ci.org/gzlock/danplayer.svg?branch=master)](https://www.travis-ci.org/gzlock/danplayer)
 
+<p align="center">
+<img src="./images/screenshot.png" alt="screenshot">
+</p>
+* 请以最终实际使用效果为准。
+
+### 功能简介：
+
 - 使用Canvas绘制弹幕
 - 支持的自定义设置
     - 播放器的高亮颜色
