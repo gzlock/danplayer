@@ -332,6 +332,7 @@ export class Player extends EventEmitter {
       // console.log('视频长度', this.$video.duration)
       this._duration = this.$video.duration
     })
+    this.$video.setAttribute('preload', '')
 
     this.$video.addEventListener('playing', () => this.ui.hideUIDelay())
 
@@ -391,8 +392,6 @@ export class Player extends EventEmitter {
 
     this.ui.progressBar.resize()
 
-    this.ui.progressBar.resetTimeZone()
-
     this.resize()
 
     if (this.$style) {
@@ -410,6 +409,7 @@ export class Player extends EventEmitter {
     } else {
       this.$root.classList.remove('live')
     }
+    this.$video.volume = this.options.volume
   }
 
   set (options: Partial<PlayerPublicOptions>) {
@@ -427,6 +427,7 @@ export class Player extends EventEmitter {
         this.dash.reset()
         this.dash = undefined
       }
+      this.ui.progressBar.reset()
       this.updateSrc().then()
     }
     this.updateUI()

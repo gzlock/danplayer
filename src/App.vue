@@ -44,7 +44,7 @@ import { LimitType } from './player/danmaku/danmakuLayer'
               <div>
                 范围 0~1
               </div>
-              <el-slider v-model="settings.volume"></el-slider>
+              <el-slider v-model="settings.volume" :min="0" :max="1" :step="0.1"></el-slider>
             </el-form-item>
             <el-form-item label="颜色">
               <el-color-picker v-model="settings.color"></el-color-picker>
@@ -117,6 +117,7 @@ import { LimitType } from './player/danmaku/danmakuLayer'
             </el-form-item>
           </el-form>
         </el-tab-pane>
+        <!--    事件香港    -->
         <el-tab-pane label="事件相关" name="player_event">
           <p>DanPlayer暴露了video元素(player.$video)，所以涉及到原生的视频事件需求，大家可以继续绑定到player.$video<br>例如：播放进度、音量的变化。</p>
           <p>DanPlayer支持的事件：
@@ -245,7 +246,7 @@ export default class App extends Vue {
           // live: true,
           color: '#f1f0cf',
           width: 600,
-          volume: 0,
+          volume: 0.7,
           danmaku: {
             contextMenu: (danmaku: Danmaku) => {
               const items: any = {}

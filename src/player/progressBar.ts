@@ -32,8 +32,9 @@ export class ProgressBar {
       this.update()
     })
     this.player.$video.addEventListener('progress', () => {
-      this.updateBufferBar()
       this.time()
+      this.update()
+      this.updateBufferBar()
     })
     const mouseMoveChangeTime = (e: MouseEvent) => {
       const playerRect = this.player.$root.getBoundingClientRect()
@@ -62,6 +63,7 @@ export class ProgressBar {
   }
 
   private time () {
+    console.warn('更新时间')
     if (this.player.options.live) return
     this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
       ' / ' + SecondsToString(this.player.$video.duration)
@@ -83,12 +85,23 @@ export class ProgressBar {
     this.$current.style.background = this.player.options.color
   }
 
+  reset () {
+    this.resetTimeZone()
+    this.resetProgressBar()
+  }
+
   resetTimeZone () {
     if (this.player.options.live) {
       this.$time.innerText = '直播'
     } else {
       this.$time.innerText = ''
     }
+  }
+
+  resetProgressBar () {
+    this.percent = 0
+    this.$buffer.style.width = 0 + 'px'
+    this.update()
   }
 
   updateBufferBar () {
