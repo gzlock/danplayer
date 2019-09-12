@@ -102,7 +102,7 @@ interface PlayerOptions {
   iconSrc: string
 
   // 扩展按钮
-  extraButtons: Element[]
+  extraButtons: { [name: string]: () => void }
 
   // 弹幕层的配置
   danmaku: DanmakuLayerOptions
@@ -114,6 +114,8 @@ interface PlayerOptions {
   unique: boolean
 
   color: string
+
+  beforeSendDanmaku?: (danmaku: Danmaku) => Promise<boolean>
 }
 
 export interface PlayerPublicOptions {
@@ -143,7 +145,7 @@ export interface PlayerPublicOptions {
   iconSrc: string
 
   // 扩展按钮
-  extraButtons: Element[]
+  extraButtons: { [name: string]: () => void }
 
   // 弹幕层的配置
   danmaku: Partial<DanmakuLayerOptions>
@@ -155,6 +157,8 @@ export interface PlayerPublicOptions {
   unique: boolean
 
   color: string
+
+  beforeSendDanmaku?: (danmaku: Danmaku) => Promise<boolean>
 }
 
 enum VideoType {
@@ -171,14 +175,18 @@ function MakeDefaultOptions ({
   width = 600,
   height = 350,
   uiFadeOutDelay = 3000,
-  extraButtons = [],
+  extraButtons = {},
   src = '',
   iconSrc = icon,
   danmakuForm = true,
   fullScreen = true,
+  beforeSendDanmaku = undefined,
   danmaku = {},
   unique = false
 }: Partial<PlayerOptions> | Partial<PlayerPublicOptions>): PlayerOptions {
+  if (volume < 0 || volume > 1) {
+    volume = 0.7
+  }
   return {
     autoplay,
     color,
@@ -193,6 +201,7 @@ function MakeDefaultOptions ({
     extraButtons,
     unique,
     volume,
+    beforeSendDanmaku,
     width
   }
 }
@@ -484,6 +493,10 @@ export class Player extends EventEmitter {
     this.ui.danmakuLayer.send(danmaku)
   }
 
+  clearDanmaku () {
+    this.ui.danmakuLayer.clear()
+  }
+
   get paused () {
     return this._paused
   }
@@ -548,7 +561,7 @@ export class Player extends EventEmitter {
           throw Error('播放MPD视频资源前加载dash.js的代码')
         }
         this.dash = dashjs.MediaPlayer().create()
-        this.dash.initialize(this.$video, src, false)
+        this.dash.initialize(this.$video, src, !this.$video.paused)
         const setting = this.dash.getSettings()
         setting.streaming.abr.limitBitrateByPortal = true
         this.dash.updateSettings(setting)

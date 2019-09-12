@@ -177,9 +177,14 @@ export class DanmakuLayer {
     this.canvas.clear()
     this.canvas.clearCache()
     this.topAndBottomDisables.push(...this.topEnables)
+    this.topAndBottomDisables.push(...this.bottomEnables)
     this.topEnables.length = 0
+    this.bottomEnables.length = 0
     this.flowDisables.push(...this.flowEnables)
     this.flowEnables.length = 0
+    for (let key in this.flowLines) this.flowLines[key] = null
+    for (let key in this.topLines) this.topLines[key] = null
+    for (let key in this.bottomLines) this.bottomLines[key] = null
   }
 
   resize () {
@@ -452,8 +457,6 @@ export class DanmakuLayer {
 
       if (this.isShow) {
         this.canvas.renderAll()
-      } else {
-        this.canvas.clear()
       }
     }
     this.frameTime = (Date.now() - this.lastFrame) / 1000

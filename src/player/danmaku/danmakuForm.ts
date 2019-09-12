@@ -20,7 +20,7 @@ export class DanmakuForm {
     this.$btn.addEventListener('click', () => this.send())
     this.$input.addEventListener('keypress', (e: KeyboardEvent) => {
       // console.log('弹幕表单 keypress', e.key)
-      if (e.key === 'Enter' && this.ui.isShow && this.$input.value) {
+      if (e.key === 'Enter' && this.ui.isShow) {
         this.send()
       }
     })
@@ -42,11 +42,22 @@ export class DanmakuForm {
     this.$input.addEventListener('blur', () => { this.ui.isMouseInUI = false })
   }
 
-  send () {
+  async send () {
+    const text = this.$input.value.trim()
+    if (!text) return
     const options = this.styleLayer.getStyle()
     options.currentTime = this.ui.player.currentTime
-    this.ui.danmakuLayer.send(new Danmaku(this.$input.value, options))
+
+    const danmaku = new Danmaku(text, options)
+    if (this.ui.player.options.beforeSendDanmaku) {
+      const success = await this.ui.player.options.beforeSendDanmaku(danmaku)
+      if (!success) {
+        return
+      }
+    }
+    this.ui.danmakuLayer.send(danmaku)
     this.$input.value = ''
+    this.$input.blur()
     this.ui.player.$root.focus()
   }
 

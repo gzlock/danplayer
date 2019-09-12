@@ -124,12 +124,14 @@ export class Ui {
   insertExtraButtons () {
     this.clearExtraButtons()
     if (this.player.options.extraButtons) {
-      this.player.options.extraButtons.forEach($btn => {
+      for (let name in this.player.options.extraButtons) {
+        const $btn = document.createElement('div') as HTMLElement
+        $btn.innerText = name
+        $btn.addEventListener('click', this.player.options.extraButtons[name])
         $btn.classList.add('button')
-        $btn.classList.remove('intern-button')
-      })
-      this.$controllerButtonsRightLayout.prepend(...this.player.options.extraButtons)
-      this.extraButtons.push(...this.player.options.extraButtons)
+        this.$controllerButtonsRightLayout.prepend($btn)
+        this.extraButtons.push($btn)
+      }
     }
   }
 

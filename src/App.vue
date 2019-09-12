@@ -120,11 +120,20 @@ import { LimitType } from './player/danmaku/danmakuLayer'
         <!--    事件香港    -->
         <el-tab-pane label="事件相关" name="player_event">
           <p>DanPlayer暴露了video元素(player.$video)，所以涉及到原生的视频事件需求，大家可以继续绑定到player.$video<br>例如：播放进度、音量的变化。</p>
+          <p>由于"弹幕发送前"事件较为特殊，因此设置在player的参数里，请看代码：</p>
+          <pre>
+async function beforeSendDanmaku(danmaku){
+  return true 通知player可以将这次发送的弹幕显示到屏幕上
+  return false 通知player不要将这次发送的弹幕显示到屏幕上
+}
+new danmaku.Player({beforeSendDanmaku})
+player.set({beforeSendDanmaku})
+          </pre>
           <p>DanPlayer支持的事件：
           <ul>
+            <li>使用player.on('事件名称',player=>void)绑定事件</li>
             <li>optionChanged：当player的options即设置改变时触发，传入当前的player实例。</li>
             <li>toggleFullscreen：当player切换全屏状态时触发，并传入当前的player实例<br>可以使用player.isFullScreen查询是否处于全屏状态。</li>
-            <li>postDanmaku：当观众在控制栏的发弹幕区域点击【发送】按钮后触发，并传入当前的player实例和Danmaku类的实例对象。</li>
           </ul>
           </p>
         </el-tab-pane>
@@ -265,10 +274,7 @@ export default class App extends Vue {
         })
         console.log('player 配置', player.options)
         // 扩展按钮
-        const btn1 = document.createElement('div') as HTMLElement
-        btn1.innerText = '扩展按钮'
-        btn1.onclick = () => { alert('扩展按钮') }
-        player.set({ extraButtons: [btn1] })
+        player.set({ extraButtons: { '扩展按钮': () => alert('扩展按钮') } })
         this.settings.flowDuration = player.options.danmaku.flowDuration
         this.settings.fadeoutDuration = player.options.danmaku.fadeoutDuration
         this.settings.alpha = player.options.danmaku.alpha
