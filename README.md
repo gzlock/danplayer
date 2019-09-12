@@ -2,7 +2,7 @@
 <img src="./logo.png" alt="DanPlayer" width="100">
 </p>
 
-# 弹幕播放器
+# 弹幕播放器 [Demo体验](https://gzlock.github.io/danplayer)
 [![Build Status](https://www.travis-ci.org/gzlock/danplayer.svg?branch=master)](https://www.travis-ci.org/gzlock/danplayer)
 
 <p align="center">
@@ -30,8 +30,6 @@
     - 优先检测浏览器能否原生支持播放，例如mp4视频文件，mp3音频文件
     - 当浏览器不支持HLS视频(例如Chromium系列)，则使用[hls.js](https://github.com/video-dev/hls.js)
     - 当浏览器不支持MPD视频(大部分浏览器都不支持)，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
-
-# [Demo体验](https://gzlock.github.io/danplayer)
 
 # [使用指南请参阅Wiki](https://github.com/gzlock/danplayer/wiki)
 

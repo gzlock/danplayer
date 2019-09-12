@@ -84,7 +84,7 @@ export class DanmakuLayer {
   // 上一帧的生成时间
   private frameTime: number = 0
   // 计算弹幕坐标的时间
-  private calcDanmakuTime: number = 0
+  private updateDanmakuTime: number = 0
 
   isShow = true
 
@@ -389,7 +389,7 @@ export class DanmakuLayer {
   /**
    * 绘制弹幕
    */
-  private drawDanmaku () {
+  private updateDanmaku () {
     this.topEnables = this.topEnables.filter(drawer => {
       if (drawer.enable) {
         drawer.update(this.frameTime)
@@ -447,8 +447,8 @@ export class DanmakuLayer {
     this.addDanmakuToCanvas()
     this.addDanmakuToCanvasTime = (Date.now() - this.lastFrame) / 1000
     if (!this.player.paused) {
-      this.drawDanmaku()
-      this.calcDanmakuTime = (Date.now() - this.lastFrame) / 1000
+      this.updateDanmaku()
+      this.updateDanmakuTime = (Date.now() - this.lastFrame) / 1000
 
       if (this.isShow) {
         this.canvas.renderAll()
@@ -477,7 +477,7 @@ export class DanmakuLayer {
       // 耗时
       time: {
         addDanmakuToCanvas: this.addDanmakuToCanvasTime,
-        drawDanmaku: this.calcDanmakuTime,
+        drawDanmaku: this.updateDanmakuTime,
         frameTime: this.frameTime
       },
       'on screen danmakus': {
