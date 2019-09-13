@@ -9,8 +9,8 @@ script:
   - npm run build
   - npm run build-lib
 
-env:
-  - TRAVIS_TAG=0.0.3
+#env:
+#  - TRAVIS_TAG=0.0.3
 
 deploy:
   - provider: pages
@@ -20,6 +20,7 @@ deploy:
 
   - provider: npm
     skip_cleanup: true
+    upload-dir: dist
     before_deploy:
       - echo "provider: npm before_deploy"
       - bash ./npmpublish.sh $TRAVIS_TAG
