@@ -21,7 +21,7 @@ cp ../src/player/global.d.ts ./
 
 npm init --yes
 
-yarn add -g json
+npm install -g json
 
 json -I -f package.json -e \
 "this.author='gzlock <gzlock88@gmail.com>'
