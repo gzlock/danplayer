@@ -117,7 +117,7 @@ import { LimitType } from './player/danmaku/danmakuLayer'
             </el-form-item>
           </el-form>
         </el-tab-pane>
-        <!--    事件香港    -->
+        <!--    事件相关    -->
         <el-tab-pane label="事件相关" name="player_event">
           <p>DanPlayer暴露了video元素(player.$video)，所以涉及到原生的视频事件需求，大家可以继续绑定到player.$video<br>例如：播放进度、音量的变化。</p>
           <p>由于"弹幕发送前"事件较为特殊，因此设置在player的参数里，请看代码：</p>

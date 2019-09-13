@@ -7,7 +7,8 @@
     "importHelpers": true,
     "moduleResolution": "node",
     "declaration": true,
-    "declarationDir": "/",
+    "declarationDir": "./dist",
+    "outDir": "./dist",
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "removeComments": true,
@@ -35,6 +36,7 @@
     "src/player/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/player/danplayer.d.ts"
   ]
 }
