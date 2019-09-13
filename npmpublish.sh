@@ -26,6 +26,7 @@ npm install -g json
 json -I -f package.json -e \
 "this.author='gzlock <gzlock88@gmail.com>'
 this.name='danplayer'
+this.main='danplayer.umd.min.js'
 this.version='$TRAVIS_TAG'
 this.types='danplayer.d.ts'
 this.license='MIT'
