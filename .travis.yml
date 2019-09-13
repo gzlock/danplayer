@@ -2,6 +2,10 @@ language: node_js
 
 node_js:
   - node
+  -
+cache:
+  directories:
+    - node_modules
 
 install:
   - npm install
@@ -11,20 +15,15 @@ script:
   - npm run build-lib
 
 before_deploy:
-  - bash ./npmpublish.sh 0.0.2
+  - bash ./npmpublish.sh 0.0.3
   - cd dist
 
 deploy:
   - provider: pages
     skip-cleanup: true
-    local-dir: docs
+    local-dir: ../docs/
     github_token: $GITHUB_TOKEN
   - provider: npm
     skip_cleanup: true
-    upload-dir: dist
     email: "$NPM_EMAIL"
     api_key: "$NPM_AUTH_TOKEN"
-
-cache:
-  directories:
-    - node_modules

@@ -28,6 +28,7 @@ export class ProgressBar {
     this.player.$video.addEventListener('timeupdate', () => {
       this._currentTime = this.player.$video.currentTime
       this.percent = this._currentTime / this.player.$video.duration
+      if (isNaN(this.percent)) this.percent = 0
       this.time()
       this.update()
     })
@@ -63,26 +64,34 @@ export class ProgressBar {
   }
 
   private time () {
-    console.warn('更新时间')
-    if (this.player.options.live) return
-    this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
-      ' / ' + SecondsToString(this.player.$video.duration)
+    // console.warn('更新时间')
+    if (this.player.options.live) {
+      this.$time.innerText = '直播'
+    } else {
+      this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
+        ' / ' + SecondsToString(this.player.$video.duration)
+    }
+  }
+
+  init () {
+    this.offsetWidth = this.player.width - this.$root.offsetWidth
   }
 
   resize () {
-    this.offsetWidth = this.player.width - this.$root.offsetWidth
     this.barWidth = this.player.width - this.offsetWidth
-    // console.warn('reset', this.player.width, this.$root.clientWidth, this.$root)
+    // console.warn('resize', this.player.width, this.offsetWidth, this.barWidth)
     this.update()
     this.updateBufferBar()
   }
 
   update () {
     const x = this.barWidth * this.percent
+    // console.warn('update', this.barWidth, this.percent)
     this.$current.style.width = x + 'px'
     this.$controller.style.transform = `translateX(${x}px)`
     this.$controller.style.background = this.player.options.color
     this.$current.style.background = this.player.options.color
+    this.time()
   }
 
   reset () {
@@ -94,7 +103,7 @@ export class ProgressBar {
     if (this.player.options.live) {
       this.$time.innerText = '直播'
     } else {
-      this.$time.innerText = ''
+      this.$time.innerText = SecondsToString(0) + ' / ' + SecondsToString(0)
     }
   }
 

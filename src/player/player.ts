@@ -354,7 +354,9 @@ export class Player extends EventEmitter {
 
     this.adapter = new QualityLevelAdapter()
     this.ui = new Ui(this)
-    this.ui.update()
+    this.ui.show()
+    this.ui.progressBar.init()
+    this.ui.hideUIDelay()
 
     this.adapter.on(QualityLevelAdapter.Events['OnLoad'], (levels: QualityLevel[]) => {
       this.ui.qualitySelector.updateLevel(levels)
