@@ -253,7 +253,7 @@ export default class App extends Vue {
       if ($e) {
         player = new Player($e, {
           // live: true,
-          color: '#f1f0cf',
+          color: '#ea3bf1',
           width: 600,
           volume: 0.7,
           danmaku: {
@@ -274,7 +274,7 @@ export default class App extends Vue {
         })
         console.log('player 配置', player.options)
         // 扩展按钮
-        player.set({ extraButtons: { '扩展按钮': () => alert('扩展按钮') } })
+        player.set({ extraButtons: { '扩展按钮': () => alert('点击了扩展按钮') } })
         this.settings.flowDuration = player.options.danmaku.flowDuration
         this.settings.fadeoutDuration = player.options.danmaku.fadeoutDuration
         this.settings.alpha = player.options.danmaku.alpha

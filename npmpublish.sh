@@ -32,4 +32,4 @@ echo "# Danplayer
 ### [Demo page](https://gzlock.github.io/danplayer)
 " > readme.md
 
-npm publish
+#npm publish
