@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "publish to npm, version:$1"
+
 cd ./dist/
 
 rm demo.html
