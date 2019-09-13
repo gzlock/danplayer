@@ -9,6 +9,9 @@ script:
   - npm run build
   - npm run build-lib
 
+env:
+  - TRAVIS_TAG=0.0.3
+
 deploy:
   - provider: pages
     skip-cleanup: true
@@ -19,6 +22,7 @@ deploy:
     skip_cleanup: true
     before_deploy:
       - bash ./npmpublish.sh $TRAVIS_TAG
+      - cd ./dist
     email: "$NPM_EMAIL"
     api_key: "$NPM_AUTH_TOKEN"
     on:

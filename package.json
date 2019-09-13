@@ -1,7 +1,6 @@
 {
   "name": "danplayer",
   "version": "0.1.0",
-  "private": true,
   "publishConfig": {
     "access": "public"
   },
