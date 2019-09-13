@@ -10,6 +10,8 @@ cp ../src/player/danplayer.d.ts ./
 
 npm init --yes
 
+npm i -G json
+
 json -I -f package.json -e \
 "this.author='gzlock <gzlock88@gmail.com>';
 this.name='danplayer';
