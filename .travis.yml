@@ -14,16 +14,12 @@ script:
   - npm run build
   - npm run build-lib
 
-before_deploy:
-  - bash ./npmpublish.sh 0.0.3
-  - cd dist
+# 发布到npm
+after_script:
+  - bash ./npmpublish.sh
 
 deploy:
   - provider: pages
     skip-cleanup: true
-    local-dir: ../docs/
+    local-dir: docs
     github_token: $GITHUB_TOKEN
-  - provider: npm
-    skip_cleanup: true
-    email: "$NPM_EMAIL"
-    api_key: "$NPM_AUTH_TOKEN"

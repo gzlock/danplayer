@@ -1,6 +1,16 @@
 #!/bin/bash
 
-echo "publish to npm, version:$1"
+exit_script(){
+    exit 0
+}
+
+if [ $TRAVIS_TAG ];then
+	echo "有版本号，发布到npm：$TRAVIS_TAG"
+else
+	echo "没有版本号，退出脚本"
+	exit_script
+fi
+
 
 cd ./dist/
 
@@ -16,7 +26,7 @@ yarn add -g json
 json -I -f package.json -e \
 "this.author='gzlock <gzlock88@gmail.com>'
 this.name='danplayer'
-this.version='$1'
+this.version='$TRAVIS_TAG'
 this.types='danplayer.d.ts'
 this.license='MIT'
 delete this.scripts
@@ -32,4 +42,6 @@ echo "# Danplayer
 ### [Demo page](https://gzlock.github.io/danplayer)
 " > readme.md
 
-#npm publish
+echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+
+npm publish
