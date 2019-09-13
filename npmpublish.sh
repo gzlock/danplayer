@@ -42,6 +42,6 @@ echo "# Danplayer
 ### [Demo page](https://gzlock.github.io/danplayer)
 " > readme.md
 
-echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
 
 npm publish
