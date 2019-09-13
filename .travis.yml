@@ -23,3 +23,5 @@ deploy:
     skip-cleanup: true
     local-dir: docs
     github_token: $GITHUB_TOKEN
+    on:
+      tags: true

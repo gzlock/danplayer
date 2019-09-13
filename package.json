@@ -46,7 +46,6 @@
     "eslint-plugin-vue": "^5.0.0",
     "hls.js": "^0.12.4",
     "lint-staged": "^8.1.5",
-    "lodash": "^4.17.15",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.1.0",
     "typescript": "^3.4.3",
