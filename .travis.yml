@@ -21,12 +21,11 @@ deploy:
   - provider: npm
     skip_cleanup: true
     before_deploy:
+      - echo "provider: npm before_deploy"
       - bash ./npmpublish.sh $TRAVIS_TAG
-      - cd ./dist
+      - cd dist
     email: "$NPM_EMAIL"
     api_key: "$NPM_AUTH_TOKEN"
-    on:
-      tags: true
 
 cache:
   directories:
