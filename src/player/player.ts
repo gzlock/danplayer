@@ -266,58 +266,56 @@ export class Player extends EventEmitter {
     this.$root.innerHTML = template.replace('{video-layer}', $e.outerHTML)
     $e.remove()
 
-    this.$root.addEventListener('keypress', (e: KeyboardEvent) => {
-      // console.log('keypress', e.key)
-      let stop = true
-      if (e.key === 'Enter') {
-        this.ui.show()
-        this.ui.danmakuForm.focus()
-      } else if (e.key === ' ') {} else { stop = false }
-      if (stop) {
-        e.stopPropagation()
-        e.preventDefault()
-      }
-    })
     this.$root.addEventListener('contextmenu', (e: MouseEvent) => {
       e.stopPropagation()
       e.preventDefault()
     })
-    this.$root.addEventListener('keyup', (e: KeyboardEvent) => {
-      if (e.key === ' ') {
+
+    this.$root.addEventListener('keypress', (e: KeyboardEvent) => {
+      console.log('keypress', e.key)
+      if (e.key === 'Enter') {
+        this.ui.show()
+        this.ui.danmakuForm.focus()
+      } else if (e.key === ' ') {
         this.toggle()
         e.stopPropagation()
         e.preventDefault()
       }
     })
-    document.addEventListener('fullscreenchange', () => {
-      this._isFullScreen = document.fullscreenElement === this.$root
-      this.ui.updateFullScreenButton()
-    })
-
     this.$root.addEventListener('keydown', (e: KeyboardEvent) => {
-      // console.log('keydown', e.key)
-      let stop = true
-      if (e.key === 'ArrowLeft' && !this.options.live) {
-        this.$video.currentTime -= 5
-      } else if (e.key === 'ArrowRight' && !this.options.live) {
-        this.$video.currentTime += 5
-      } else if (e.key === 'ArrowUp') {
+      console.warn('keydown 1', e.key)
+      let stop = e.key.startsWith('Arrow')
+      if (!this.options.live) {
+        if (e.key === 'ArrowLeft') {
+          this.$video.currentTime -= 5
+        } else if (e.key === 'ArrowRight') {
+          this.$video.currentTime += 5
+        }
+      }
+      if (e.key === 'ArrowUp') {
         this.ui.volume.up()
       } else if (e.key === 'ArrowDown') {
         this.ui.volume.down()
-      } else { stop = false }
+      }
+      // console.warn('keydown 2', stop)
       if (stop) {
         e.stopPropagation()
         e.preventDefault()
       }
     })
 
+    document.addEventListener('fullscreenchange', () => {
+      this._isFullScreen = document.fullscreenElement === this.$root
+      this.ui.updateFullScreenButton()
+    })
+
     this.$root.addEventListener('mousemove', () => {
       this.$root.classList.remove('mouse-idle')
-      if (this.paused) {
-
-      } else {
-        if (this.ui.isMouseInUI) return
+      if (!this.ui.isShow) {
+        this.ui.show()
+        this.ui.cancelHideUIDelay()
+      }
+      if (!this.paused && !this.ui.isMouseInUI) {
         this.ui.hideUIDelay().then(() => {
           this.$root.classList.add('mouse-idle')
         })
@@ -326,6 +324,7 @@ export class Player extends EventEmitter {
 
     this.$root.addEventListener('mouseover', () => {
       if (this.ui.isShow) return
+      this.$root.classList.remove('mouse-idle')
       this.ui.show()
       this.ui.cancelHideUIDelay()
     })

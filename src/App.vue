@@ -281,7 +281,7 @@ export default class App extends Vue {
         this.settings.color = player.options.color
         this.settings.volume = player.options.volume
         this.settings.danmakuLimit = Object.keys(LimitType)[Object.values(LimitType).indexOf(player.options.danmaku.limit)]
-
+        window.player = player
         const $debug = document.querySelector('.debug-info pre') as HTMLPreElement
         updateInterval = setInterval(() => {
           $debug.innerText = JSON.stringify(player.debug, null, 2)

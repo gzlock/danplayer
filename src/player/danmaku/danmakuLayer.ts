@@ -136,7 +136,6 @@ export class DanmakuLayer {
       }
       e.preventDefault()
       e.stopPropagation()
-      return false
     })
     this.canvas.$canvas.addEventListener('dblclick', () => {
       this.player.toggleFullScreen()

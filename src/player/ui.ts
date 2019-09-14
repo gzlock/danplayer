@@ -86,6 +86,7 @@ export class Ui {
   }
 
   show () {
+    console.warn('show')
     this.isShow = true
     this.$root.classList.add('show')
     this.$gradientBG.classList.add('show')

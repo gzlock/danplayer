@@ -18,26 +18,27 @@ export class DanmakuForm {
     this.$input = this.$root.querySelector('input') as HTMLInputElement
     this.$btn = this.$root.querySelector('.send') as HTMLElement
     this.$btn.addEventListener('click', () => this.send())
+
+    // 停止一切按键冒泡
     this.$input.addEventListener('keypress', (e: KeyboardEvent) => {
-      // console.log('弹幕表单 keypress', e.key)
       if (e.key === 'Enter' && this.ui.isShow) {
         this.send()
+        this.ui.hide()
+        this.$root.focus()
       }
-    })
-    this.$input.addEventListener('keydown', (e: KeyboardEvent) => {
-      // console.log('弹幕表单 keydown', e.key)
-      if (e.key.startsWith('Arrow') || e.key === ' ') {
-        e.stopPropagation()
-      }
+      e.stopPropagation()
     })
     this.$input.addEventListener('keyup', (e: KeyboardEvent) => {
-      // console.log('弹幕表单 keyup', e.key)
+      e.stopPropagation()
+    })
+    this.$input.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        this.ui.player.$root.focus()
+        this.$root.focus()
         this.ui.hide()
       }
       e.stopPropagation()
     })
+
     this.$input.addEventListener('focus', () => { this.ui.isMouseInUI = true })
     this.$input.addEventListener('blur', () => { this.ui.isMouseInUI = false })
   }
@@ -50,15 +51,13 @@ export class DanmakuForm {
 
     const danmaku = new Danmaku(text, options)
     if (this.ui.player.options.beforeSendDanmaku) {
-      const success = await this.ui.player.options.beforeSendDanmaku(danmaku)
+      const success = await Promise.resolve(this.ui.player.options.beforeSendDanmaku(danmaku))
       if (!success) {
         return
       }
     }
     this.ui.danmakuLayer.send(danmaku)
     this.$input.value = ''
-    this.$input.blur()
-    this.ui.player.$root.focus()
   }
 
   show () {
