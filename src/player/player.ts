@@ -350,13 +350,13 @@ export class Player extends EventEmitter {
 
     options = options || {}
 
-    if ('width' in options === false) {
+    if (!('width' in options)) {
       options.width = this.$video.clientWidth as number
     }
-    if ('height' in options === false) {
+    if (!('height' in options)) {
       options.width = this.$video.clientHeight as number
     }
-    if ('autoplay' in options === false) {
+    if (!('autoplay' in options)) {
       options.autoplay = this.$video.hasAttribute('autoplay')
     }
 
