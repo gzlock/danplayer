@@ -594,9 +594,36 @@ export class Player extends EventEmitter {
     this._isFullScreen = !this._isFullScreen
     if (this._isFullScreen) {
       this.$root.classList.add('full-screen')
-      await this.$root.requestFullscreen()
+      if (this.$root.requestFullscreen) {
+        await this.$root.requestFullscreen()
+      }
+      // @ts-ignore
+      if (this.$root.webkitRequestFullscreen) {
+        // @ts-ignore
+        await this.$root.webkitRequestFullscreen()
+      }
+      // @ts-ignore
+      if (this.$root.mozRequestFullScreen) {
+        // @ts-ignore
+        await this.$root.mozRequestFullScreen()
+      }
     } else {
-      await document.exitFullscreen()
+      if (document.exitFullscreen) {
+        await document.exitFullscreen()
+        // @ts-ignore
+      } else if (document.mozCancelFullScreen) {
+        // @ts-ignore
+        await document.mozCancelFullScreen()
+        // @ts-ignore
+      } else if (document.webkitCancelFullScreen) {
+        // @ts-ignore
+        await document.webkitCancelFullScreen()
+        // @ts-ignore
+      } else if (document.msExitFullscreen) {
+        // @ts-ignore
+        await document.msExitFullscreen()
+      }
+
       this.$root.classList.remove('full-screen')
     }
     this.resize()
