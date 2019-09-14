@@ -25,15 +25,15 @@
     - 弹幕的全局字体大小
     - 流动式弹幕的移动速度(从右到左移动的弹幕)
     - 固定式弹幕的隐藏时间(固定在视频顶部和底部的弹幕)
-    - 设置弹幕显示的区域，效果接近B站的相关设置(完善中)
-    - 控制栏的发弹幕的[发送]按钮，点击后会触发player设置参数的beforeSendDanmaku**异步函数**
+    - 限制弹幕的显示区域，效果接近B站的相关设置
+    - 控制栏的发弹幕的[发送]按钮，点击后会触发player的beforeSendDanmaku**异步函数**
         * 函数逻辑可以是提交弹幕内容到服务器
         * 返回true，会渲染这次发送的弹幕到屏幕
         * 返回false，则不渲染这次发送的弹幕到屏幕
 - 支持的视频格式：
     - 优先检测浏览器能否原生支持播放，例如mp4视频文件，mp3音频文件
-    - 当浏览器不支持HLS视频(例如Chromium系列)，则使用[hls.js](https://github.com/video-dev/hls.js)
-    - 当浏览器不支持MPD视频(大部分浏览器都不支持)，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
+    - 当浏览器不支持HLS视频，则使用[hls.js](https://github.com/video-dev/hls.js)
+    - 当浏览器不支持MPD视频，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
 
 # [使用指南请参阅Wiki](https://github.com/gzlock/danplayer/wiki)
 
