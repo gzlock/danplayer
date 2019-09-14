@@ -2,8 +2,8 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>直播系统</title>
-  <!--如果需要播放HLS格式的视频资源，必须加载hls.js-->
+  <title>视频直播弹幕范例</title>
+  <!--加载hls.js-->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@0.12.4/dist/hls.min.js"></script>
 
   <!--加载DanPlayer的js-->
@@ -24,13 +24,13 @@
 <script>
   window.onload = () => {
     const player = window.player = new danplayer.Player(document.querySelector('video'), {
-      color: '#00ffb4',
       autoplay: true,
+      color: '#00ffb4',
       live: true,
       width: '100vw',
       height: '100vh',
       async beforeSendDanmaku(danmaku) {
-        // 发送弹幕前通过websocket通知服务器广播给其他观众
+        // 通过websocket通知服务器广播给其他观众
         socket.emit('send_danmaku', danmaku);
         return true
       },
