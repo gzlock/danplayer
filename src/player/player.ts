@@ -597,45 +597,47 @@ export class Player extends EventEmitter {
 
       if (this.$root.requestFullscreen) {
         await this.$root.requestFullscreen()
-      }
-      // @ts-ignore
-      if (this.$root.webkitRequestFullscreen) {
+      } else {
         // @ts-ignore
-        await this.$root.webkitRequestFullscreen()
-      }
-      // @ts-ignore
-      if (this.$root.mozRequestFullScreen) {
+        if (this.$root.webkitRequestFullscreen) {
+          // @ts-ignore
+          await this.$root.webkitRequestFullscreen()
+        }
         // @ts-ignore
-        await this.$root.mozRequestFullScreen()
-      }
-      // @ts-ignore
-      if (this.$root.mozRequestFullScreen) {
+        if (this.$root.mozRequestFullScreen) {
+          // @ts-ignore
+          await this.$root.mozRequestFullScreen()
+        }
         // @ts-ignore
-        await this.$root.mozRequestFullScreen()
-      }
-      // @ts-ignore
-      if (this.$root.msRequestFullscreen) {
+        if (this.$root.mozRequestFullScreen) {
+          // @ts-ignore
+          await this.$root.mozRequestFullScreen()
+        }
         // @ts-ignore
-        await this.$root.msRequestFullscreen()
+        if (this.$root.msRequestFullscreen) {
+          // @ts-ignore
+          await this.$root.msRequestFullscreen()
+        }
       }
     } else {
       if (document.exitFullscreen) {
         await document.exitFullscreen()
-      }
-      // @ts-ignore
-      if (document.mozCancelFullScreen) {
+      } else {
         // @ts-ignore
-        await document.mozCancelFullScreen()
-      }
-      // @ts-ignore
-      if (document.webkitCancelFullScreen) {
+        if (document.mozCancelFullScreen) {
+          // @ts-ignore
+          await document.mozCancelFullScreen()
+        }
         // @ts-ignore
-        await document.webkitCancelFullScreen()
-      }
-      // @ts-ignore
-      if (document.msExitFullscreen) {
+        if (document.webkitCancelFullScreen) {
+          // @ts-ignore
+          await document.webkitCancelFullScreen()
+        }
         // @ts-ignore
-        await document.msExitFullscreen()
+        if (document.msExitFullscreen) {
+          // @ts-ignore
+          await document.msExitFullscreen()
+        }
       }
 
       this.$root.classList.remove('full-screen')
