@@ -18,6 +18,7 @@ script:
 after_script:
   - bash ./npmpublish.sh
 
+# 发布到github pages
 deploy:
   - provider: pages
     skip-cleanup: true
