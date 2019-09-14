@@ -348,9 +348,21 @@ export class Player extends EventEmitter {
     this.$video.addEventListener('play', () => this.ui.updatePlayButton())
     this.$video.addEventListener('pause', () => this.ui.updatePlayButton())
 
+    options = options || {}
+
+    if ('width' in options === false) {
+      options.width = this.$video.clientWidth as number
+    }
+    if ('height' in options === false) {
+      options.width = this.$video.clientHeight as number
+    }
+    if ('autoplay' in options === false) {
+      options.autoplay = this.$video.hasAttribute('autoplay')
+    }
+
     window.addEventListener('resize', () => this.resizeEvt(1000))
 
-    this.options = MakeDefaultOptions(options || { autoplay: this.$video.hasAttribute('autoplay') })
+    this.options = MakeDefaultOptions(options)
 
     this.adapter = new QualityLevelAdapter()
     this.ui = new Ui(this)
@@ -371,10 +383,6 @@ export class Player extends EventEmitter {
   }
 
   private async updateSrc () {
-    if (this.options.src) {
-      this.$video.setAttribute('src', this.options.src)
-    }
-
     await this.getContentType()
 
     if (this.hls) {
@@ -529,7 +537,14 @@ export class Player extends EventEmitter {
   }
 
   private async getContentType () {
-    const src = this.$video.getAttribute('src') as string
+    let src: string
+    if (this.options.src) {
+      src = this.options.src
+    } else if (this.$video.hasAttribute('src')) {
+      src = this.$video.getAttribute('src') as string
+    } else {
+      return
+    }
     console.log('视频网址', src)
     this.type = VideoType.Normal
     const contentType = await LoadMimeType(src)
