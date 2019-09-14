@@ -259,60 +259,70 @@ export class DanmakuLayer {
     return false
   }
 
-  private addDanmakuToCanvas () {
-    if (this.danmakus.length === 0) return
-    for (let i = 0; i < this.danmakus.length; i++) {
-      const danmaku = this.danmakus[i]
-      const time = Math.abs(this.player.currentTime - danmaku.currentTime)
-      if (this.showed.includes(danmaku)) continue
-      if (time > 0.1) continue
-      this.showed.push(danmaku)
-
-      let top
-      if (danmaku.type === DanmakuType.Flow) {
-        let drawer = this.flowDisables.shift() || new DanmakuFlowDrawer()
-        top = this.calcFlowTop()
+  private createDrawer (danmaku: Danmaku) {
+    let top
+    if (danmaku.type === DanmakuType.Flow) {
+      let drawer = this.flowDisables.shift() || new DanmakuFlowDrawer()
+      top = this.calcFlowTop()
+      if (top > -1) {
+        drawer.enable = true
+        drawer.set(danmaku, this.width, top)
+        drawer.update(this.width, this.player.options.danmaku.flowDuration, 0)
+        this.flowEnables.push(drawer)
+        this.flowLines[top] = drawer
+        this.canvas.addDrawer(drawer)
+      } else {
+        this.flowDisables.push(drawer)
+      }
+    } else {
+      let drawer = this.topAndBottomDisables.shift() || new DanmakuFixedDrawer()
+      if (danmaku.type === DanmakuType.Top) {
+        top = this.calcTopTop()
         if (top > -1) {
           drawer.enable = true
-          drawer.set(danmaku, this.width, top)
-          drawer.update(this.width, this.player.options.danmaku.flowDuration, 0)
-          this.flowEnables.push(drawer)
-          this.flowLines[top] = drawer
+          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
+          this.topLines[top.toString()] = drawer
+          this.topEnables.push(drawer)
+          drawer.update(0)
           this.canvas.addDrawer(drawer)
         } else {
-          this.flowDisables.push(drawer)
+          this.topAndBottomDisables.push(drawer)
         }
       } else {
-        let drawer = this.topAndBottomDisables.shift() || new DanmakuFixedDrawer()
-        if (danmaku.type === DanmakuType.Top) {
-          top = this.calcTopTop()
-          if (top > -1) {
-            drawer.enable = true
-            drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
-            this.topLines[top.toString()] = drawer
-            this.topEnables.push(drawer)
-            drawer.update(0)
-            this.canvas.addDrawer(drawer)
-          } else {
-            this.topAndBottomDisables.push(drawer)
-          }
+        let top = this.calcBottomTop()
+        if (top > -1) {
+          drawer.enable = true
+          this.bottomLines[top] = drawer
+          top = this.height - (top + this.lineHeight)
+          drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
+          this.bottomEnables.push(drawer)
+          drawer.update(0)
+          this.canvas.addDrawer(drawer)
         } else {
-          let top = this.calcBottomTop()
-          if (top > -1) {
-            drawer.enable = true
-            this.bottomLines[top] = drawer
-            top = this.height - (top + this.lineHeight)
-            drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
-            this.bottomEnables.push(drawer)
-            drawer.update(0)
-            this.canvas.addDrawer(drawer)
-          } else {
-            this.topAndBottomDisables.push(drawer)
-          }
+          this.topAndBottomDisables.push(drawer)
         }
       }
-      this.canvas.renderAll()
     }
+  }
+
+  private addDanmakuToCanvas () {
+    if (this.danmakus.length === 0) return
+    if (this.player.options.live) {
+      this.danmakus.forEach(danmaku => {
+        this.createDrawer(danmaku)
+      })
+      this.danmakus.length = 0
+    } else {
+      for (let i = 0; i < this.danmakus.length; i++) {
+        const danmaku = this.danmakus[i]
+        const time = Math.abs(this.player.currentTime - danmaku.currentTime)
+        if (this.showed.includes(danmaku)) continue
+        if (time > 0.1) continue
+        this.showed.push(danmaku)
+        this.createDrawer(danmaku)
+      }
+    }
+    this.canvas.renderAll()
   }
 
   $input!: HTMLInputElement
