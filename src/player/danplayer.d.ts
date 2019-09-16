@@ -142,7 +142,7 @@ declare namespace danplayer {
 
     public toggleFullScreen (): void
 
-    constructor ($video: HTMLVideoElement, options?: Partial<PlayerPublicOptions>)
+    constructor ($video: HTMLElement, options?: Partial<PlayerPublicOptions>)
   }
 
   export enum DanmakuType {
