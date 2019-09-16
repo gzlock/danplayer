@@ -17,7 +17,7 @@ cd ./dist/
 rm demo.html
 
 cp ../src/player/danplayer.d.ts ./
-cp ../src/player/global.d.ts ./
+#cp ../src/player/global.d.ts ./
 
 npm init --yes
 
@@ -31,7 +31,7 @@ this.version='$TRAVIS_TAG'
 this.types='danplayer.d.ts'
 this.license='MIT'
 delete this.scripts
-this.devDependencies={
+this.dependencies={
 '@types/hls.js': '^0.12.4',
 'hls.js': '^0.12.4',
 'dashjs': '^3.0.0',
