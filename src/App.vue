@@ -9,6 +9,7 @@ import { LimitType } from './player/danmaku/danmakuLayer'
         </div>
         <div class="right">
           <el-link type="primary" href="https://github.com/gzlock/danplayer" target="_blank">Github</el-link>
+          <el-link href="https://github.com/gzlock/danplayer/blob/master/src/App.vue" target="_blank">本页代码</el-link>
         </div>
       </div>
       <video id="player"
@@ -344,9 +345,11 @@ export default class App extends Vue {
       }
 
       .right {
+        .el-link + .el-link {
+          margin-left: 20px;
+        }
       }
     }
-
   }
 
   .extra-button {
