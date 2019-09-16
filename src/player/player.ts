@@ -4,77 +4,9 @@ import { Danmaku } from '@/player/danmaku/danmaku'
 import { Ui } from '@/player/ui'
 import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
-import { LoadMimeType } from '@/player/utils'
+import { Hash, LoadMimeType } from '@/player/utils'
 
 const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
-
-const template = `{video-layer}
-<input class="copy-tool" />
-<div class="interactive-layer">
-  <canvas class="danmaku-layer"></canvas>
-  
-  <div class="bg-gradient show"></div>
-  
-  
-  <div class="float danmaku-style-layer"></div>
-  
-  <div class="float volume-bar">
-    <div class="volume-num-label"></div>
-    <div class="volume-column-bar">
-      <div class="bar-ui bar-full"></div>
-      <div class="bar-ui bar-current"></div>
-      <div class="bar-controller"></div>
-    </div>
-  </div>
-  
-  <div class="float quality-menu"></div>
-  
-  <div class="controller-bottom-bar">
-    <div class="progress-bar live-hide">
-      <div class="bar-full"></div>
-      <div class="bar-buffer"></div>
-      <div class="bar-current"></div>
-      <div class="bar-controller"></div>    
-    </div>
-    
-    <div class="buttons">
-      <div class="left">
-        <div class="button intern-button play" data-on="danplayer-bofang" data-off="danplayer-zanting"
-          data-on-title="播放视频" data-off-title="暂停播放">
-          <svg class="icon" aria-hidden="true"><use xlink:href="#danplayer-bofang"></use></svg>
-        </div>
-        <div class="time"></div>
-      </div>
-      
-      <div class="middle danmaku-form">
-        <div class="button intern-button danmaku-style">
-          <svg class="icon"><use xlink:href="#danplayer-style"></use></svg>
-        </div>
-        <input placeholder="输入弹幕内容" tabindex="1">
-        <div class="send">发送</div>
-      </div>
-      <div class="right">
-      
-        <div class="button intern-button volume" data-on="danplayer-yinliang" data-off="danplayer-jingyin" title="音量">
-          <svg class="icon"><use xlink:href="#danplayer-yinliang"></use></svg>
-        </div>
-        
-        <div class="button intern-button toggle-danamaku" title="隐藏弹幕"
-          data-on="danplayer-danmukai" data-off="danplayer-danmuguan" 
-          data-on-title="显示弹幕" data-off-title="隐藏弹幕">
-          <svg class="icon"><use xlink:href="#danplayer-danmukai"></use></svg>
-        </div>
-        
-        <div class="button quality" title="切换画质"></div>
-        
-        <div class="button intern-button full-screen" data-on="danplayer-quanping" data-off="danplayer-zuixiaohua"
-        data-on-title="全屏观看" data-off-title="取消全屏">
-          <svg class="icon"><use xlink:href="#danplayer-quanping"></use></svg>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>`
 
 interface PlayerOptions {
   /**
@@ -206,6 +138,74 @@ function MakeDefaultOptions ({
   }
 }
 
+const template = `{video-layer}
+<input class="copy-tool" />
+<div class="interactive-layer">
+  <canvas class="danmaku-layer"></canvas>
+  
+  <div class="bg-gradient show"></div>
+  
+  
+  <div class="float danmaku-style-layer"></div>
+  
+  <div class="float volume-bar">
+    <div class="volume-num-label"></div>
+    <div class="volume-column-bar">
+      <div class="bar-ui bar-full"></div>
+      <div class="bar-ui bar-current"></div>
+      <div class="bar-controller"></div>
+    </div>
+  </div>
+  
+  <div class="float quality-menu"></div>
+  
+  <div class="controller-bottom-bar">
+    <div class="progress-bar live-hide">
+      <div class="bar-full"></div>
+      <div class="bar-buffer"></div>
+      <div class="bar-current"></div>
+      <div class="bar-controller"></div>    
+    </div>
+    
+    <div class="buttons">
+      <div class="left">
+        <div class="button intern-button play" data-on="danplayer-bofang" data-off="danplayer-zanting"
+          data-on-title="播放视频" data-off-title="暂停播放">
+          <svg class="icon" aria-hidden="true"><use xlink:href="#danplayer-bofang"></use></svg>
+        </div>
+        <div class="time"></div>
+      </div>
+      
+      <div class="middle danmaku-form">
+        <div class="button intern-button danmaku-style">
+          <svg class="icon"><use xlink:href="#danplayer-style"></use></svg>
+        </div>
+        <input placeholder="输入弹幕内容" tabindex="1">
+        <div class="send">发送</div>
+      </div>
+      <div class="right">
+      
+        <div class="button intern-button volume" data-on="danplayer-yinliang" data-off="danplayer-jingyin" title="音量">
+          <svg class="icon"><use xlink:href="#danplayer-yinliang"></use></svg>
+        </div>
+        
+        <div class="button intern-button toggle-danamaku" title="隐藏弹幕"
+          data-on="danplayer-danmukai" data-off="danplayer-danmuguan" 
+          data-on-title="显示弹幕" data-off-title="隐藏弹幕">
+          <svg class="icon"><use xlink:href="#danplayer-danmukai"></use></svg>
+        </div>
+        
+        <div class="button quality" title="切换画质"></div>
+        
+        <div class="button intern-button full-screen" data-on="danplayer-quanping" data-off="danplayer-zuixiaohua"
+        data-on-title="全屏观看" data-off-title="取消全屏">
+          <svg class="icon"><use xlink:href="#danplayer-quanping"></use></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`
+
 export class Player extends EventEmitter {
   private static instances: Player[] = []
   $root: HTMLElement
@@ -247,9 +247,10 @@ export class Player extends EventEmitter {
 
   public options: PlayerOptions
 
-  constructor ($e: HTMLVideoElement, options?: Partial<PlayerPublicOptions>) {
+  constructor ($e: HTMLElement, options?: Partial<PlayerPublicOptions>) {
     super()
-    if (!document.querySelector('script#danplayer-icon')) {
+    const hash = Hash(icon)
+    if (!document.querySelector('script#danplayer-icon' + hash)) {
       const $icon = document.createElement('script')
       $icon.src = icon
       $icon.id = 'danplayer-icon'
@@ -259,11 +260,15 @@ export class Player extends EventEmitter {
     const parent = $e.parentElement as Element
     this.$root = document.createElement('div')
     this.$root.setAttribute('tabIndex', '0')
-    this.$root.classList.add('video-player')
+    this.$root.classList.add('danplayer')
     parent.insertBefore(this.$root, $e)
-    $e.classList.add('video-layer')
-    $e.removeAttribute('id')
-    this.$root.innerHTML = template.replace('{video-layer}', $e.outerHTML)
+    if ($e.tagName.toLowerCase() === 'video') {
+      $e.classList.add('video-layer')
+      $e.removeAttribute('id')
+      this.$root.innerHTML = template.replace('{video-layer}', $e.outerHTML)
+    } else {
+      this.$root.innerHTML = template.replace('{video-layer}', '<video class="video-layer"></video>')
+    }
     $e.remove()
 
     this.$root.addEventListener('contextmenu', (e: MouseEvent) => {
@@ -320,6 +325,14 @@ export class Player extends EventEmitter {
           this.$root.classList.add('mouse-idle')
         })
       }
+    })
+
+    this.$root.addEventListener('touchstart', () => {
+      this.ui.show()
+      this.ui.cancelHideUIDelay()
+    })
+    this.$root.addEventListener('touchend', () => {
+      this.ui.hideUIDelay()
     })
 
     this.$root.addEventListener('mouseover', () => {

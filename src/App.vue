@@ -8,7 +8,7 @@ import { LimitType } from './player/danmaku/danmakuLayer'
           <div class="text">DanPlayer</div>
         </div>
         <div class="right">
-          <a class="el-button el-button--text" href="https://github.com/gzlock/danplayer" target="_blank">Github</a>
+          <el-link type="primary" href="https://github.com/gzlock/danplayer" target="_blank">Github</el-link>
         </div>
       </div>
       <video id="player"
@@ -61,7 +61,7 @@ import { LimitType } from './player/danmaku/danmakuLayer'
                 <el-button @click="playMpd">播放MPD视频资源(使用dash.js)</el-button>
               </div>
               <br>
-              <el-input placeholder="输入网址" v-model="videoSrc"/>
+              <el-input placeholder="输入网址" v-model="form.videoSrc"/>
               <el-button @click="setSrc">播放器自定义资源</el-button>
             </el-form-item>
           </el-form>
@@ -99,12 +99,12 @@ import { LimitType } from './player/danmaku/danmakuLayer'
               <el-slider v-model="settings.alpha" :min="0.1" :max="1.0" :step="0.1"/>
             </el-form-item>
             <el-form-item label="发弹幕">
-              <el-select placeholder="请选择" ref="danmaku-type" :value="1">
-                <el-option label="顶部" :value="0">顶部</el-option>
-                <el-option label="流动" :value="1">流动</el-option>
-                <el-option label="底部" :value="2">底部</el-option>
-              </el-select>
-              <el-input @keypress.enter="sendDanmaku" placeholder="回车发送" v-model="danmaku">
+              <el-radio-group v-model="form.type" ref="danmaku-type">
+                <el-radio-button :label="0">顶部</el-radio-button>
+                <el-radio-button :label="1">流动</el-radio-button>
+                <el-radio-button :label="2">底部</el-radio-button>
+              </el-radio-group>
+              <el-input @keypress.enter="sendDanmaku" placeholder="回车发送" v-model="form.danmaku">
                 <el-button slot="append" @click="sendDanmaku" type="primary">发送</el-button>
               </el-input>
             </el-form-item>
@@ -173,16 +173,14 @@ export default class App extends Vue {
       fullscreen: true,
       danmakuLimit: Object.keys(LimitType)[0]
     }
-    private danmaku = ''
-    private videoSrc = ''
     private random = { count: 100, timeRange: 10 }
+    private form = { type: 1, danmaku: '', videoSrc: '' }
 
     sendDanmaku () {
-      const $danmakuType = this.$refs['danmaku-type'] as HTMLInputElement
-      if (this.danmaku) {
-        player.sendDanmaku(new Danmaku(this.danmaku, {
-          type: Number($danmakuType.value),
-          borderColor: 'white',
+      if (this.form.danmaku) {
+        player.sendDanmaku(new Danmaku(this.form.danmaku, {
+          type: Number(this.form.type),
+          borderColor: 'red',
           currentTime: player.currentTime,
           id: 'myself'
         }))
@@ -207,9 +205,14 @@ export default class App extends Vue {
       })
     }
 
+    @Watch('form.type')
+    formType () {
+      console.log(this.form)
+    }
+
     setSrc () {
-      if (this.videoSrc) {
-        player.set({ live: this.settings.live, src: this.videoSrc })
+      if (this.form.videoSrc) {
+        player.set({ live: this.settings.live, src: this.form.videoSrc })
       }
     }
 

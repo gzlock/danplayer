@@ -1,28 +1,8 @@
-.icon {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.15em;
-  fill: currentColor;
-  overflow: hidden;
-}
-
 $controller-color: #00a1d6;
 
 
-// 浮动层 统一样式
-.float {
-  background: rgba(21, 21, 21, 0.9);
-  border-radius: 2px;
-  display: none;
-  position: absolute;
-
-  &.show {
-    display: block;
-  }
-}
-
 // 弹幕右键菜单
-.danmaku-context-menu {
+.danplayer-danmaku-context-menu {
   font-size: 12px;
   outline: none;
   color: white;
@@ -65,7 +45,8 @@ $controller-color: #00a1d6;
   }
 }
 
-.video-player {
+// 播放器本体
+.danplayer {
   background: black;
   position: relative;
   overflow: hidden;
@@ -73,16 +54,28 @@ $controller-color: #00a1d6;
   user-select: none;
   outline: none;
 
+  // 播放器的各种图标
+  .icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+  }
+
+  // 复制弹幕用的辅助input，默认隐藏
   input.copy-tool {
     display: none
   }
 
+  // 播放器的live模式，隐藏.live-hide的元素
   &.live {
     .live-hide {
       display: none !important;
     }
   }
 
+  // 鼠标空闲后，隐藏鼠标
   &.mouse-idle {
     cursor: none !important;
 
@@ -111,8 +104,34 @@ $controller-color: #00a1d6;
     width: 100%;
     height: 100%;
 
+
+    // 提示层
+    .toast {
+      position: absolute;
+      padding: 6px;
+      font-size: 14px;
+      background: black;
+      z-index: 5;
+      display: none;
+      color: white;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+
+      &.show {
+        display: block
+      }
+    }
+
+    // 浮动层 统一样式
     .float {
-      z-index: 4
+      background: rgba(21, 21, 21, 0.9);
+      border-radius: 2px;
+      display: none;
+      position: absolute;
+      z-index: 4;
+
+      &.show {
+        display: block;
+      }
     }
 
     // 弹幕样式菜单
@@ -280,7 +299,7 @@ $controller-color: #00a1d6;
           display: block;
           cursor: pointer;
           margin-bottom: 10px;
-          padding: 4px 0;
+          padding: 4px 0 8px 0;
 
           .bar-controller {
             display: block;

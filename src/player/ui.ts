@@ -15,7 +15,8 @@ export class Ui {
   player: Player
   isShow: boolean = false
 
-  private $root: HTMLElement
+  $root: HTMLElement
+  $controlBar: HTMLElement
 
   // 控制器按钮
   private btnPlay: IconButton
@@ -36,11 +37,12 @@ export class Ui {
 
   constructor (player: Player) {
     this.player = player
-    this.$root = player.$root.querySelector('.interactive-layer .controller-bottom-bar') as HTMLElement
-    this.$root.addEventListener('mouseenter', () => {
+    this.$root = player.$root.querySelector('.interactive-layer') as HTMLElement
+    this.$controlBar = player.$root.querySelector('.interactive-layer .controller-bottom-bar') as HTMLElement
+    this.$controlBar.addEventListener('mouseenter', () => {
       this.isMouseInUI = true
     })
-    this.$root.addEventListener('mouseleave', () => {
+    this.$controlBar.addEventListener('mouseleave', () => {
       this.isMouseInUI = false
     })
     this.$gradientBG = player.$root.querySelector('.bg-gradient') as HTMLElement
@@ -51,21 +53,21 @@ export class Ui {
     this.styleLayer = new DanmakuStyleLayer(this)
     this.danmakuForm = new DanmakuForm(this)
 
-    this.$controllerButtonsRightLayout = this.$root.querySelector('.buttons .right') as Element
+    this.$controllerButtonsRightLayout = this.$controlBar.querySelector('.buttons .right') as Element
 
-    this.btnFullScreen = new IconButton(this.$root.querySelector('.button.full-screen') as HTMLElement)
+    this.btnFullScreen = new IconButton(this.$controlBar.querySelector('.button.full-screen') as HTMLElement)
     this.btnFullScreen.$root.addEventListener('click', async () => {
       await this.player.toggleFullScreen()
       this.updateFullScreenButton()
     })
 
-    this.btnPlay = new IconButton(this.$root.querySelector('.button.play') as HTMLElement)
+    this.btnPlay = new IconButton(this.$controlBar.querySelector('.button.play') as HTMLElement)
     this.btnPlay.$root.addEventListener('click', () => {
       this.player.toggle()
       this.updatePlayButton()
     })
 
-    this.btnShowDanmaku = new IconButton(this.$root.querySelector('.button.toggle-danamaku') as HTMLElement)
+    this.btnShowDanmaku = new IconButton(this.$controlBar.querySelector('.button.toggle-danamaku') as HTMLElement)
     this.btnShowDanmaku.$root.addEventListener('click', () => {
       this.danmakuLayer.toggle()
       this.updateDanmakuButton()
@@ -86,21 +88,21 @@ export class Ui {
   }
 
   show () {
-    console.warn('show')
     this.isShow = true
-    this.$root.classList.add('show')
+    this.$controlBar.classList.add('show')
     this.$gradientBG.classList.add('show')
     this.progressBar.resize()
   }
 
   hide () {
     this.isShow = false
-    this.$root.classList.remove('show')
+    this.$controlBar.classList.remove('show')
     this.$gradientBG.classList.remove('show')
     this.qualitySelector.hideLayer()
     this.volume.hideLayer()
     this.danmakuForm.styleLayer.hideLayer()
     this.player.$root.focus()
+    this.progressBar.update()
   }
 
   hideUIDelay () {
@@ -177,8 +179,8 @@ export class Ui {
   }
 
   resize () {
-    if (this.volume.isShow) this.volume.updateLayerPosition()
     if (this.qualitySelector.isShow) this.qualitySelector.updateLayerPosition()
+    this.volume.update()
     this.progressBar.resize()
     this.danmakuLayer.resize()
   }

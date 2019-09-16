@@ -2,6 +2,7 @@ import NP from 'number-precision'
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
 import { Ui } from '@/player/ui'
 import { IconButton } from '@/player/IconButton'
+import { Toast } from '@/player/toast'
 
 NP.enableBoundaryChecking(false)
 
@@ -15,10 +16,13 @@ export class VolumeLayer extends ButtonAndLayer {
   $current: HTMLElement
   volumeValue: number = 0
   private areaHeight: number = 0
+  private toast: Toast
+  private hideToast: number = -1
 
   constructor (ui: Ui) {
     super(ui)
     this.$video = this.player.$video
+    this.toast = new Toast(ui)
     this.$video.addEventListener('volumechange', () => this.updateController())
     this.$layer = this.player.$root.querySelector('.interactive-layer .volume-bar') as HTMLElement
     this.$valueLabel = this.$layer.querySelector('.volume-num-label') as HTMLElement
@@ -72,6 +76,7 @@ export class VolumeLayer extends ButtonAndLayer {
       this.$video.volume = 1
     }
     this.volumeValue = this.$video.volume
+    this.showToast()
   }
 
   down () {
@@ -81,6 +86,23 @@ export class VolumeLayer extends ButtonAndLayer {
       this.$video.volume = 0
     }
     this.volumeValue = this.$video.volume
+    this.showToast()
+  }
+
+  showToast () {
+    if (this.isShow) return
+    this.toast.show()
+    this.toast.text = '音量：' + NP.round(this.$video.volume * 100, 0)
+    clearTimeout(this.hideToast)
+    this.hideToast = setTimeout(() => {
+      this.toast.hide()
+    }, 2000)
+    this.updateToastPosition()
+  }
+
+  updateToastPosition () {
+    this.toast.x = (this.player.width - this.toast.width) / 2
+    this.toast.y = (this.player.height - this.toast.height) / 2
   }
 
   toggleMuted () {
@@ -125,5 +147,7 @@ export class VolumeLayer extends ButtonAndLayer {
 
   update () {
     this.$controller.style.background = this.$current.style.background = this.player.options.color
+    if (this.toast.isShow) this.updateToastPosition()
+    if (this.isShow) this.updateLayerPosition()
   }
 }

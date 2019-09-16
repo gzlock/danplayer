@@ -73,8 +73,8 @@ export class DanmakuLayer {
   flowDisables: DanmakuFlowDrawer[] = []
   private readonly lineHeights: number[] = []
   private readonly topLines: { [height: string]: DanmakuDrawer | null } = {}
-  private readonly bottomLines: any = {}
-  private readonly flowLines: any = {}
+  private readonly bottomLines: { [height: string]: DanmakuDrawer | null } = {}
+  private readonly flowLines: { [height: string]: DanmakuDrawer | null } = {}
   private displayArea: number = 0
 
   private topLineIndex = 0
@@ -151,7 +151,7 @@ export class DanmakuLayer {
   private createDanmakuMenu (drawers: DanmakuDrawer[]) {
     if (this.$menu) this.$menu.remove()
     this.$menu = document.createElement('div')
-    this.$menu.className = 'float show danmaku-context-menu'
+    this.$menu.classList.add('float', 'show', 'danplayer-danmaku-context-menu')
     for (let i = 0; i < drawers.length; i++) {
       const drawer = drawers[i]
       if (this.player.options.danmaku.contextMenu) {
@@ -167,8 +167,8 @@ export class DanmakuLayer {
   }
 
   hide () {
-    this.canvas.clear()
     this.isShow = false
+    this.clear()
   }
 
   clear () {
@@ -202,10 +202,10 @@ export class DanmakuLayer {
         this.topLines[height] = null
       }
       if (!this.bottomLines.hasOwnProperty(height)) {
-        this.bottomLines[height] = []
+        this.bottomLines[height] = null
       }
       if (!this.flowLines.hasOwnProperty(height)) {
-        this.flowLines[height] = []
+        this.flowLines[height] = null
       }
     }
 
@@ -262,7 +262,7 @@ export class DanmakuLayer {
     let top
     if (danmaku.type === DanmakuType.Flow) {
       let drawer = this.flowDisables.shift() || new DanmakuFlowDrawer()
-      top = this.calcFlowTop()
+      top = this.calcFlowY()
       if (top > -1) {
         drawer.enable = true
         drawer.set(danmaku, this.width, top)
@@ -276,19 +276,20 @@ export class DanmakuLayer {
     } else {
       let drawer = this.topAndBottomDisables.shift() || new DanmakuFixedDrawer()
       if (danmaku.type === DanmakuType.Top) {
-        top = this.calcTopTop()
+        top = this.calcTopY()
         if (top > -1) {
           drawer.enable = true
           drawer.set(danmaku, this.player.options.danmaku.fadeoutDuration, this.width, top)
-          this.topLines[top.toString()] = drawer
-          this.topEnables.push(drawer)
+          this.topLines[top] = drawer
+          console.log('渲染', top, danmaku.text)
           drawer.update(0)
+          this.topEnables.push(drawer)
           this.canvas.addDrawer(drawer)
         } else {
           this.topAndBottomDisables.push(drawer)
         }
       } else {
-        let top = this.calcBottomTop()
+        let top = this.calcBottomY()
         if (top > -1) {
           drawer.enable = true
           this.bottomLines[top] = drawer
@@ -305,7 +306,7 @@ export class DanmakuLayer {
   }
 
   private addDanmakuToCanvas () {
-    if (this.danmakus.length === 0) return
+    if (this.danmakus.length === 0 || !this.player.options.danmaku.enable) return
     if (this.player.options.live) {
       this.danmakus.forEach(danmaku => {
         this.createDrawer(danmaku)
@@ -335,9 +336,9 @@ export class DanmakuLayer {
     document.execCommand('copy')
   }
 
-  private calcFlowTop (): number {
+  private calcFlowY (): number {
     for (let key in this.flowLines) {
-      const _d: DanmakuDrawer = this.flowLines[key]
+      const _d = this.flowLines[key]
 
       if (_d && _d.enable) {
         const right = _d.left + _d.width
@@ -359,11 +360,11 @@ export class DanmakuLayer {
     return this.flowY
   }
 
-  private calcTopTop (): number {
+  private calcTopY (): number {
     for (let key in this.topLines) {
       const _d = this.topLines[key]
       const height = Number(key)
-      if (_d) continue
+      if (_d && _d.enable) continue
       if (height > this.displayArea) break
       this.topLineIndex = height
       return height
@@ -379,11 +380,11 @@ export class DanmakuLayer {
     return this.topLineIndex
   }
 
-  private calcBottomTop (): number {
+  private calcBottomY (): number {
     for (let key in this.bottomLines) {
       const _d = this.bottomLines[key]
       const height = Number(key)
-      if (_d) continue
+      if (_d && _d.enable) continue
       if (height > this.displayArea) break
       console.log('发现空行', key)
       this.bottomY = height
@@ -409,11 +410,12 @@ export class DanmakuLayer {
         drawer.update(this.frameTime)
         return true
       } else {
-        this.canvas.removeDrawer(drawer)
-        this.topAndBottomDisables.push(drawer)
+        console.log('topLines', drawer.height, this.topLines[drawer.height], this.topLines[drawer.height] === drawer)
         if (this.topLines[drawer.height] === drawer) {
           this.topLines[drawer.height] = null
         }
+        this.canvas.removeDrawer(drawer)
+        this.topAndBottomDisables.push(drawer)
         return false
       }
     })
@@ -423,11 +425,11 @@ export class DanmakuLayer {
         drawer.update(this.frameTime)
         return true
       } else {
-        this.canvas.removeDrawer(drawer)
-        this.topAndBottomDisables.push(drawer)
         if (this.bottomLines[drawer.height] === drawer) {
           this.bottomLines[drawer.height] = null
         }
+        this.canvas.removeDrawer(drawer)
+        this.topAndBottomDisables.push(drawer)
         return false
       }
     })
@@ -437,11 +439,11 @@ export class DanmakuLayer {
         drawer.update(this.width, this.player.options.danmaku.flowDuration, this.frameTime)
         return true
       } else {
-        this.canvas.removeDrawer(drawer)
-        this.flowDisables.push(drawer)
         if (this.flowLines[drawer.height] === drawer) {
           this.flowLines[drawer.height] = null
         }
+        this.canvas.removeDrawer(drawer)
+        this.flowDisables.push(drawer)
         return false
       }
     })
@@ -449,6 +451,7 @@ export class DanmakuLayer {
 
   update () {
     if (this.player.options.danmaku.enable) {
+      console.log('显示弹幕')
       this.show()
     } else {
       console.log('隐藏弹幕')
