@@ -3,11 +3,13 @@ $controller-color: #00a1d6;
 
 // 弹幕右键菜单
 .danplayer-danmaku-context-menu {
+  position: absolute;
   font-size: 12px;
   outline: none;
   color: white;
   padding: 0 15px;
   z-index: 999;
+  background: rgba(0, 0, 0, 0.8);
 
   > div {
     height: 42px;

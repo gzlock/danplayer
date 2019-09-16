@@ -151,7 +151,7 @@ export class DanmakuLayer {
   private createDanmakuMenu (drawers: DanmakuDrawer[]) {
     if (this.$menu) this.$menu.remove()
     this.$menu = document.createElement('div')
-    this.$menu.classList.add('float', 'show', 'danplayer-danmaku-context-menu')
+    this.$menu.classList.add('danplayer-danmaku-context-menu')
     for (let i = 0; i < drawers.length; i++) {
       const drawer = drawers[i]
       if (this.player.options.danmaku.contextMenu) {
