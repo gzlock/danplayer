@@ -12,12 +12,13 @@ else
 fi
 
 
-cd ./dist/
+cd ./dist
 
 rm demo.html
 
 cp ../src/player/danplayer.d.ts ./
-#cp ../src/player/global.d.ts ./
+cp ../src/player/global.d.ts ./
+cp ../src/player/dashjs.d.ts ./
 
 npm init --yes
 
@@ -38,7 +39,7 @@ this.dependencies={
 }
 "
 
-echo "# Danplayer $TRAVIS_TAG
+echo "# Danplayer v$TRAVIS_TAG
 ### [Github Project HomePage](https://github.com/gzlock/danplayer)
 ### [Demo page](https://gzlock.github.io/danplayer)
 " > readme.md

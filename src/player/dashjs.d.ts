@@ -3,15 +3,11 @@ export as namespace dashjs;
 
 declare namespace dashjs {
   interface Logger {
-    debug (...params: any[]): void;
-
-    info (...params: any[]): void;
-
-    warn (...params: any[]): void;
-
-    error (...params: any[]): void;
-
-    fatal (...params: any[]): void;
+    debug(...params: any[]): void;
+    info(...params: any[]): void;
+    warn(...params: any[]): void;
+    error(...params: any[]): void;
+    fatal(...params: any[]): void;
   }
 
   enum LogLevel {
@@ -24,43 +20,28 @@ declare namespace dashjs {
   }
 
   interface Debug {
-    getLogger (): Logger;
-
-    setLogTimestampVisible (flag: boolean): void;
-
-    setCalleeNameVisible (flag: boolean): void;
+    getLogger(): Logger;
+    setLogTimestampVisible(flag: boolean): void;
+    setCalleeNameVisible(flag: boolean): void;
   }
 
-  interface VideoModel {}
+  interface VideoModel { }
 
   interface ProtectionController {
-    initializeForMedia (mediaInfo: ProtectionMediaInfo): void;
-
-    createKeySession (initData: ArrayBuffer, cdmData: Uint8Array): void;
-
-    removeKeySession (session: SessionToken): void;
-
-    closeKeySession (session: SessionToken): void;
-
-    setServerCertificate (serverCertificate: ArrayBuffer): void;
-
-    setMediaElement (element: HTMLMediaElement): void;
-
-    setSessionType (type: string): void;
-
-    setRobustnessLevel (level: string): void;
-
-    setProtectionData (protData: ProtectionData): void;
-
-    getSupportedKeySystemsFromContentProtection (cps: any[]): SupportedKeySystem[];
-
-    getKeySystems (): KeySystem[];
-
-    setKeySystems (keySystems: KeySystem[]): void;
-
-    stop (): void;
-
-    reset (): void;
+    initializeForMedia(mediaInfo: ProtectionMediaInfo): void;
+    createKeySession(initData: ArrayBuffer, cdmData: Uint8Array): void;
+    removeKeySession(session: SessionToken): void;
+    closeKeySession(session: SessionToken): void;
+    setServerCertificate(serverCertificate: ArrayBuffer): void;
+    setMediaElement(element: HTMLMediaElement): void;
+    setSessionType(type: string): void;
+    setRobustnessLevel(level: string): void;
+    setProtectionData(protData: ProtectionData): void;
+    getSupportedKeySystemsFromContentProtection(cps: any[]): SupportedKeySystem[];
+    getKeySystems(): KeySystem[];
+    setKeySystems(keySystems: KeySystem[]): void;
+    stop(): void;
+    reset(): void;
   }
 
   export interface Bitrate {
@@ -71,34 +52,34 @@ declare namespace dashjs {
   }
 
   export class MediaInfo {
-    id: string | null
-    index: number | null
-    type: 'video' | 'audio' | 'text' | 'fragmentedText' | 'embeddedText' | null
-    streamInfo: StreamInfo | null
-    representationCount: number
-    labels: string[]
-    lang: string | null
-    viewpoint: any | undefined | null
-    accessibility: any[] | null
-    audioChannelConfiguration: any[] | null
-    roles: string[] | null
-    codec: string | null
-    mimeType: string | null
-    contentProtection: any | null
-    isText: boolean
-    KID: any | null
-    bitrateList: Bitrate[]
+    id: string | null;
+    index: number | null;
+    type: 'video' | 'audio' | 'text' | 'fragmentedText' | 'embeddedText' | null;
+    streamInfo: StreamInfo | null;
+    representationCount: number;
+    labels: string[];
+    lang: string | null;
+    viewpoint: any | undefined | null;
+    accessibility: any[] | null;
+    audioChannelConfiguration: any[] | null;
+    roles: string[] | null;
+    codec: string | null;
+    mimeType: string | null;
+    contentProtection: any | null;
+    isText: boolean;
+    KID: any | null;
+    bitrateList: Bitrate[];
   }
 
   export class ProtectionMediaInfo {
-    codec: string | null
-    contentProtection: any | null
+    codec: string | null;
+    contentProtection: any | null;
   }
 
   export class MediaPlayerSettingClass {
     debug: {
       logLevel: LogLevel;
-    }
+    };
     streaming: {
       metricsMaxListDepth: number;
       abandonLoadTimeout: number;
@@ -192,256 +173,135 @@ declare namespace dashjs {
   }
 
   export interface MediaPlayerClass {
-    initialize (view?: HTMLElement, source?: string, autoPlay?: boolean): void;
-
-    on (type: AstInFutureEvent['type'], listener: (e: AstInFutureEvent) => void, scope?: object): void;
-
-    on (type: BufferEvent['type'], listener: (e: BufferEvent) => void, scope?: object): void;
-
-    on (type: CaptionRenderedEvent['type'], listener: (e: CaptionRenderedEvent) => void, scope?: object): void;
-
-    on (type: CaptionContainerResizeEvent['type'], listener: (e: CaptionContainerResizeEvent) => void, scope?: object): void;
-
-    on (type: ErrorEvent['type'], listener: (e: ErrorEvent) => void, scope?: object): void;
-
-    on (type: FragmentLoadingCompletedEvent['type'], listener: (e: FragmentLoadingCompletedEvent) => void, scope?: object): void;
-
-    on (type: FragmentLoadingAbandonedEvent['type'], listener: (e: FragmentLoadingAbandonedEvent) => void, scope?: object): void;
-
-    on (type: KeyErrorEvent['type'], listener: (e: KeyErrorEvent) => void, scope?: object): void;
-
-    on (type: KeyMessageEvent['type'], listener: (e: KeyMessageEvent) => void, scope?: object): void;
-
-    on (type: KeySessionClosedEvent['type'], listener: (e: KeySessionClosedEvent) => void, scope?: object): void;
-
-    on (type: KeySessionEvent['type'], listener: (e: KeySessionEvent) => void, scope?: object): void;
-
-    on (type: KeyStatusesChangedEvent['type'], listener: (e: KeyStatusesChangedEvent) => void, scope?: object): void;
-
-    on (type: KeySystemSelectedEvent['type'], listener: (e: KeySystemSelectedEvent) => void, scope?: object): void;
-
-    on (type: LicenseRequestCompleteEvent['type'], listener: (e: LicenseRequestCompleteEvent) => void, scope?: object): void;
-
-    on (type: LogEvent['type'], listener: (e: LogEvent) => void, scope?: object): void;
-
-    on (type: ManifestLoadedEvent['type'], listener: (e: ManifestLoadedEvent) => void, scope?: object): void;
-
-    on (type: MetricEvent['type'], listener: (e: MetricEvent) => void, scope?: object): void;
-
-    on (type: MetricChangedEvent['type'], listener: (e: MetricChangedEvent) => void, scope?: object): void;
-
-    on (type: PeriodSwitchEvent['type'], listener: (e: PeriodSwitchEvent) => void, scope?: object): void;
-
-    on (type: PlaybackErrorEvent['type'], listener: (e: PlaybackErrorEvent) => void, scope?: object): void;
-
-    on (type: PlaybackPausedEvent['type'], listener: (e: PlaybackPausedEvent) => void, scope?: object): void;
-
-    on (type: PlaybackPlayingEvent['type'], listener: (e: PlaybackPlayingEvent) => void, scope?: object): void;
-
-    on (type: PlaybackRateChangedEvent['type'], listener: (e: PlaybackRateChangedEvent) => void, scope?: object): void;
-
-    on (type: PlaybackSeekingEvent['type'], listener: (e: PlaybackSeekingEvent) => void, scope?: object): void;
-
-    on (type: PlaybackStartedEvent['type'], listener: (e: PlaybackStartedEvent) => void, scope?: object): void;
-
-    on (type: PlaybackTimeUpdatedEvent['type'], listener: (e: PlaybackTimeUpdatedEvent) => void, scope?: object): void;
-
-    on (type: ProtectionCreatedEvent['type'], listener: (e: ProtectionCreatedEvent) => void, scope?: object): void;
-
-    on (type: ProtectionDestroyedEvent['type'], listener: (e: ProtectionDestroyedEvent) => void, scope?: object): void;
-
-    on (type: QualityChangeRenderedEvent['type'], listener: (e: QualityChangeRenderedEvent) => void, scope?: object): void;
-
-    on (type: QualityChangeRequestedEvent['type'], listener: (e: QualityChangeRequestedEvent) => void, scope?: object): void;
-
-    on (type: StreamInitializedEvent['type'], listener: (e: StreamInitializedEvent) => void, scope?: object): void;
-
-    on (type: TextTracksAddedEvent['type'], listener: (e: TextTracksAddedEvent) => void, scope?: object): void;
-
-    on (type: TtmlParsedEvent['type'], listener: (e: TtmlParsedEvent) => void, scope?: object): void;
-
-    on (type: TtmlToParseEvent['type'], listener: (e: TtmlToParseEvent) => void, scope?: object): void;
-
-    on (type: string, listener: (e: Event) => void, scope?: object): void;
-
-    off (type: string, listener: (e: any) => void, scope?: object): void;
-
-    extend (parentNameString: string, childInstance: object, override: boolean): void;
-
-    attachView (element: HTMLElement): void;
-
-    attachSource (urlOrManifest: string | object): void;
-
-    isReady (): boolean;
-
-    play (): void;
-
-    isPaused (): boolean;
-
-    pause (): void;
-
-    isSeeking (): boolean;
-
-    isDynamic (): boolean;
-
-    seek (value: number): void;
-
-    setPlaybackRate (value: number): void;
-
-    getPlaybackRate (): number;
-
-    setMute (value: boolean): void;
-
-    isMuted (): boolean;
-
-    setVolume (value: number): void;
-
-    getVolume (): number;
-
-    time (streamId?: string): number;
-
-    duration (): number;
-
-    timeAsUTC (): number;
-
-    durationAsUTC (): number;
-
-    getActiveStream (): Stream | null;
-
-    getDVRWindowSize (): number;
-
-    getDVRSeekOffset (value: number): number;
-
-    convertToTimeCode (value: number): string;
-
-    formatUTC (time: number, locales: string, hour12: boolean, withDate?: boolean): string;
-
-    getVersion (): string;
-
-    getDebug (): Debug;
-
-    getBufferLength (type: 'video' | 'audio' | 'fragmentedText'): number;
-
-    getVideoModel (): VideoModel;
-
-    getTTMLRenderingDiv (): HTMLDivElement | null;
-
-    getVideoElement (): HTMLVideoElement;
-
-    getSource (): string | object;
-
-    getTopBitrateInfoFor (type: 'video' | 'audio'): BitrateInfo;
-
-    setAutoPlay (value: boolean): void;
-
-    getAutoPlay (): boolean;
-
-    getDashMetrics (): DashMetrics;
-
-    getDashAdapter (): DashAdapter;
-
-    getQualityFor (type: 'video' | 'audio' | 'image'): number;
-
-    setQualityFor (type: 'video' | 'audio' | 'image', value: number): void;
-
-    updatePortalSize (): void;
-
-    enableText (enable: boolean): void;
-
-    setTextTrack (idx: number): void;
-
-    getTextDefaultLanguage (): string | undefined;
-
-    setTextDefaultLanguage (lang: string): void;
-
-    getTextDefaultEnabled (): boolean | undefined;
-
-    setTextDefaultEnabled (enable: boolean): void;
-
-    getThumbnail (time: number): Thumbnail;
-
-    getBitrateInfoListFor (type: 'video' | 'audio' | 'image'): BitrateInfo[];
-
-    getStreamsFromManifest (manifest: object): StreamInfo[];
-
-    getTracksFor (type: 'video' | 'audio' | 'text' | 'fragmentedText'): MediaInfo[];
-
-    getTracksForTypeFromManifest (type: 'video' | 'audio' | 'text' | 'fragmentedText', manifest: object, streamInfo: StreamInfo): MediaInfo[];
-
-    getCurrentTrackFor (type: 'video' | 'audio' | 'text' | 'fragmentedText'): MediaInfo | null;
-
-    setInitialMediaSettingsFor (type: 'video' | 'audio', value: MediaSettings): void;
-
-    getInitialMediaSettingsFor (type: 'video' | 'audio'): MediaSettings;
-
-    setCurrentTrack (track: MediaInfo): void;
-
-    getTrackSwitchModeFor (type: 'video' | 'audio'): TrackSwitchMode;
-
-    setTrackSwitchModeFor (type: 'video' | 'audio', mode: TrackSwitchMode): void;
-
-    setSelectionModeForInitialTrack (mode: TrackSelectionMode): void;
-
-    getSelectionModeForInitialTrack (): TrackSelectionMode;
-
-    retrieveManifest (url: string, callback: (manifest: object | null, error: any) => void): void;
-
-    addUTCTimingSource (schemeIdUri: string, value: string): void;
-
-    removeUTCTimingSource (schemeIdUri: string, value: string): void;
-
-    clearDefaultUTCTimingSources (): void;
-
-    restoreDefaultUTCTimingSources (): void;
-
-    setXHRWithCredentialsForType (type: string, value: boolean): void;
-
-    getXHRWithCredentialsForType (type: string): boolean;
-
-    getProtectionController (): ProtectionController;
-
-    attachProtectionController (value: ProtectionController): void;
-
-    setProtectionData (value: ProtectionData): void;
-
-    enableManifestDateHeaderTimeSource (value: boolean): void;
-
-    displayCaptionsOnTop (value: boolean): void;
-
-    attachTTMLRenderingDiv (div: HTMLDivElement): void;
-
-    getCurrentTextTrackIndex (): number;
-
-    preload (): void;
-
-    reset (): void;
-
-    addABRCustomRule (type: string, rulename: string, rule: object): void;
-
-    removeABRCustomRule (rulename: string): void;
-
-    removeAllABRCustomRule (): void;
-
-    getCurrentLiveLatency (): number;
-
-    enableForcedTextStreaming (value: boolean): void;
-
-    isTextEnabled (): boolean;
-
-    getAverageThroughput (value: number): void;
-
-    getSettings (): MediaPlayerSettingClass;
-
-    updateSettings (settings: MediaPlayerSettingClass): void;
-
-    resetSettings (): void;
+    initialize(view?: HTMLElement, source?: string, autoPlay?: boolean): void;
+    on(type: AstInFutureEvent['type'], listener: (e: AstInFutureEvent) => void, scope?: object): void;
+    on(type: BufferEvent['type'], listener: (e: BufferEvent) => void, scope?: object): void;
+    on(type: CaptionRenderedEvent['type'], listener: (e: CaptionRenderedEvent) => void, scope?: object): void;
+    on(type: CaptionContainerResizeEvent['type'], listener: (e: CaptionContainerResizeEvent) => void, scope?: object): void;
+    on(type: ErrorEvent['type'], listener: (e: ErrorEvent) => void, scope?: object): void;
+    on(type: FragmentLoadingCompletedEvent['type'], listener: (e: FragmentLoadingCompletedEvent) => void, scope?: object): void;
+    on(type: FragmentLoadingAbandonedEvent['type'], listener: (e: FragmentLoadingAbandonedEvent) => void, scope?: object): void;
+    on(type: KeyErrorEvent['type'], listener: (e: KeyErrorEvent) => void, scope?: object): void;
+    on(type: KeyMessageEvent['type'], listener: (e: KeyMessageEvent) => void, scope?: object): void;
+    on(type: KeySessionClosedEvent['type'], listener: (e: KeySessionClosedEvent) => void, scope?: object): void;
+    on(type: KeySessionEvent['type'], listener: (e: KeySessionEvent) => void, scope?: object): void;
+    on(type: KeyStatusesChangedEvent['type'], listener: (e: KeyStatusesChangedEvent) => void, scope?: object): void;
+    on(type: KeySystemSelectedEvent['type'], listener: (e: KeySystemSelectedEvent) => void, scope?: object): void;
+    on(type: LicenseRequestCompleteEvent['type'], listener: (e: LicenseRequestCompleteEvent) => void, scope?: object): void;
+    on(type: LogEvent['type'], listener: (e: LogEvent) => void, scope?: object): void;
+    on(type: ManifestLoadedEvent['type'], listener: (e: ManifestLoadedEvent) => void, scope?: object): void;
+    on(type: MetricEvent['type'], listener: (e: MetricEvent) => void, scope?: object): void;
+    on(type: MetricChangedEvent['type'], listener: (e: MetricChangedEvent) => void, scope?: object): void;
+    on(type: PeriodSwitchEvent['type'], listener: (e: PeriodSwitchEvent) => void, scope?: object): void;
+    on(type: PlaybackErrorEvent['type'], listener: (e: PlaybackErrorEvent) => void, scope?: object): void;
+    on(type: PlaybackPausedEvent['type'], listener: (e: PlaybackPausedEvent) => void, scope?: object): void;
+    on(type: PlaybackPlayingEvent['type'], listener: (e: PlaybackPlayingEvent) => void, scope?: object): void;
+    on(type: PlaybackRateChangedEvent['type'], listener: (e: PlaybackRateChangedEvent) => void, scope?: object): void;
+    on(type: PlaybackSeekingEvent['type'], listener: (e: PlaybackSeekingEvent) => void, scope?: object): void;
+    on(type: PlaybackStartedEvent['type'], listener: (e: PlaybackStartedEvent) => void, scope?: object): void;
+    on(type: PlaybackTimeUpdatedEvent['type'], listener: (e: PlaybackTimeUpdatedEvent) => void, scope?: object): void;
+    on(type: ProtectionCreatedEvent['type'], listener: (e: ProtectionCreatedEvent) => void, scope?: object): void;
+    on(type: ProtectionDestroyedEvent['type'], listener: (e: ProtectionDestroyedEvent) => void, scope?: object): void;
+    on(type: QualityChangeRenderedEvent['type'], listener: (e: QualityChangeRenderedEvent) => void, scope?: object): void;
+    on(type: QualityChangeRequestedEvent['type'], listener: (e: QualityChangeRequestedEvent) => void, scope?: object): void;
+    on(type: StreamInitializedEvent['type'], listener: (e: StreamInitializedEvent) => void, scope?: object): void;
+    on(type: TextTracksAddedEvent['type'], listener: (e: TextTracksAddedEvent) => void, scope?: object): void;
+    on(type: TtmlParsedEvent['type'], listener: (e: TtmlParsedEvent) => void, scope?: object): void;
+    on(type: TtmlToParseEvent['type'], listener: (e: TtmlToParseEvent) => void, scope?: object): void;
+    on(type: string, listener: (e: Event) => void, scope?: object): void;
+    off(type: string, listener: (e: any) => void, scope?: object): void;
+    extend(parentNameString: string, childInstance: object, override: boolean): void;
+    attachView(element: HTMLElement): void;
+    attachSource(urlOrManifest: string | object): void;
+    isReady(): boolean;
+    play(): void;
+    isPaused(): boolean;
+    pause(): void;
+    isSeeking(): boolean;
+    isDynamic(): boolean;
+    seek(value: number): void;
+    setPlaybackRate(value:number): void;
+    getPlaybackRate(): number;
+    setMute(value: boolean): void;
+    isMuted(): boolean;
+    setVolume(value: number): void;
+    getVolume(): number;
+    time(streamId?: string): number;
+    duration(): number;
+    timeAsUTC(): number;
+    durationAsUTC(): number;
+    getActiveStream(): Stream | null;
+    getDVRWindowSize(): number;
+    getDVRSeekOffset(value: number): number;
+    convertToTimeCode(value: number): string;
+    formatUTC(time: number, locales: string, hour12: boolean, withDate?: boolean): string;
+    getVersion(): string;
+    getDebug(): Debug;
+    getBufferLength(type: 'video' | 'audio' | 'fragmentedText'): number;
+    getVideoModel(): VideoModel;
+    getTTMLRenderingDiv(): HTMLDivElement | null;
+    getVideoElement(): HTMLVideoElement;
+    getSource(): string | object;
+    getTopBitrateInfoFor(type: 'video' | 'audio'): BitrateInfo;
+    setAutoPlay(value: boolean): void;
+    getAutoPlay(): boolean;
+    getDashMetrics(): DashMetrics;
+    getDashAdapter(): DashAdapter;
+    getQualityFor(type: 'video' | 'audio' | 'image'): number;
+    setQualityFor(type: 'video' | 'audio' | 'image', value: number): void;
+    updatePortalSize(): void;
+    enableText(enable: boolean): void;
+    setTextTrack(idx: number): void;
+    getTextDefaultLanguage(): string | undefined;
+    setTextDefaultLanguage(lang: string): void;
+    getTextDefaultEnabled(): boolean | undefined;
+    setTextDefaultEnabled(enable: boolean): void;
+    getThumbnail(time: number): Thumbnail;
+    getBitrateInfoListFor(type: 'video' | 'audio' | 'image'): BitrateInfo[];
+    getStreamsFromManifest(manifest: object): StreamInfo[];
+    getTracksFor(type: 'video' | 'audio' | 'text' | 'fragmentedText'): MediaInfo[];
+    getTracksForTypeFromManifest(type: 'video' | 'audio' | 'text' | 'fragmentedText', manifest: object, streamInfo: StreamInfo): MediaInfo[];
+    getCurrentTrackFor(type: 'video' | 'audio' | 'text' | 'fragmentedText'): MediaInfo | null;
+    setInitialMediaSettingsFor(type: 'video' | 'audio', value: MediaSettings): void;
+    getInitialMediaSettingsFor(type: 'video' | 'audio'): MediaSettings;
+    setCurrentTrack(track: MediaInfo): void;
+    getTrackSwitchModeFor(type: 'video' | 'audio'): TrackSwitchMode;
+    setTrackSwitchModeFor(type: 'video' | 'audio', mode: TrackSwitchMode): void;
+    setSelectionModeForInitialTrack(mode: TrackSelectionMode): void;
+    getSelectionModeForInitialTrack(): TrackSelectionMode;
+    retrieveManifest(url: string, callback: (manifest: object | null, error: any) => void): void;
+    addUTCTimingSource(schemeIdUri: string, value: string): void;
+    removeUTCTimingSource(schemeIdUri: string, value: string): void;
+    clearDefaultUTCTimingSources(): void;
+    restoreDefaultUTCTimingSources(): void;
+    setXHRWithCredentialsForType(type: string, value: boolean): void;
+    getXHRWithCredentialsForType(type: string): boolean;
+    getProtectionController(): ProtectionController;
+    attachProtectionController(value: ProtectionController): void;
+    setProtectionData(value: ProtectionData): void;
+    enableManifestDateHeaderTimeSource(value: boolean): void;
+    displayCaptionsOnTop(value: boolean): void;
+    attachTTMLRenderingDiv(div: HTMLDivElement): void;
+    getCurrentTextTrackIndex(): number;
+    preload(): void;
+    reset(): void;
+    addABRCustomRule(type: string, rulename: string, rule: object): void;
+    removeABRCustomRule(rulename: string): void;
+    removeAllABRCustomRule(): void;
+    getCurrentLiveLatency(): number;
+    enableForcedTextStreaming(value: boolean): void;
+    isTextEnabled(): boolean;
+    getAverageThroughput(value: number): void;
+    getSettings(): MediaPlayerSettingClass;
+    updateSettings(settings: MediaPlayerSettingClass): void;
+    resetSettings(): void;
   }
 
   export interface MediaPlayerFactory {
-    create (): MediaPlayerClass;
+    create(): MediaPlayerClass;
   }
 
-  export function MediaPlayer (): MediaPlayerFactory;
+  export function MediaPlayer(): MediaPlayerFactory;
 
   export namespace MediaPlayer {
     export const events: MediaPlayerEvents
@@ -648,17 +508,12 @@ declare namespace dashjs {
         MediaPlayerErrors['KEY_SESSION_CREATED_ERROR_CODE'] |
         MediaPlayerErrors['MEDIA_KEY_MESSAGE_LICENSER_ERROR_CODE'] |
         MediaPlayerErrors['MSS_NO_TFRF_CODE'],
-      message: string,
-      data: object,
+      message:string,
+      data:object,
     }
   }
 
-  export type ErrorEvent =
-    GenericErrorEvent
-    | DownloadErrorEvent
-    | ManifestErrorEvent
-    | TimedTextErrorEvent
-    | MediaPlayerErrorEvent;
+  export type ErrorEvent = GenericErrorEvent | DownloadErrorEvent | ManifestErrorEvent | TimedTextErrorEvent | MediaPlayerErrorEvent;
 
   export interface CaptionRenderedEvent extends Event {
     type: MediaPlayerEvents['CAPTION_RENDERED'];
@@ -685,10 +540,9 @@ declare namespace dashjs {
   }
 
   export class KeyError {
-    constructor (sessionToken: SessionToken, errorString: string);
-
-    sessionToken: SessionToken
-    error: string
+    constructor(sessionToken: SessionToken, errorString: string);
+    sessionToken: SessionToken;
+    error: string;
   }
 
   export interface KeyErrorEvent extends Event {
@@ -697,12 +551,11 @@ declare namespace dashjs {
   }
 
   export class KeyMessage {
-    constructor (sessionToken: SessionToken, message: ArrayBuffer, defaultURL: string, messageType?: string);
-
-    sessionToken: SessionToken
-    message: ArrayBuffer
-    defaultURL: string
-    messageType: string
+    constructor(sessionToken: SessionToken, message: ArrayBuffer, defaultURL: string, messageType?: string);
+    sessionToken: SessionToken;
+    message: ArrayBuffer;
+    defaultURL: string;
+    messageType: string;
   }
 
   export interface KeyMessageEvent extends Event {
@@ -873,12 +726,12 @@ declare namespace dashjs {
   }
 
   export class BitrateInfo {
-    mediaType: 'video' | 'audio'
-    bitrate: number
-    width: number
-    height: number
-    scanType: string
-    qualityIndex: number
+    mediaType: 'video' | 'audio';
+    bitrate: number;
+    width: number;
+    height: number;
+    scanType: string;
+    qualityIndex: number;
   }
 
   export interface FragmentRequest {
@@ -916,36 +769,23 @@ declare namespace dashjs {
   export interface SessionToken {
     session: MediaKeySession;
     initData: any;
-
-    getSessionID (): string;
-
-    getExpirationTime (): number;
-
-    getKeyStatuses (): MediaKeyStatusMap;
-
-    getSessionType (): string;
+    getSessionID(): string;
+    getExpirationTime(): number;
+    getKeyStatuses(): MediaKeyStatusMap;
+    getSessionType(): string;
   }
 
   export interface Stream {
-    initialize (streamInfo: StreamInfo, protectionController: ProtectionController): void;
-
-    activate (MediaSource: MediaSource): void;
-
-    deactivate (): void;
-
-    getDuration (): number;
-
-    getStartTime (): number;
-
-    getId (): string;
-
-    getStreamInfo (): StreamInfo | null;
-
-    getBitrateListFor (type: 'video' | 'audio' | 'image'): BitrateInfo[];
-
-    updateData (updatedStreamInfo: StreamInfo): void;
-
-    reset (): void;
+    initialize(streamInfo: StreamInfo, protectionController: ProtectionController): void;
+    activate(MediaSource: MediaSource): void;
+    deactivate(): void;
+    getDuration(): number;
+    getStartTime(): number;
+    getId(): string;
+    getStreamInfo(): StreamInfo | null;
+    getBitrateListFor(type: 'video' | 'audio' | 'image'): BitrateInfo[];
+    updateData(updatedStreamInfo: StreamInfo): void;
+    reset(): void;
   }
 
   export interface IManifestInfo {
@@ -959,12 +799,12 @@ declare namespace dashjs {
   }
 
   export class StreamInfo {
-    id: string
-    index: number
-    start: number
-    duration: number
-    manifestInfo: object
-    isLast: boolean
+    id: string;
+    index: number;
+    start: number;
+    duration: number;
+    manifestInfo: object;
+    isLast: boolean;
   }
 
   export interface ICurrentRepresentationSwitch {
@@ -978,33 +818,22 @@ declare namespace dashjs {
   }
 
   export interface DashMetrics {
-    getCurrentRepresentationSwitch (type: 'video' | 'audio' | 'image', readOnly: boolean): ICurrentRepresentationSwitch;
-
-    getLatestBufferInfoVO (): ILatestBufferLevelVO;
-
-    getCurrentBufferLevel (type: 'video' | 'audio' | 'image', readOnly: boolean): number;
-
-    getCurrentHttpRequest (type: 'video' | 'audio' | 'image', readOnly: boolean): object;
-
-    getHttpRequests (type: 'video' | 'audio' | 'image'): object[];
-
-    getCurrentDroppedFrames (): IDroppedFrames;
-
-    getCurrentSchedulingInfo (type: 'video' | 'audio' | 'image'): object;
-
-    getCurrentDVRInfo (type: 'video' | 'audio' | 'image'): IDVRInfo[];
-
-    getCurrentManifestUpdate (): any;
-
-    getLatestFragmentRequestHeaderValueByID (id: string): string;
-
-    getLatestMPDRequestHeaderValueByID (type: 'video' | 'audio' | 'image', id: string): string;
+    getCurrentRepresentationSwitch(type: 'video' | 'audio' | 'image', readOnly: boolean): ICurrentRepresentationSwitch;
+    getLatestBufferInfoVO(): ILatestBufferLevelVO;
+    getCurrentBufferLevel(type: 'video' | 'audio' | 'image', readOnly: boolean): number;
+    getCurrentHttpRequest(type: 'video' | 'audio' | 'image', readOnly: boolean): object;
+    getHttpRequests(type: 'video' | 'audio' | 'image'): object[];
+    getCurrentDroppedFrames(): IDroppedFrames;
+    getCurrentSchedulingInfo(type: 'video' | 'audio' | 'image'): object;
+    getCurrentDVRInfo(type: 'video' | 'audio' | 'image'): IDVRInfo[];
+    getCurrentManifestUpdate(): any;
+    getLatestFragmentRequestHeaderValueByID(id: string): string;
+    getLatestMPDRequestHeaderValueByID(type: 'video' | 'audio' | 'image', id: string): string;
   }
 
   export interface DashAdapter {
-    getBandwidthForRepresentation (representationId: string, periodIdx: number): number;
-
-    getIndexForRepresentation (representationId: string, periodIdx: number): number;
+    getBandwidthForRepresentation(representationId: string, periodIdx: number): number;
+    getIndexForRepresentation(representationId: string, periodIdx: number): number;
 
     /**
      * This method returns the current max index based on what is defined in the MPD.
@@ -1012,7 +841,7 @@ declare namespace dashjs {
      * @param bufferType String 'audio' or 'video',
      * @param periodIdx Make sure this is the period index not id
      */
-    getMaxIndexForBufferType (bufferType: 'video' | 'audio', periodIdx: number): number;
+    getMaxIndexForBufferType(bufferType: 'video' | 'audio', periodIdx: number): number;
   }
 
   export class ProtectionData {
@@ -1023,35 +852,29 @@ declare namespace dashjs {
      * type with the corresponding property value being the URL to use for
      * messages of that type
      */
-    serverURL?: string | { [P in MediaKeyMessageType]: string }
+    serverURL?: string | { [P in MediaKeyMessageType]: string };
 
     /** headers to add to the http request */
-    httpRequestHeaders?: object
+    httpRequestHeaders?: object;
 
     /**
      * Defines a set of clear keys that are available to the key system.
      * Object properties are base64-encoded keyIDs (with no padding).
      * Corresponding property values are keys, base64-encoded (no padding).
      */
-    clearkeys?: { [key: string]: string }
+    clearkeys?: { [key: string]: string };
   }
 
   export interface KeySystem {
     systemString: string;
     uuid: string;
     schemeIdURI: string;
-
-    getInitData (cp: object): ArrayBuffer;
-
-    getRequestHeadersFromMessage (message: ArrayBuffer): object | null;
-
-    getLicenseRequestFromMessage (message: ArrayBuffer): Uint8Array;
-
-    getLicenseServerURLFromInitData (initData: ArrayBuffer): string | null;
-
-    getCDMData (): ArrayBuffer | null;
-
-    getSessionId (): string | null;
+    getInitData(cp: object): ArrayBuffer;
+    getRequestHeadersFromMessage(message: ArrayBuffer): object | null;
+    getLicenseRequestFromMessage(message: ArrayBuffer): Uint8Array;
+    getLicenseServerURLFromInitData(initData: ArrayBuffer): string | null;
+    getCDMData(): ArrayBuffer | null;
+    getSessionId(): string | null;
   }
 
   export interface SupportedKeySystem {
@@ -1086,18 +909,18 @@ declare namespace dashjs {
   }
 
   export class MetricsList {
-    BufferLevel: IBufferLevel[]
-    BufferState: IBufferState[]
-    DVBErrors: any[]
-    DVRInfo: IDVRInfo[]
-    DroppedFrames: IDroppedFrames[]
-    HttpList: any[]
-    ManifestUpdate: any[]
-    PlayList: any[]
-    RepSwitchList: any[]
-    RequestsQueue: RequestsQueue | null
-    SchedulingInfo: any[]
-    TcpList: any[]
+    BufferLevel: IBufferLevel[];
+    BufferState: IBufferState[];
+    DVBErrors: any[];
+    DVRInfo: IDVRInfo[];
+    DroppedFrames: IDroppedFrames[];
+    HttpList: any[];
+    ManifestUpdate: any[];
+    PlayList: any[];
+    RepSwitchList: any[];
+    RequestsQueue: RequestsQueue | null;
+    SchedulingInfo: any[];
+    TcpList: any[];
   }
 
   export class RequestsQueue {
@@ -1105,24 +928,24 @@ declare namespace dashjs {
      * Array of all of the requests that have begun to load.
      * This request may not make it into the executed queue if it is abandon due to ABR rules for example.
      */
-    loadingRequests: any[]
+    loadingRequests: any[];
     /**
      * Array of the the requests that have completed
      */
-    executedRequests: any[]
+    executedRequests: any[];
   }
 
   export class TextTrackInfo {
-    captionData: CaptionData[] | null
-    label: string | null
-    lang: string | null
-    index: number
-    isTTML: boolean
-    defaultTrack: boolean
-    kind: string
-    roles: string[] | null
-    isFragmented: boolean
-    isEmbedded: boolean
+    captionData: CaptionData[] | null;
+    label: string | null;
+    lang: string | null;
+    index: number;
+    isTTML: boolean;
+    defaultTrack: boolean;
+    kind: string;
+    roles: string[] | null;
+    isFragmented: boolean;
+    isEmbedded: boolean;
   }
 
   export interface CaptionData {
