@@ -27,6 +27,7 @@ this.main='danplayer.common.js'
 this.version='$TRAVIS_TAG'
 this.types='danplayer.d.ts'
 this.license='MIT'
+this.homepage='https://github.com/gzlock/danplayer'
 delete this.scripts
 this.dependencies={
 '@types/hls.js': '^0.12.4',
