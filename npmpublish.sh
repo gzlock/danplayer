@@ -38,7 +38,7 @@ this.dependencies={
 }
 "
 
-echo "# Danplayer
+echo "# Danplayer $TRAVIS_TAG
 ### [Github Project HomePage](https://github.com/gzlock/danplayer)
 ### [Demo page](https://gzlock.github.io/danplayer)
 " > readme.md
