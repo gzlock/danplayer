@@ -16,9 +16,8 @@ cd ./dist
 
 rm demo.html
 
-cp ../src/player/danplayer.d.ts ./
-cp ../src/player/global.d.ts ./
-cp ../src/player/dashjs.d.ts ./
+cp ../src/player/danplayer.d.ts ./index.d.ts
+mv ./danplayer.umd.min.js ./index.js
 
 npm init --yes
 
@@ -27,9 +26,9 @@ npm install -g json
 json -I -f package.json -e \
 "this.author='gzlock <gzlock88@gmail.com>'
 this.name='danplayer'
-this.main='danplayer.umd.min.js'
+this.main='index.js'
 this.version='$TRAVIS_TAG'
-this.types='danplayer.d.ts'
+this.types='index.d.ts'
 this.license='MIT'
 delete this.scripts
 this.dependencies={

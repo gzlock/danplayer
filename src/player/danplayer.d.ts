@@ -1,11 +1,8 @@
-// Type definitions for danplayer 0.1.0
+// Type definitions for danplayer 0.0.18
 // Project: https://github.com/gzlock/danplayer
 // Definitions by: gzlock <https://github.com/gzlock>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.4
-
-/// <reference types="hls.js" />
-/// <reference types="dashjs" />
 
 declare namespace danplayer {
   export enum VideoType {
@@ -101,8 +98,8 @@ declare namespace danplayer {
   export class Player {
     public $root: HTMLElement
     public $video: HTMLVideoElement
-    public dash: dashjs.MediaPlayerClass
-    public hls: Hls
+    public dash: any
+    public hls: any
     public options: PlayerOptions
     public type: VideoType
 
