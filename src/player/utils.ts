@@ -1,5 +1,5 @@
 export function SecondsToString (seconds: number): string {
-  let time: Array<any> = []
+  let time: any[] = []
   if (seconds > 0) {
     // 分
     let temp = Math.floor(seconds / 3600) * 60
@@ -44,7 +44,9 @@ export function LoadMimeType (url: string): Promise<string> {
 }
 
 export function Hash (str: string) {
-  let hash = 0; let i; let chr
+  let hash = 0
+  let i
+  let chr
   if (str.length === 0) return hash
   for (i = 0; i < str.length; i++) {
     chr = str.charCodeAt(i)
@@ -52,4 +54,14 @@ export function Hash (str: string) {
     hash |= 0 // Convert to 32bit integer
   }
   return hash
+}
+
+export function RandomID (len: number = 6): string {
+  const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+  let rtn = ''
+  for (let i = 0; i < len; i++) {
+    rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length))
+  }
+  return rtn
 }

@@ -4,9 +4,11 @@ import { Danmaku } from '@/player/danmaku/danmaku'
 import { Ui } from '@/player/ui'
 import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
-import { Hash, LoadMimeType } from '@/player/utils'
+import { Hash, LoadMimeType, RandomID } from '@/player/utils'
 
 const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
+
+const defaultColor = '#00a1d6'
 
 interface PlayerOptions {
   /**
@@ -101,7 +103,7 @@ enum VideoType {
 
 function MakeDefaultOptions ({
   autoplay = false,
-  color = '#00a1d6',
+  color = defaultColor,
   live = false,
   volume = 0.7,
   width = 600,
@@ -115,7 +117,7 @@ function MakeDefaultOptions ({
   beforeSendDanmaku = undefined,
   danmaku = {},
   unique = false
-}: Partial<PlayerOptions> | Partial<PlayerPublicOptions>): PlayerOptions {
+}: Partial<PlayerPublicOptions>): PlayerOptions {
   if (volume < 0 || volume > 1) {
     volume = 0.7
   }
@@ -211,8 +213,9 @@ export class Player extends EventEmitter {
   $root: HTMLElement
   $video: HTMLVideoElement
   type = VideoType.Normal
-  hls?: Hls
-  dash?: dashjs.MediaPlayerClass
+  private id: string
+  private hls?: Hls
+  private dash?: dashjs.MediaPlayerClass
 
   public ui: Ui
 
@@ -259,6 +262,8 @@ export class Player extends EventEmitter {
     Player.instances.push(this)
     const parent = $e.parentElement as Element
     this.$root = document.createElement('div')
+    this.id = RandomID()
+    this.$root.setAttribute('data-style', this.id)
     this.$root.setAttribute('tabIndex', '0')
     this.$root.classList.add('danplayer')
     parent.insertBefore(this.$root, $e)
@@ -428,11 +433,17 @@ export class Player extends EventEmitter {
     if (this.$style) {
       this.$style.remove()
     }
-    this.$style = document.createElement('style') as HTMLStyleElement
-    this.$style.innerHTML = `.video-player .colors .selected{border-color:${this.options.color} !important}
-.video-player .types .selected{color:${this.options.color} !important}
-.video-player .quality-menu .current{color:${this.options.color} !important}`
-    document.body.append(this.$style)
+    if (this.options.color !== defaultColor) {
+      this.$style = document.createElement('style') as HTMLStyleElement
+      this.$style.innerHTML = `
+.danplayer[data-style="${this.id}"] .colors .selected{border-color:${this.options.color} !important}
+.danplayer[data-style="${this.id}"] .types .selected{color:${this.options.color} !important}
+.danplayer[data-style="${this.id}"] .quality-menu .current{color:${this.options.color} !important}
+.danplayer[data-style="${this.id}"] .volume-bar .bar-controller{background:${this.options.color} !important}
+.danplayer[data-style="${this.id}"] .volume-bar .bar-current{background:${this.options.color} !important}
+`
+      document.body.append(this.$style)
+    }
     this.ui.qualitySelector.reset()
 
     if (this.options.live) {
@@ -686,6 +697,7 @@ export class Player extends EventEmitter {
       }
     }
     return {
+      id: this.id,
       width: this.width,
       height: this.height,
       type: this.type,

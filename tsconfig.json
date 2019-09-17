@@ -1,19 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "amd",
+    "target": "esnext",
+    "module": "esnext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "node",
-    "experimentalDecorators": true,
     "esModuleInterop": true,
-    "declaration": true,
-    "outDir": "./ts_out",
-    "rootDir": "./src/player",
     "removeComments": true,
-    "outFile": "./ts_out/index.js",
     "allowSyntheticDefaultImports": true,
+    // 启用装饰器
+    "experimentalDecorators": true,
+    //
+    "emitDecoratorMetadata": true,
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
@@ -27,9 +26,13 @@
       ]
     },
     "lib": [
-      "esnext",
       "dom",
       "dom.iterable",
+      "es5",
+      "es6",
+      "es7",
+      "es2015.promise",
+      "esnext",
       "scripthost"
     ]
   },

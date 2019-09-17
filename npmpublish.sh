@@ -11,10 +11,10 @@ else
 	exit_script
 fi
 
+cd ./dist
 
-rm -rf ./ts_out
-tsc
-cd ./ts_out
+cp ../src/player/danplayer.d.ts ./
+rm -r ./demo.html
 
 npm init --yes
 
@@ -23,22 +23,26 @@ npm install -g json
 json -I -f package.json -e \
 "this.author='gzlock <gzlock88@gmail.com>'
 this.name='danplayer'
-this.main='index.js'
+this.main='danplayer.common.js'
 this.version='$TRAVIS_TAG'
-this.types='index.d.ts'
+this.types='danplayer.d.ts'
 this.license='MIT'
-delete this.scripts"
-#this.dependencies={
-#'@types/hls.js': '^0.12.4',
-#'hls.js': '^0.12.4',
-#}
-#"
+delete this.scripts
+this.dependencies={
+'@types/hls.js': '^0.12.4',
+'hls.js': '^0.12.4',
+'eventemitter3':'^4.0.0'
+}
+"
 
 echo "# Danplayer v$TRAVIS_TAG
 ### [Github Project HomePage](https://github.com/gzlock/danplayer)
 ### [Demo page](https://gzlock.github.io/danplayer)
 " > readme.md
 
-echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+if [ $NPM_TOKEN ];then
+	echo "发布到npm"
+  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+  npm publish
+fi
 
-npm publish

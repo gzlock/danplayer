@@ -146,7 +146,7 @@ export class VolumeLayer extends ButtonAndLayer {
   }
 
   update () {
-    this.$controller.style.background = this.$current.style.background = this.player.options.color
+    // this.$controller.style.background = this.$current.style.background = this.player.options.color
     if (this.toast.isShow) this.updateToastPosition()
     if (this.isShow) this.updateLayerPosition()
   }
