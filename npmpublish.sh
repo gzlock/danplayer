@@ -12,12 +12,9 @@ else
 fi
 
 
-cd ./dist
-
-rm demo.html
-
-cp ../src/player/danplayer.d.ts ./index.d.ts
-mv ./danplayer.umd.min.js ./index.js
+rm -rf ./ts_out
+tsc
+cd ./ts_out
 
 npm init --yes
 
@@ -30,12 +27,12 @@ this.main='index.js'
 this.version='$TRAVIS_TAG'
 this.types='index.d.ts'
 this.license='MIT'
-delete this.scripts
-this.dependencies={
-'@types/hls.js': '^0.12.4',
-'hls.js': '^0.12.4',
-}
-"
+delete this.scripts"
+#this.dependencies={
+#'@types/hls.js': '^0.12.4',
+#'hls.js': '^0.12.4',
+#}
+#"
 
 echo "# Danplayer v$TRAVIS_TAG
 ### [Github Project HomePage](https://github.com/gzlock/danplayer)
