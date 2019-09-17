@@ -34,7 +34,6 @@ delete this.scripts
 this.dependencies={
 '@types/hls.js': '^0.12.4',
 'hls.js': '^0.12.4',
-'dashjs': '^3.0.0',
 }
 "
 
