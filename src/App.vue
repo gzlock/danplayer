@@ -1,7 +1,7 @@
-import { LimitType } from './player/danmaku/danmakuLayer'
 <template>
   <div>
     <el-card id="app">
+      <!--   标题   -->
       <div slot="header" class="title">
         <div class="left">
           <img src="@/assets/logo.png" title="logo" alt="logo"/>
@@ -12,9 +12,9 @@ import { LimitType } from './player/danmaku/danmakuLayer'
           <el-link href="https://github.com/gzlock/danplayer/blob/master/src/App.vue" target="_blank">本页代码</el-link>
         </div>
       </div>
-      <video id="player"
-             src="https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4">
-      </video>
+
+      <div id="player"></div>
+
       <h3>功能调试区域</h3>
       <el-tabs value="player">
         <!--    播放器相关    -->
@@ -141,9 +141,9 @@ player.set({beforeSendDanmaku})
       </el-tabs>
     </el-card>
     <div class="debug-info">
-      <h3>
-        Debug信息
-      </h3>
+      <div>
+        <el-checkbox v-model="debug">Debug信息</el-checkbox>
+      </div>
       <pre></pre>
     </div>
   </div>
@@ -176,6 +176,7 @@ export default class App extends Vue {
     }
     private random = { count: 100, timeRange: 10 }
     private form = { type: 1, danmaku: '', videoSrc: '' }
+    private debug = false
 
     sendDanmaku () {
       if (this.form.danmaku) {
@@ -209,6 +210,19 @@ export default class App extends Vue {
     @Watch('form.type')
     formType () {
       console.log(this.form)
+    }
+
+    @Watch('debug')
+    debugSwitch () {
+      const $debug = document.querySelector('.debug-info pre') as HTMLPreElement
+      if (this.debug) {
+        updateInterval = setInterval(() => {
+          $debug.innerText = JSON.stringify(player.debug, null, 2)
+        }, 100)
+      } else {
+        clearInterval(updateInterval)
+        $debug.innerText = ''
+      }
     }
 
     setSrc () {
@@ -256,7 +270,7 @@ export default class App extends Vue {
       const $e = document.getElementById('player') as HTMLVideoElement
       if ($e) {
         player = new Player($e, {
-          // live: true,
+          src: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4',
           color: '#ea3bf1',
           width: 600,
           volume: 0.7,
@@ -276,7 +290,6 @@ export default class App extends Vue {
             }
           }
         })
-        console.log('player 配置', player.options)
         // 扩展按钮
         player.set({ extraButtons: { '扩展按钮': () => alert('点击了扩展按钮') } })
         this.settings.flowDuration = player.options.danmaku.flowDuration
@@ -286,10 +299,6 @@ export default class App extends Vue {
         this.settings.volume = player.options.volume
         this.settings.danmakuLimit = Object.keys(LimitType)[Object.values(LimitType).indexOf(player.options.danmaku.limit)]
         window.player = player
-        const $debug = document.querySelector('.debug-info pre') as HTMLPreElement
-        updateInterval = setInterval(() => {
-          $debug.innerText = JSON.stringify(player.debug, null, 2)
-        }, 100)
       }
     }
 
@@ -311,7 +320,7 @@ export default class App extends Vue {
 
   #app {
     color: #2c3e50;
-    width: 800px;
+    max-width: 800px;
     margin: 0 auto;
     -webkit-font-smoothing: subpixel-antialiased;
 
@@ -345,6 +354,9 @@ export default class App extends Vue {
       }
 
       .right {
+        display: flex;
+        flex-wrap: wrap;
+
         .el-link + .el-link {
           margin-left: 20px;
         }
@@ -360,8 +372,10 @@ export default class App extends Vue {
     position: fixed;
     right: 0;
     bottom: 0;
+    padding: 4px;
     background: #e7e7e7;
     overflow: auto;
-    width: 300px;
+    max-width: 100vw;
+    z-index: 999;
   }
 </style>

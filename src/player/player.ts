@@ -267,10 +267,14 @@ export class Player extends EventEmitter {
     this.$root.setAttribute('tabIndex', '0')
     this.$root.classList.add('danplayer')
     parent.insertBefore(this.$root, $e)
+
     if ($e.tagName.toLowerCase() === 'video') {
       $e.classList.add('video-layer')
       $e.removeAttribute('id')
       this.$root.innerHTML = template.replace('{video-layer}', $e.outerHTML)
+      if (options && !('src' in options)) {
+        options.src = $e.getAttribute('src') as string
+      }
     } else {
       this.$root.innerHTML = template.replace('{video-layer}', '<video class="video-layer"></video>')
     }
@@ -364,6 +368,7 @@ export class Player extends EventEmitter {
 
     this.$video.addEventListener('play', () => this.ui.updatePlayButton())
     this.$video.addEventListener('pause', () => this.ui.updatePlayButton())
+    this.$video.addEventListener('error', () => this.errorHandler())
 
     options = options || {}
 
@@ -400,13 +405,7 @@ export class Player extends EventEmitter {
   }
 
   private async updateSrc () {
-    await this.getContentType()
-
-    if (this.hls) {
-      this.adapter.useHls(this.hls)
-    } else if (this.dash) {
-      this.adapter.useDash(this.dash)
-    }
+    this.$video.src = this.options.src
 
     if (this.type === VideoType.Normal) {
       this.ui.qualitySelector.hideButton()
@@ -439,10 +438,14 @@ export class Player extends EventEmitter {
 .danplayer[data-style="${this.id}"] .colors .selected{border-color:${this.options.color} !important}
 .danplayer[data-style="${this.id}"] .types .selected{color:${this.options.color} !important}
 .danplayer[data-style="${this.id}"] .quality-menu .current{color:${this.options.color} !important}
+
 .danplayer[data-style="${this.id}"] .volume-bar .bar-controller{background:${this.options.color} !important}
 .danplayer[data-style="${this.id}"] .volume-bar .bar-current{background:${this.options.color} !important}
+
+.danplayer[data-style="${this.id}"] .progress-bar .bar-controller{background:${this.options.color} !important}
+.danplayer[data-style="${this.id}"] .progress-bar .bar-current{background:${this.options.color} !important}
 `
-      document.body.append(this.$style)
+      this.$root.append(this.$style)
     }
     this.ui.qualitySelector.reset()
 
@@ -559,53 +562,33 @@ export class Player extends EventEmitter {
     this.$video.pause()
   }
 
-  private async getContentType () {
-    let src: string
-    if (this.options.src) {
-      src = this.options.src
-    } else if (this.$video.hasAttribute('src')) {
-      src = this.$video.getAttribute('src') as string
-    } else {
-      return
+  /**
+   * 当播放视频错误时
+   */
+  private async errorHandler () {
+    console.error('video 视频资源 错误', this.$video.error)
+    if (!this.$video.error || this.$video.error.code !== 4) return
+    if (this.options.src.match(/\.m3u[8]/)) {
+      this.type = VideoType.Hls
+      if (this.hls) this.hls.destroy()
+      this.hls = new Hls()
+      this.hls.attachMedia(this.$video)
+      this.hls.loadSource(this.options.src)
+      this.hls.config.capLevelToPlayerSize = true
+      this.adapter.useHls(this.hls)
+    } else if (this.options.src.match(/\.mpd/)) {
+      this.type = VideoType.Dash
+      if (this.dash) this.dash.reset()
+      this.dash = dashjs.MediaPlayer().create()
+      this.dash.initialize(this.$video, this.options.src, !this.$video.paused)
+      const setting = this.dash.getSettings()
+      setting.streaming.abr.limitBitrateByPortal = true
+      this.dash.updateSettings(setting)
+      this.adapter.useDash(this.dash)
     }
-    console.log('视频网址', src)
-    this.type = VideoType.Normal
-    const contentType = await LoadMimeType(src)
-    if (this.hls) this.hls.destroy()
-    if (this.dash) this.dash.reset()
-
-    // 浏览器原生支持播放
-    if (this.$video.canPlayType(contentType)) {
-      this.$video.src = src
-    } else {
-      if (src) {
-        this.options.src = src
-        if (src.match(/\.m3u[8]/)) {
-          this.type = VideoType.Hls
-        } else if (src.match(/\.mpd/)) this.type = VideoType.Dash
-      }
-      if (this.type === VideoType.Hls) {
-        console.log('使用Hls.js')
-        if (!Hls) {
-          throw Error('播放Hls视频资源请加载hls.js的代码')
-        }
-        if (Hls.isSupported()) {
-          this.hls = new Hls()
-          this.hls.config.capLevelToPlayerSize = true
-          this.hls.attachMedia(this.$video)
-          this.hls.loadSource(src)
-        }
-      } else if (this.type === VideoType.Dash) {
-        console.log('使用dash.js')
-        if (!dashjs) {
-          throw Error('播放MPD视频资源前加载dash.js的代码')
-        }
-        this.dash = dashjs.MediaPlayer().create()
-        this.dash.initialize(this.$video, src, !this.$video.paused)
-        const setting = this.dash.getSettings()
-        setting.streaming.abr.limitBitrateByPortal = true
-        this.dash.updateSettings(setting)
-      }
+    if (!this.$video.paused) {
+      this.$video.setAttribute('autoplay', '')
+      this.$video.play()
     }
   }
 

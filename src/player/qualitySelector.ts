@@ -30,14 +30,6 @@ export class QualitySelector extends ButtonAndLayer {
     })
   }
 
-  showButton () {
-    this.$btn.style.display = ''
-  }
-
-  hideButton () {
-    this.$btn.style.display = 'none'
-  }
-
   showLayer () {
     super.showLayer()
     this._updateLevel()

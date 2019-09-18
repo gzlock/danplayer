@@ -161,8 +161,8 @@ export class ProgressBar {
     const x = this.barWidth * this.percent
     this.$current.style.width = x + 'px'
     this.$controller.style.transform = `translateX(${x}px)`
-    this.$controller.style.background = this.player.options.color
-    this.$current.style.background = this.player.options.color
+    // this.$controller.style.background = this.player.options.color
+    // this.$current.style.background = this.player.options.color
     this.time()
   }
 
