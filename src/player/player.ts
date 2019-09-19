@@ -370,6 +370,15 @@ export class Player extends EventEmitter {
     this.$video.addEventListener('pause', () => this.ui.updatePlayButton())
     this.$video.addEventListener('error', () => this.errorHandler())
 
+    this.$video.addEventListener('loadedmetadata', () => {
+      console.log('loadedmetadata')
+      if (this.type === VideoType.Normal) {
+        this.ui.qualitySelector.hideButton()
+      } else {
+        this.ui.qualitySelector.showButton()
+      }
+    })
+
     options = options || {}
 
     if (!('width' in options)) {
@@ -405,13 +414,9 @@ export class Player extends EventEmitter {
   }
 
   private async updateSrc () {
-    this.$video.src = this.options.src
+    this.type = VideoType.Normal
 
-    if (this.type === VideoType.Normal) {
-      this.ui.qualitySelector.hideButton()
-    } else {
-      this.ui.qualitySelector.showButton()
-    }
+    this.$video.src = this.options.src
 
     console.log('_set', { autoplay: this.options.autoplay, paused: this._paused })
     if (this.options.autoplay || !this.paused) {
@@ -586,6 +591,7 @@ export class Player extends EventEmitter {
       this.dash.updateSettings(setting)
       this.adapter.useDash(this.dash)
     }
+
     if (!this.$video.paused) {
       this.$video.setAttribute('autoplay', '')
       this.$video.play()

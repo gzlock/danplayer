@@ -307,16 +307,17 @@ export class DanmakuLayer {
 
   private addDanmakuToCanvas () {
     if (this.danmakus.length === 0 || !this.player.options.danmaku.enable) return
+    // 直播
     if (this.player.options.live) {
       this.danmakus.forEach(danmaku => {
         this.createDrawer(danmaku)
       })
       this.danmakus.length = 0
-    } else {
+    } else { // VOD
       for (let i = 0; i < this.danmakus.length; i++) {
         const danmaku = this.danmakus[i]
-        const time = Math.abs(this.player.currentTime - danmaku.currentTime)
         if (this.showed.includes(danmaku)) continue
+        const time = Math.abs(this.player.currentTime - danmaku.currentTime)
         if (time > 0.1) continue
         this.showed.push(danmaku)
         this.createDrawer(danmaku)
@@ -381,6 +382,11 @@ export class DanmakuLayer {
   }
 
   private calcBottomY (): number {
+    if (this.player.options.danmaku.limit === LimitType.Percent25 ||
+      this.player.options.danmaku.limit === LimitType.Half ||
+      this.player.options.danmaku.limit === LimitType.Percent75) {
+      return -1
+    }
     for (let key in this.bottomLines) {
       const _d = this.bottomLines[key]
       const height = Number(key)
