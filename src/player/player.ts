@@ -673,6 +673,7 @@ export class Player extends EventEmitter {
     if (this.$style) {
       this.$style.remove()
     }
+    this.$root.remove()
   }
 
   get debug (): Object {

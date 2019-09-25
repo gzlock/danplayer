@@ -391,6 +391,10 @@ $controller-color: #00a1d6;
             width: 30px;
             height: 30px;
           }
+
+          &.hide {
+            display: none;
+          }
         }
 
         .button + .button {

@@ -168,7 +168,6 @@ export class DanmakuLayer {
 
   hide () {
     this.isShow = false
-    this.clear()
   }
 
   clear () {
@@ -225,6 +224,7 @@ export class DanmakuLayer {
     console.log('弹幕层 displayArea', this.displayArea)
 
     this.canvas.alpha = this.player.options.danmaku.alpha
+    this.canvas.clear()
     this.canvas.renderAll()
   }
 
@@ -469,13 +469,14 @@ export class DanmakuLayer {
     if (this.destroied) return
     this.addDanmakuToCanvas()
     this.addDanmakuToCanvasTime = (Date.now() - this.lastFrame) / 1000
+    this.canvas.clear()
+
     if (!this.player.paused) {
       this.updateDanmaku()
       this.updateDanmakuTime = (Date.now() - this.lastFrame) / 1000
-
-      if (this.isShow) {
-        this.canvas.renderAll()
-      }
+    }
+    if (this.player.options.danmaku.enable && this.isShow) {
+      this.canvas.renderAll()
     }
     this.frameTime = (Date.now() - this.lastFrame) / 1000
     this.lastFrame = Date.now()

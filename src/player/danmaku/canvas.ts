@@ -35,7 +35,6 @@ export class Canvas {
   }
 
   renderAll () {
-    this.clear()
     if (this.caches.length > 0) {
       for (let i = 0; i < this.caches.length; i++) {
         const drawer = this.caches[i]

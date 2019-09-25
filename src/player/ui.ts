@@ -69,8 +69,8 @@ export class Ui {
 
     this.btnShowDanmaku = new IconButton(this.$controlBar.querySelector('.button.toggle-danamaku') as HTMLElement)
     this.btnShowDanmaku.$root.addEventListener('click', () => {
-      this.danmakuLayer.toggle()
       this.updateDanmakuButton()
+      this.danmakuLayer.toggle()
     })
 
     this.danmakuLayer = new DanmakuLayer(player)
@@ -166,16 +166,21 @@ export class Ui {
   }
 
   updateDanmakuButton () {
-    let attr: string
-    let title: string
-    if (this.danmakuLayer.isShow) {
-      attr = 'data-off'
-      title = 'data-off-title'
+    if (this.player.options.danmaku.enable) {
+      let attr: string
+      let title: string
+      if (this.danmakuLayer.isShow) {
+        attr = 'data-off'
+        title = 'data-off-title'
+      } else {
+        attr = 'data-on'
+        title = 'data-on-title'
+      }
+      this.btnShowDanmaku.switch(attr, title)
+      this.btnShowDanmaku.show()
     } else {
-      attr = 'data-on'
-      title = 'data-on-title'
+      this.btnShowDanmaku.hide()
     }
-    this.btnShowDanmaku.switch(attr, title)
   }
 
   resize () {

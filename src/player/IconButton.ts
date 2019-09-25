@@ -20,4 +20,12 @@ export class IconButton {
   switchTitle (attributeName: string) {
     this.$root.setAttribute('title', this.$root.getAttribute(attributeName) as string)
   }
+
+  show () {
+    this.$root.classList.remove('hide')
+  }
+
+  hide () {
+    this.$root.classList.add('hide')
+  }
 }

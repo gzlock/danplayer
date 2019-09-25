@@ -72,8 +72,8 @@
           <el-form size="mini" label-width="140px">
             <el-form-item label="弹幕">
               <el-radio-group v-model="settings.danmaku">
-                <el-radio-button :label="true">显示</el-radio-button>
-                <el-radio-button :label="false">隐藏</el-radio-button>
+                <el-radio-button :label="true">启用</el-radio-button>
+                <el-radio-button :label="false">禁用</el-radio-button>
               </el-radio-group>
               <div>提示：弹幕的逻辑还是在运作的，只是不渲染弹幕</div>
             </el-form-item>
@@ -288,6 +288,10 @@ export default class App extends Vue {
               }
               return items
             }
+          },
+          async beforeSendDanmaku (danmaku) {
+            danmaku.id = 'myself'
+            return true
           }
         })
         // 扩展按钮
