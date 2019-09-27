@@ -35,6 +35,11 @@ interface PlayerOptions {
   // iconfont Symbol方式 代码
   iconSrc: string
 
+  // 快进时间
+  forward: number,
+  // 倒退时间
+  backward: number,
+
   // 扩展按钮
   extraButtons: { [name: string]: () => void }
 
@@ -78,6 +83,11 @@ export interface PlayerPublicOptions {
 
   iconSrc: string
 
+  // 快进时间
+  forward: number,
+  // 倒退时间
+  backward: number,
+
   // 扩展按钮
   extraButtons: { [name: string]: () => void }
 
@@ -116,6 +126,8 @@ function MakeDefaultOptions ({
   fullScreen = true,
   beforeSendDanmaku = undefined,
   danmaku = {},
+  forward = 5,
+  backward = 5,
   unique = false
 }: Partial<PlayerPublicOptions>): PlayerOptions {
   if (volume < 0 || volume > 1) {
@@ -131,6 +143,8 @@ function MakeDefaultOptions ({
     fullScreen,
     src,
     iconSrc,
+    forward,
+    backward,
     uiFadeOutDelay,
     extraButtons,
     unique,
@@ -301,9 +315,9 @@ export class Player extends EventEmitter {
       let stop = e.key.startsWith('Arrow')
       if (!this.options.live) {
         if (e.key === 'ArrowLeft') {
-          this.$video.currentTime -= 5
+          this.$video.currentTime -= this.options.backward
         } else if (e.key === 'ArrowRight') {
-          this.$video.currentTime += 5
+          this.$video.currentTime += this.options.forward
         }
       }
       if (e.key === 'ArrowUp') {

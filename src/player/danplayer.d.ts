@@ -40,6 +40,11 @@ declare interface PlayerOptions {
 
   iconSrc: string
 
+  // 快进时间
+  forward: number,
+  // 倒退时间
+  backward: number,
+
   extraButtons: { [name: string]: () => void }
 
   danmaku: DanmakuLayerOptions
@@ -72,6 +77,11 @@ declare interface PlayerPublicOptions {
   src: string
 
   iconSrc: string
+
+  // 快进时间
+  forward: number,
+  // 倒退时间
+  backward: number,
 
   extraButtons: { [name: string]: () => void }
 

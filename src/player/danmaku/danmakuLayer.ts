@@ -493,6 +493,7 @@ export class DanmakuLayer {
 
   get debug (): Object {
     return {
+      enable: this.player.options.danmaku.enable,
       isShow: this.isShow,
       all: this.danmakus.length,
       showed: this.showed.length,
