@@ -1,32 +1,40 @@
 module.exports = {
   root: true,
   env: {
-    browser: true
+    browser: true,
   },
-  'extends': [
+  extends: [
     'plugin:vue/essential',
     '@vue/standard',
-    '@vue/typescript'
+    '@vue/typescript',
   ],
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-console': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-useless-constructor': 'error'
+    'no-useless-constructor': 'error',
+    'comma-dangle': [
+      'error', {
+        arrays: 'ignore',
+        objects: 'ignore',
+        imports: 'ignore',
+        exports: 'ignore',
+        functions: 'ignore',
+      }],
   },
   overrides: [
     {
-      'files': '**/*.d.ts',
-      'rules': {
+      files: '**/*.d.ts',
+      rules: {
         'no-useless-constructor': 'off',
-        '@typescript-eslint/no-useless-constructor': 'error'
-      }
-    }
+        '@typescript-eslint/no-useless-constructor': 'error',
+      },
+    },
   ],
   parserOptions: {
-    parser: '@typescript-eslint/parser'
+    parser: '@typescript-eslint/parser',
   },
   globals: {
     Hls: true,
-    dashjs: true
-  }
+    dashjs: true,
+  },
 }

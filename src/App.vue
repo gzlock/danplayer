@@ -151,7 +151,7 @@ player.set({beforeSendDanmaku})
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { Player } from '@/player/player'
+import { ForceUse, Player } from '@/player/player'
 import { Danmaku } from '@/player/danmaku/danmaku'
 import { LimitType } from './player/danmaku/danmakuLayer'
 
@@ -172,8 +172,9 @@ export default class App extends Vue {
       live: false,
       color: '',
       fullscreen: true,
-      danmakuLimit: Object.keys(LimitType)[0]
+      danmakuLimit: Object.keys(LimitType)[0],
     }
+
     private random = { count: 100, timeRange: 10 }
     private form = { type: 1, danmaku: '', videoSrc: '' }
     private debug = false
@@ -184,7 +185,7 @@ export default class App extends Vue {
           type: Number(this.form.type),
           borderColor: 'red',
           currentTime: player.currentTime,
-          id: 'myself'
+          id: 'myself',
         }))
       }
     }
@@ -202,8 +203,8 @@ export default class App extends Vue {
           fadeoutDuration: this.settings.fadeoutDuration,
           flowDuration: this.settings.flowDuration,
           enable: this.settings.danmaku,
-          limit: LimitType[this.settings.danmakuLimit]
-        }
+          limit: LimitType[this.settings.danmakuLimit],
+        },
       })
     }
 
@@ -240,7 +241,7 @@ export default class App extends Vue {
     }
 
     playHls () {
-      player.set({ src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' })
+      player.set({ src: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', forceUse: ForceUse.Hls })
     }
 
     sendRandomDanmaku () {
@@ -287,21 +288,22 @@ export default class App extends Vue {
                 }
               }
               return items
-            }
+            },
           },
           async beforeSendDanmaku (danmaku) {
             danmaku.id = 'myself'
             return true
-          }
+          },
         })
         // 扩展按钮
-        player.set({ extraButtons: { '扩展按钮': () => alert('点击了扩展按钮') } })
+        player.set({ extraButtons: { 扩展按钮: () => alert('点击了扩展按钮') } })
         this.settings.flowDuration = player.options.danmaku.flowDuration
         this.settings.fadeoutDuration = player.options.danmaku.fadeoutDuration
         this.settings.alpha = player.options.danmaku.alpha
         this.settings.color = player.options.color
         this.settings.volume = player.options.volume
-        this.settings.danmakuLimit = Object.keys(LimitType)[Object.values(LimitType).indexOf(player.options.danmaku.limit)]
+        this.settings.danmakuLimit = Object.keys(LimitType)[Object.values(LimitType)
+          .indexOf(player.options.danmaku.limit)]
         window.player = player
       }
     }

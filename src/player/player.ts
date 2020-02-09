@@ -2,13 +2,21 @@ import './style.scss'
 import { EventEmitter } from 'eventemitter3'
 import { Danmaku } from '@/player/danmaku/danmaku'
 import { Ui } from '@/player/ui'
-import { DanmakuLayerOptions, MakeDanmakuLayerOptions } from '@/player/danmaku/danmakuLayer'
+import {
+  DanmakuLayerOptions,
+  MakeDanmakuLayerOptions,
+} from '@/player/danmaku/danmakuLayer'
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
-import { Hash, LoadMimeType, RandomID } from '@/player/utils'
+import { Hash, RandomID } from '@/player/utils'
 
 const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
 
 const defaultColor = '#00a1d6'
+
+export enum ForceUse {
+  Hls = 1,
+  Dash
+}
 
 interface PlayerOptions {
   /**
@@ -55,6 +63,8 @@ interface PlayerOptions {
   color: string
 
   beforeSendDanmaku?: (danmaku: Danmaku) => Promise<boolean>
+
+  forceUse?: ForceUse
 }
 
 export interface PlayerPublicOptions {
@@ -103,6 +113,8 @@ export interface PlayerPublicOptions {
   color: string
 
   beforeSendDanmaku?: (danmaku: Danmaku) => Promise<boolean>
+
+  forceUse: ForceUse,
 }
 
 enum VideoType {
@@ -128,7 +140,8 @@ function MakeDefaultOptions ({
   danmaku = {},
   forward = 5,
   backward = 5,
-  unique = false
+  unique = false,
+  forceUse = undefined,
 }: Partial<PlayerPublicOptions>): PlayerOptions {
   if (volume < 0 || volume > 1) {
     volume = 0.7
@@ -150,7 +163,8 @@ function MakeDefaultOptions ({
     unique,
     volume,
     beforeSendDanmaku,
-    width
+    width,
+    forceUse,
   }
 }
 
@@ -158,12 +172,12 @@ const template = `{video-layer}
 <input class="copy-tool" />
 <div class="interactive-layer">
   <canvas class="danmaku-layer"></canvas>
-  
+
   <div class="bg-gradient show"></div>
-  
-  
+
+
   <div class="float danmaku-style-layer"></div>
-  
+
   <div class="float volume-bar">
     <div class="volume-num-label"></div>
     <div class="volume-column-bar">
@@ -172,17 +186,17 @@ const template = `{video-layer}
       <div class="bar-controller"></div>
     </div>
   </div>
-  
+
   <div class="float quality-menu"></div>
-  
+
   <div class="controller-bottom-bar">
     <div class="progress-bar live-hide">
       <div class="bar-full"></div>
       <div class="bar-buffer"></div>
       <div class="bar-current"></div>
-      <div class="bar-controller"></div>    
+      <div class="bar-controller"></div>
     </div>
-    
+
     <div class="buttons">
       <div class="left">
         <div class="button intern-button play" data-on="danplayer-bofang" data-off="danplayer-zanting"
@@ -191,7 +205,7 @@ const template = `{video-layer}
         </div>
         <div class="time"></div>
       </div>
-      
+
       <div class="middle danmaku-form">
         <div class="button intern-button danmaku-style">
           <svg class="icon"><use xlink:href="#danplayer-style"></use></svg>
@@ -200,19 +214,19 @@ const template = `{video-layer}
         <div class="send">发送</div>
       </div>
       <div class="right">
-      
+
         <div class="button intern-button volume" data-on="danplayer-yinliang" data-off="danplayer-jingyin" title="音量">
           <svg class="icon"><use xlink:href="#danplayer-yinliang"></use></svg>
         </div>
-        
+
         <div class="button intern-button toggle-danamaku" title="隐藏弹幕"
-          data-on="danplayer-danmukai" data-off="danplayer-danmuguan" 
+          data-on="danplayer-danmukai" data-off="danplayer-danmuguan"
           data-on-title="显示弹幕" data-off-title="隐藏弹幕">
           <svg class="icon"><use xlink:href="#danplayer-danmukai"></use></svg>
         </div>
-        
+
         <div class="button quality" title="切换画质"></div>
-        
+
         <div class="button intern-button full-screen" data-on="danplayer-quanping" data-off="danplayer-zuixiaohua"
         data-on-title="全屏观看" data-off-title="取消全屏">
           <svg class="icon"><use xlink:href="#danplayer-quanping"></use></svg>
@@ -227,7 +241,7 @@ export class Player extends EventEmitter {
   $root: HTMLElement
   $video: HTMLVideoElement
   type = VideoType.Normal
-  private id: string
+  private readonly id: string
   private hls?: Hls
   private dash?: dashjs.MediaPlayerClass
 
@@ -290,7 +304,8 @@ export class Player extends EventEmitter {
         options.src = $e.getAttribute('src') as string
       }
     } else {
-      this.$root.innerHTML = template.replace('{video-layer}', '<video class="video-layer"></video>')
+      this.$root.innerHTML = template.replace('{video-layer}',
+        '<video class="video-layer"></video>')
     }
     $e.remove()
 
@@ -312,7 +327,7 @@ export class Player extends EventEmitter {
     })
     this.$root.addEventListener('keydown', (e: KeyboardEvent) => {
       console.warn('keydown 1', e.key)
-      let stop = e.key.startsWith('Arrow')
+      const stop = e.key.startsWith('Arrow')
       if (!this.options.live) {
         if (e.key === 'ArrowLeft') {
           this.$video.currentTime -= this.options.backward
@@ -382,6 +397,7 @@ export class Player extends EventEmitter {
 
     this.$video.addEventListener('play', () => this.ui.updatePlayButton())
     this.$video.addEventListener('pause', () => this.ui.updatePlayButton())
+
     this.$video.addEventListener('error', () => this.errorHandler())
 
     this.$video.addEventListener('loadedmetadata', () => {
@@ -415,9 +431,10 @@ export class Player extends EventEmitter {
     this.ui.progressBar.init()
     this.ui.hideUIDelay()
 
-    this.adapter.on(QualityLevelAdapter.Events['OnLoad'], (levels: QualityLevel[]) => {
-      this.ui.qualitySelector.updateLevel(levels)
-    })
+    this.adapter.on(QualityLevelAdapter.Events.OnLoad,
+      (levels: QualityLevel[]) => {
+        this.ui.qualitySelector.updateLevel(levels)
+      })
     this.ui.qualitySelector.on('selectLevel', (level: QualityLevel) => {
       console.log('选择画质级别', level)
       this.adapter.changeLevelTo(level)
@@ -425,6 +442,10 @@ export class Player extends EventEmitter {
 
     this.updateUI()
     this.updateSrc().then()
+
+    if (options?.forceUse) {
+      this.errorHandler()
+    }
   }
 
   private async updateSrc () {
@@ -432,7 +453,11 @@ export class Player extends EventEmitter {
 
     this.$video.src = this.options.src
 
-    console.log('_set', { autoplay: this.options.autoplay, paused: this._paused })
+    console.log('_set',
+      {
+        autoplay: this.options.autoplay,
+        paused: this._paused,
+      })
     if (this.options.autoplay || !this.paused) {
       console.log('_set 播放')
       this.play()
@@ -479,7 +504,8 @@ export class Player extends EventEmitter {
   set (options: Partial<PlayerPublicOptions>) {
     options.danmaku = Object.assign({}, this.options.danmaku, options.danmaku)
     const newOptions = Object.assign({}, this.options, options)
-    const optionsHasChanged = JSON.stringify(newOptions) === JSON.stringify(this.options)
+    const optionsHasChanged = JSON.stringify(newOptions) ===
+      JSON.stringify(this.options)
     const srcHasChanged = newOptions.src !== this.options.src
     this.options = newOptions
     if (srcHasChanged) {
@@ -499,18 +525,25 @@ export class Player extends EventEmitter {
     if (optionsHasChanged) {
       this.emit('optionChanged', this)
     }
+
+    console.log('set', options)
+    if (options?.forceUse) {
+      this.errorHandler()
+    }
   }
 
   resize () {
     if (this.options.width) {
-      if (typeof this.options.width === 'number' || parseInt(this.options.width).toString() === this.options.width) {
+      if (typeof this.options.width === 'number' ||
+        parseInt(this.options.width).toString() === this.options.width) {
         this._width = this.options.width + 'px'
       } else {
         this._width = this.options.width
       }
     }
     if (this.options.height) {
-      if (typeof this.options.height === 'number' || parseInt(this.options.height).toString() === this.options.height) {
+      if (typeof this.options.height === 'number' ||
+        parseInt(this.options.height).toString() === this.options.height) {
         this._height = this.options.height + 'px'
       } else {
         this._height = this.options.height
@@ -586,8 +619,11 @@ export class Player extends EventEmitter {
    */
   private async errorHandler () {
     console.error('video 视频资源 错误', this.$video.error)
-    if (!this.$video.error || this.$video.error.code !== 4) return
-    if (this.options.src.match(/\.m3u[8]/)) {
+    // if (!this.$video.error || this.$video.error.code !== 4) return
+    console.log('errorHandler')
+    if (this.options.forceUse === ForceUse.Hls ||
+      this.options.src.match(/\.m3u[8]/)) {
+      console.log('errorHandler', 'hls.js')
       this.type = VideoType.Hls
       if (this.hls) this.hls.destroy()
       this.hls = new Hls()
@@ -595,7 +631,8 @@ export class Player extends EventEmitter {
       this.hls.loadSource(this.options.src)
       this.hls.config.capLevelToPlayerSize = true
       this.adapter.useHls(this.hls)
-    } else if (this.options.src.match(/\.mpd/)) {
+    } else if (this.options.forceUse === ForceUse.Dash ||
+      this.options.src.match(/\.mpd/)) {
       this.type = VideoType.Dash
       if (this.dash) this.dash.reset()
       this.dash = dashjs.MediaPlayer().create()
@@ -692,7 +729,7 @@ export class Player extends EventEmitter {
 
   get debug (): Object {
     let quality = '默认'
-    let src = this.options.src
+    const src = this.options.src
     if (this.type !== VideoType.Normal) {
       if (this.adapter.currentLevel) {
         quality = this.adapter.currentLevel.name
@@ -707,7 +744,7 @@ export class Player extends EventEmitter {
       type: this.type,
       src,
       quality,
-      ui: this.ui.debug
+      ui: this.ui.debug,
     }
   }
 }
