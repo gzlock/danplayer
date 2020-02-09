@@ -1,4 +1,3 @@
-/// <reference path="dashjs.d.ts">
 import * as Hls from 'hls.js'
 import * as dashjs from 'dashjs'
 
