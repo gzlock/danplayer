@@ -2,7 +2,7 @@ import { EventEmitter } from 'eventemitter3'
 
 const AdapterEvents = {
   OnLoad: 'OnLoaded',
-  OnChanged: 'OnChanged'
+  OnChanged: 'OnChanged',
 }
 
 export interface QualityLevel {
@@ -22,7 +22,7 @@ function createLevelsFromHls (hls: Hls): QualityLevel[] {
       selected: false,
       name,
       index,
-      bitrate: item.bitrate
+      bitrate: item.bitrate,
     }
   })
   return Object.values(levels)
@@ -39,7 +39,7 @@ function createLevelsFromDash (dash: dashjs.MediaPlayerClass): QualityLevel[] {
       selected: false,
       name,
       index: item.qualityIndex,
-      bitrate: item.bitrate
+      bitrate: item.bitrate,
     }
   })
   return Object.values(levels)
@@ -84,13 +84,13 @@ export class QualityLevelAdapter extends EventEmitter {
     } else if (this.dash) {
       console.log('dash 改变 level', level)
       const setting = this.dash.getSettings()
-      if (level.index === -1) {
-        setting.streaming.abr.autoSwitchBitrate.video = true
-        setting.streaming.abr.limitBitrateByPortal = true
-      } else {
-        this.dash.setQualityFor('video', level.index)
-        setting.streaming.abr.autoSwitchBitrate.video = false
-        setting.streaming.abr.limitBitrateByPortal = false
+      if (setting.streaming && setting.streaming.abr) {
+        const isAuto = level.index === -1
+        if (!isAuto) {
+          this.dash.setQualityFor('video', level.index)
+        }
+        if (setting.streaming.abr.autoSwitchBitrate) setting.streaming.abr.autoSwitchBitrate.video = isAuto
+        setting.streaming.abr.limitBitrateByPortal = isAuto
       }
       this.dash.updateSettings(setting)
     }

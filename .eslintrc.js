@@ -34,7 +34,7 @@ module.exports = {
     parser: '@typescript-eslint/parser',
   },
   globals: {
-    Hls: true,
-    dashjs: true,
+    Hls: false,
+    dashjs: false,
   },
 }

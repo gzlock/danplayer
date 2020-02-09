@@ -638,7 +638,7 @@ export class Player extends EventEmitter {
       this.dash = dashjs.MediaPlayer().create()
       this.dash.initialize(this.$video, this.options.src, !this.$video.paused)
       const setting = this.dash.getSettings()
-      setting.streaming.abr.limitBitrateByPortal = true
+      if (setting.streaming?.abr) setting.streaming.abr.limitBitrateByPortal = true
       this.dash.updateSettings(setting)
       this.adapter.useDash(this.dash)
     }
