@@ -39,6 +39,7 @@
     - 当浏览器不支持MPD视频，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
     
 - 版本历史：
+    - 0.0.28 更新依赖，增加forceUse配置项，具体说明请浏览Wiki
     - 0.0.25 增加快进(forward)/倒退(backward)时间的自定义设置，默认为5秒
     - 0.0.24 增加Toast显示一些操作的提示，例如键盘上下键加减音量时的提示，拖动进度条时的时间提示等
 

@@ -19,39 +19,26 @@ export enum ForceUse {
 }
 
 interface PlayerOptions {
-  /**
-   * 直播模式
-   * 没有进度条
-   */
   live: boolean
 
-  // 音量
   volume: number
 
-  autoplay: boolean,
+  autoplay: boolean
 
-  // ui 的隐藏时间
   uiFadeOutDelay: number
 
-  // 视频寸尺
   width: number | string
   height: number | string
 
-  // 视频来源，也可以在<video src=""></video>的src设置
   src: string
 
-  // iconfont Symbol方式 代码
   iconSrc: string
 
-  // 快进时间
-  forward: number,
-  // 倒退时间
-  backward: number,
+  forward: number
+  backward: number
 
-  // 扩展按钮
   extraButtons: { [name: string]: () => void }
 
-  // 弹幕层的配置
   danmaku: DanmakuLayerOptions
 
   fullScreen: boolean
@@ -68,20 +55,17 @@ interface PlayerOptions {
 }
 
 export interface PlayerPublicOptions {
-  /**
-   * 直播模式
-   * 没有进度条
-   */
+
+  // 是否启用直播模式，没有进度条，没有播放时间
   live: boolean
 
-  // 音量
+  // 音量，0~1，默认为0.7
   volume: number
 
-  autoplay: boolean,
+  // 自动播放，根据浏览器的差异不一定有效
+  autoplay: boolean
 
-  fontSize: number,
-
-  // ui 的隐藏时间
+  // ui 的隐藏时间，毫秒
   uiFadeOutDelay: number
 
   // 视频寸尺
@@ -93,34 +77,42 @@ export interface PlayerPublicOptions {
 
   iconSrc: string
 
-  // 快进时间
-  forward: number,
-  // 倒退时间
-  backward: number,
+  // 前进的秒数，毫秒
+  forward: number
+  // 倒退的秒数，毫秒
+  backward: number
 
   // 扩展按钮
   extraButtons: { [name: string]: () => void }
 
-  // 弹幕层的配置
+  // 弹幕层的配置 DanmakuLayerOptions
   danmaku: Partial<DanmakuLayerOptions>
 
+  // 是否需要全屏
   fullScreen: boolean
 
+  // 是否显示播放器底部中间的弹幕输入框
   danmakuForm: boolean
 
+  // 唯一播放的播放器
   unique: boolean
 
+  // 播放器的亮色，包括：进度条、进度滑块、音量滑块、音量条
   color: string
 
+  // 发送弹幕前的事件
   beforeSendDanmaku?: (danmaku: Danmaku) => Promise<boolean>
 
-  forceUse: ForceUse,
+  // 强制启用hls.js或者dash.js
+  // 多数用于移动平台，因为Android webview支持hls，导致不会使用hls.js
+  // 丢失了hls.js提供的画质选项
+  forceUse?: ForceUse
 }
 
 enum VideoType {
   Normal = 'native',
   Hls = 'hls.js',
-  Dash = 'dash.js'
+  Dash = 'dash.js',
 }
 
 function MakeDefaultOptions ({

@@ -17,12 +17,19 @@ export enum LimitType {
 }
 
 export interface DanmakuLayerOptions {
+  // 弹幕层的弹幕文字透明度，0~1，默认为1
   alpha: number
+  // 是否显示弹幕层，默认为true
   enable: boolean
+  // 流式弹幕的时间，毫秒
   flowDuration: number
+  // 固定式弹幕的时间，毫秒
   fadeoutDuration: number,
+  // 弹幕的字体大小
   fontSize: number,
+  // 弹幕的显示区域限制
   limit: LimitType // 防重叠选项
+  // 弹幕的右键菜单
   contextMenu: ((danmaku: Danmaku) => { [name: string]: () => void }) | undefined
 }
 
