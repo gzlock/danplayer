@@ -54,7 +54,7 @@ export class ProgressBar {
   private initEventAboutController () {
     const mouseMoveChangeTime = (e: MouseEvent) => {
       const rect = this.$root.getBoundingClientRect()
-      let x = e.clientX - rect.left
+      const x = e.clientX - rect.left
       this.percent = x / this.barWidth
       if (isNaN(this.percent) || this.percent < 0) this.percent = 0
       if (this.percent > 1) this.percent = 1
@@ -98,7 +98,7 @@ export class ProgressBar {
       const rect = this.$root.getBoundingClientRect()
       let x = e.clientX - rect.left
       if (!this.ui.isShow) x -= this.offsetWidth / 2
-      let percent = x / this.barWidth
+      const percent = x / this.barWidth
       if (isNaN(percent) || percent < 0) this.percent = 0
       if (this.percent > 1) this.percent = 1
       this.toast.text = SecondsToString(percent * this.player.$video.duration)

@@ -127,7 +127,7 @@ export class Ui {
   insertExtraButtons () {
     this.clearExtraButtons()
     if (this.player.options.extraButtons) {
-      for (let name in this.player.options.extraButtons) {
+      for (const name in this.player.options.extraButtons) {
         const $btn = document.createElement('div') as HTMLElement
         $btn.innerText = name
         $btn.addEventListener('click', this.player.options.extraButtons[name])

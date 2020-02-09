@@ -1,5 +1,5 @@
 export function SecondsToString (seconds: number): string {
-  let time: number[] = []
+  const time: number[] = []
   if (seconds > 0) {
     // 分
     let temp = Math.floor(seconds / 60)
