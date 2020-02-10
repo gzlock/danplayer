@@ -13,6 +13,7 @@ fi
 
 cd ./dist
 
+
 cp ../src/player/danplayer.d.ts ./
 rm -r ./demo.html
 
