@@ -21,8 +21,8 @@ after_script:
 # 发布到github pages
 deploy:
   - provider: pages
-    skip-cleanup: true
-    local-dir: docs
-    github_token: $GITHUB_TOKEN
+    skip_cleanup: true
+    local_dir: docs
+    token: $GITHUB_TOKEN
     on:
       tags: true
