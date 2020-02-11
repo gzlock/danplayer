@@ -12,6 +12,8 @@ module.exports = {
     'no-console': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-useless-constructor': 'error',
+    indent: 0,
+    'dot-location': ['error', 'property'],
     'comma-dangle': [
       'error', {
         arrays: 'ignore',

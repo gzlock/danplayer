@@ -3,12 +3,13 @@ import { Ui } from '@/player/ui'
 import { QualityLevel } from '@/player/qualityLevelAdapter'
 
 export class QualitySelector extends ButtonAndLayer {
-  private readonly autoLevel: QualityLevel = { selected: false, name: '自动', index: -1, bitrate: 0 }
+  private autoLevel: QualityLevel
   private readonly levels: QualityLevel[] = []
   currentLevel = -1
 
   constructor (ui: Ui) {
     super(ui)
+    this.autoLevel = { selected: false, name: ui.string.autoQualitySelect, index: -1, bitrate: 0 }
     this.$btn = this.player.$root.querySelector('.button.quality') as HTMLElement
     this.$layer = this.player.$root.querySelector('.float.quality-menu') as HTMLElement
     this.init()
@@ -74,6 +75,12 @@ export class QualitySelector extends ButtonAndLayer {
     this.levels.push(...levels.reverse(), this.autoLevel)
     this._updateLevel()
     this.updateLayerPosition()
+    this.updateButton()
+  }
+
+  update () {
+    this.autoLevel.name = this.ui.string.autoQualitySelect
+    this._updateLevel()
     this.updateButton()
   }
 }

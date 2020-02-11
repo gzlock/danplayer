@@ -1,10 +1,6 @@
 import { Player } from '@/player/player'
 import { Danmaku, DanmakuType } from '@/player/danmaku/danmaku'
-import {
-  DanmakuDrawer,
-  DanmakuFixedDrawer,
-  DanmakuFlowDrawer,
-} from './danmakuDrawer'
+import { DanmakuDrawer, DanmakuFixedDrawer, DanmakuFlowDrawer, } from './danmakuDrawer'
 import { EventEmitter } from 'events'
 import { Canvas } from '@/player/danmaku/canvas'
 
@@ -487,7 +483,7 @@ export class DanmakuLayer {
   }
 
   update () {
-    if (this.player.options.danmaku.enable) {
+    if (this.player.options.danmaku.enable && this.isShow) {
       console.log('显示弹幕')
       this.show()
     } else {

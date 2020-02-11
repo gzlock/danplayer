@@ -24,13 +24,18 @@ export class VolumeLayer extends ButtonAndLayer {
     this.$video = this.player.$video
     this.toast = new Toast(ui)
     this.$video.addEventListener('volumechange', () => this.updateController())
-    this.$layer = this.player.$root.querySelector('.interactive-layer .volume-bar') as HTMLElement
-    this.$valueLabel = this.$layer.querySelector('.volume-num-label') as HTMLElement
-    this.$btn = this.player.$root.querySelector('.interactive-layer .buttons .button.volume') as HTMLElement
+    this.$layer = this.player.$root.querySelector(
+      '.interactive-layer .volume-bar') as HTMLElement
+    this.$valueLabel = this.$layer.querySelector(
+      '.volume-num-label') as HTMLElement
+    this.$btn = this.player.$root.querySelector(
+      '.interactive-layer .buttons .button.volume') as HTMLElement
     this.btn = new IconButton(this.$btn)
     this.$btn.addEventListener('click', () => this.toggleMuted())
-    this.$dragArea = this.$layer.querySelector('.volume-column-bar') as HTMLElement
-    this.$controller = this.$dragArea.querySelector('.bar-controller') as HTMLElement
+    this.$dragArea = this.$layer.querySelector(
+      '.volume-column-bar') as HTMLElement
+    this.$controller = this.$dragArea.querySelector(
+      '.bar-controller') as HTMLElement
     this.$current = this.$dragArea.querySelector('.bar-current') as HTMLElement
     this.volumeValue = this.$video.volume = this.player.options.volume
 
@@ -92,7 +97,8 @@ export class VolumeLayer extends ButtonAndLayer {
   showToast () {
     if (this.isShow) return
     this.toast.show()
-    this.toast.text = '音量：' + NP.round(this.$video.volume * 100, 0)
+    this.toast.text = this.ui.string.volume + '：' +
+      NP.round(this.$video.volume * 100, 0)
     clearTimeout(this.hideToast)
     this.hideToast = setTimeout(() => {
       this.toast.hide()
@@ -146,6 +152,7 @@ export class VolumeLayer extends ButtonAndLayer {
   }
 
   update () {
+    this.btn.$root.setAttribute('title', this.ui.string.volume)
     // this.$controller.style.background = this.$current.style.background = this.player.options.color
     if (this.toast.isShow) this.updateToastPosition()
     if (this.isShow) this.updateLayerPosition()

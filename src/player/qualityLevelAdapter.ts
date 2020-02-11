@@ -16,7 +16,7 @@ function createLevelsFromHls (hls: Hls): QualityLevel[] {
   const levels: { [key: string]: QualityLevel } = {}
   hls.levels.forEach((item: Hls.Level, index) => {
     if (!('height' in item)) return
-    const name = Math.min(item.width, item.height) + 'p'
+    const name = item.name ? item.name : Math.min(item.width, item.height) + 'P'
     if (levels[name] && levels[name].bitrate > item.bitrate) return
     levels[name] = {
       selected: false,
@@ -33,7 +33,7 @@ function createLevelsFromDash (dash: dashjs.MediaPlayerClass): QualityLevel[] {
   const list = dash.getBitrateInfoListFor('video')
   list.forEach((item: dashjs.BitrateInfo, index) => {
     if (!('height' in item)) return
-    const name = Math.min(item.width, item.height) + 'p'
+    const name = Math.min(item.width, item.height) + 'P'
     if (levels[name] && levels[name].bitrate > item.bitrate) return
     levels[name] = {
       selected: false,

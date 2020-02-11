@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>视频直播弹幕范例</title>
-  <!--加载hls.js-->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@0.12.4/dist/hls.min.js"></script>
+    <meta charset="UTF-8">
+    <title>视频直播弹幕范例</title>
+    <!--加载hls.js-->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@0.12.4/dist/hls.min.js"></script>
 
-  <!--加载DanPlayer的js-->
-  <script src="https://cdn.jsdelivr.net/npm/danplayer/danplayer.umd.min.js"></script>
-  <!--加载DanPlayer的css-->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/danplayer/danplayer.css">
+    <!--加载DanPlayer的js-->
+    <script src="https://cdn.jsdelivr.net/npm/danplayer/danplayer.umd.min.js"></script>
+    <!--加载DanPlayer的css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/danplayer/danplayer.css">
 
-  <script src="https://cdn.bootcss.com/socket.io/2.2.0/socket.io.slim.js"></script>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+    <script src="https://cdn.bootcss.com/socket.io/2.2.0/socket.io.slim.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
 <body>
 <video></video>
@@ -29,22 +29,23 @@
       live: true,
       width: '100vw',
       height: '100vh',
-      async beforeSendDanmaku(danmaku) {
+      async beforeSendDanmaku (danmaku) {
         // 通过websocket通知服务器广播给其他观众
-        socket.emit('send_danmaku', danmaku);
+        socket.emit('send_danmaku', danmaku)
         return true
       },
       src: '这里填入m3u8直播源',
+      forceUse: danplayer.ForceUse.Hls,
       danmaku: {
-        flowDuration: 8
+        flowDuration: 8,
       },
-    });
+    })
     // socket.io
-    const socket = io.connect('/danmaku');
+    const socket = io.connect('/danmaku')
     // 更新网页标题
     socket.on('online', num => {
       document.title = '直播系统(在线: ' + num + ' 人)'
-    });
+    })
     // 接收到从服务端发来的弹幕数据，渲染上屏幕
     socket.on('get_danmaku', danmaku => {
       player.sendDanmaku(danmaku)

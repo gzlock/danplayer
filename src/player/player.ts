@@ -1,11 +1,8 @@
 import './style.scss'
 import { EventEmitter } from 'eventemitter3'
 import { Danmaku } from '@/player/danmaku/danmaku'
-import { Ui } from '@/player/ui'
-import {
-  DanmakuLayerOptions,
-  MakeDanmakuLayerOptions,
-} from '@/player/danmaku/danmakuLayer'
+import { Ui, UiString } from '@/player/ui'
+import { DanmakuLayerOptions, MakeDanmakuLayerOptions, } from '@/player/danmaku/danmakuLayer'
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
 import { Hash, RandomID } from '@/player/utils'
 
@@ -52,6 +49,8 @@ interface PlayerOptions {
   beforeSendDanmaku?: (danmaku: Danmaku) => Promise<boolean>
 
   forceUse?: ForceUse
+
+  ui: UiString
 }
 
 export interface PlayerPublicOptions {
@@ -107,6 +106,9 @@ export interface PlayerPublicOptions {
   // 多数用于移动平台，因为Android webview支持hls，导致不会使用hls.js
   // 丢失了hls.js提供的画质选项
   forceUse?: ForceUse
+
+  // ui 界面 多语言支持
+  ui?: UiString
 }
 
 enum VideoType {
@@ -134,10 +136,12 @@ function MakeDefaultOptions ({
   backward = 5,
   unique = false,
   forceUse = undefined,
+  ui = undefined,
 }: Partial<PlayerPublicOptions>): PlayerOptions {
   if (volume < 0 || volume > 1) {
     volume = 0.7
   }
+  const _ui = Object.assign(new UiString(), ui || {})
   return {
     autoplay,
     color,
@@ -157,6 +161,7 @@ function MakeDefaultOptions ({
     beforeSendDanmaku,
     width,
     forceUse,
+    ui: _ui,
   }
 }
 
@@ -192,7 +197,7 @@ const template = `{video-layer}
     <div class="buttons">
       <div class="left">
         <div class="button intern-button play" data-on="danplayer-bofang" data-off="danplayer-zanting"
-          data-on-title="播放视频" data-off-title="暂停播放">
+          data-on-title="{play}" data-off-title="{pause}">
           <svg class="icon" aria-hidden="true"><use xlink:href="#danplayer-bofang"></use></svg>
         </div>
         <div class="time"></div>
@@ -202,25 +207,25 @@ const template = `{video-layer}
         <div class="button intern-button danmaku-style">
           <svg class="icon"><use xlink:href="#danplayer-style"></use></svg>
         </div>
-        <input placeholder="输入弹幕内容" tabindex="1">
-        <div class="send">发送</div>
+        <input placeholder="{danmakuInputHint}" tabindex="1">
+        <div class="send">{danmakuSend}</div>
       </div>
       <div class="right">
 
-        <div class="button intern-button volume" data-on="danplayer-yinliang" data-off="danplayer-jingyin" title="音量">
+        <div class="button intern-button volume" data-on="danplayer-yinliang" data-off="danplayer-jingyin" title="{volume}">
           <svg class="icon"><use xlink:href="#danplayer-yinliang"></use></svg>
         </div>
 
         <div class="button intern-button toggle-danamaku" title="隐藏弹幕"
-          data-on="danplayer-danmukai" data-off="danplayer-danmuguan"
-          data-on-title="显示弹幕" data-off-title="隐藏弹幕">
+          data-on="danplayer-danmuguan" data-off="danplayer-danmukai"
+          data-on-title="{showDanmaku}" data-off-title="{hideDanmaku}">
           <svg class="icon"><use xlink:href="#danplayer-danmukai"></use></svg>
         </div>
 
-        <div class="button quality" title="切换画质"></div>
+        <div class="button quality" title="{switchQuality}"></div>
 
         <div class="button intern-button full-screen" data-on="danplayer-quanping" data-off="danplayer-zuixiaohua"
-        data-on-title="全屏观看" data-off-title="取消全屏">
+        data-on-title="{fullscreen}" data-off-title="{cancelFullscreen}">
           <svg class="icon"><use xlink:href="#danplayer-quanping"></use></svg>
         </div>
       </div>
@@ -272,6 +277,10 @@ export class Player extends EventEmitter {
 
   constructor ($e: HTMLElement, options?: Partial<PlayerPublicOptions>) {
     super()
+
+    options = options || {}
+    this.options = MakeDefaultOptions(options)
+
     const hash = Hash(icon)
     if (!document.querySelector('script#danplayer-icon' + hash)) {
       const $icon = document.createElement('script')
@@ -288,17 +297,28 @@ export class Player extends EventEmitter {
     this.$root.classList.add('danplayer')
     parent.insertBefore(this.$root, $e)
 
+    let videoLayer
     if ($e.tagName.toLowerCase() === 'video') {
       $e.classList.add('video-layer')
       $e.removeAttribute('id')
-      this.$root.innerHTML = template.replace('{video-layer}', $e.outerHTML)
+      videoLayer = $e.outerHTML
       if (options && !('src' in options)) {
         options.src = $e.getAttribute('src') as string
       }
     } else {
-      this.$root.innerHTML = template.replace('{video-layer}',
-        '<video class="video-layer"></video>')
+      videoLayer = '<video class="video-layer"></video>'
     }
+    this.$root.innerHTML = template.replace('{video-layer}', videoLayer)
+      .replace('{volume}', this.options.ui.volume)
+      .replace('{showDanmaku}', this.options.ui.showDanmaku)
+      .replace('{hideDanmaku}', this.options.ui.hideDanmaku)
+      .replace('{play}', this.options.ui.play)
+      .replace('{pause}', this.options.ui.pause)
+      .replace('{danmakuInputHint}', this.options.ui.danmakuInputHint)
+      .replace('{danmakuSend}', this.options.ui.danmakuSend)
+      .replace('{fullscreen}', this.options.ui.fullscreen)
+      .replace('{cancelFullscreen}', this.options.ui.cancelFullscreen)
+      .replace('{switchQuality}', this.options.ui.switchQuality)
     $e.remove()
 
     this.$root.addEventListener('contextmenu', (e: MouseEvent) => {
@@ -401,8 +421,6 @@ export class Player extends EventEmitter {
       }
     })
 
-    options = options || {}
-
     if (!('width' in options)) {
       options.width = this.$video.clientWidth as number
     }
@@ -414,8 +432,6 @@ export class Player extends EventEmitter {
     }
 
     window.addEventListener('resize', () => this.resizeEvt(1000))
-
-    this.options = MakeDefaultOptions(options)
 
     this.adapter = new QualityLevelAdapter()
     this.ui = new Ui(this)
@@ -457,6 +473,8 @@ export class Player extends EventEmitter {
   }
 
   private updateUI () {
+    this.ui.string = this.options.ui
+
     this.ui.insertExtraButtons()
 
     this.ui.update()
@@ -494,8 +512,10 @@ export class Player extends EventEmitter {
   }
 
   set (options: Partial<PlayerPublicOptions>) {
+    options.ui = Object.assign({}, new UiString(), options.ui)
     options.danmaku = Object.assign({}, this.options.danmaku, options.danmaku)
     const newOptions = Object.assign({}, this.options, options)
+    console.log('set', newOptions)
     const optionsHasChanged = JSON.stringify(newOptions) ===
       JSON.stringify(this.options)
     const srcHasChanged = newOptions.src !== this.options.src

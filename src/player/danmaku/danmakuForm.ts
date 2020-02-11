@@ -71,6 +71,8 @@ export class DanmakuForm {
   }
 
   update () {
+    this.$btn.innerText = this.ui.string.danmakuSend
+    this.$input.placeholder = this.ui.string.danmakuInputHint
     if (this.ui.player.options.danmakuForm) {
       this.show()
     } else {

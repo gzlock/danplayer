@@ -37,18 +37,18 @@ export class ProgressBar {
       if (this.isDragging) return
       this.percent = this._currentTime / this.player.$video.duration
       if (isNaN(this.percent)) this.percent = 0
-      this.time()
-      this.update()
+      this.updateTime()
+      this.updateBar()
     })
     this.player.$video.addEventListener('progress', () => {
-      this.time()
-      this.update()
+      this.updateTime()
       this.updateBufferBar()
     })
 
     this.resize()
     this.initEventAboutController()
     this.initEventAboutToast()
+    this.updateTime()
   }
 
   private initEventAboutController () {
@@ -130,11 +130,9 @@ export class ProgressBar {
     })
   }
 
-  private time () {
-    // console.warn('更新时间')
-    if (this.player.options.live) {
-      this.$time.innerText = '直播'
-    } else {
+  private updateTime () {
+    console.warn('updateTime')
+    if (!this.player.options.live) {
       this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
         ' / ' + SecondsToString(this.player.$video.duration)
     }
@@ -147,12 +145,27 @@ export class ProgressBar {
   resize () {
     this.barWidth = this.player.width - this.offsetWidth
     // console.warn('resize', this.player.width, this.offsetWidth, this.barWidth)
-    this.update()
+    this.updateBar()
     this.updateBufferBar()
   }
 
   update () {
+    console.warn('update')
     // console.warn('进度条 update', this.ui.isShow)
+    // this.$controller.style.background = this.player.options.color
+    // this.$current.style.background = this.player.options.color
+    if (this.player.options.live) {
+      this.$time.innerText = this.ui.string.live
+    }
+  }
+
+  reset () {
+    this.resetTimeZone()
+    this.resetProgressBar()
+  }
+
+  private updateBar () {
+    console.warn('updateBar')
     if (this.ui.isShow) {
       this.barWidth = this.player.width - this.offsetWidth
     } else {
@@ -161,14 +174,6 @@ export class ProgressBar {
     const x = this.barWidth * this.percent
     this.$current.style.width = x + 'px'
     this.$controller.style.transform = `translateX(${x}px)`
-    // this.$controller.style.background = this.player.options.color
-    // this.$current.style.background = this.player.options.color
-    this.time()
-  }
-
-  reset () {
-    this.resetTimeZone()
-    this.resetProgressBar()
   }
 
   resetTimeZone () {
@@ -186,7 +191,7 @@ export class ProgressBar {
   }
 
   updateBufferBar () {
-    // console.log('updateBufferBar', this.barWidth)
+    console.warn('updateBufferBar')
     for (let i = 0; i < this.player.$video.buffered.length; i++) {
       const start = this.player.$video.buffered.start(i)
       const end = this.player.$video.buffered.end(i)
