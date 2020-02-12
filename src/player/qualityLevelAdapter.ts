@@ -15,8 +15,19 @@ export interface QualityLevel {
 function createLevelsFromHls (hls: Hls): QualityLevel[] {
   const levels: { [key: string]: QualityLevel } = {}
   hls.levels.forEach((item: Hls.Level, index) => {
-    if (!('height' in item)) return
-    const name = item.name ? item.name : Math.min(item.width, item.height) + 'P'
+    let name
+    if (item.name) {
+      name = item.name
+    } else if (item.width && item.height) {
+      name = Math.min(item.width, item.height) + 'P'
+      // @ts-ignore
+    } else if (item.attrs['RESOLUTION']) {// eslint-disable-line
+      console.log('name', index, item.attrs)
+      // @ts-ignore
+      name = item.attrs['RESOLUTION']// eslint-disable-line
+    } else {
+      name = 'Lv ' + index
+    }
     if (levels[name] && levels[name].bitrate > item.bitrate) return
     levels[name] = {
       selected: false,
@@ -65,6 +76,7 @@ export class QualityLevelAdapter extends EventEmitter {
     this.dash = undefined
 
     hls.on(Hls.Events.LEVEL_LOADED, () => {
+      console.log('Hls.Events.LEVEL_LOADED')
       this.emit(QualityLevelAdapter.Events.OnLoad, createLevelsFromHls(hls))
     })
   }
