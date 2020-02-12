@@ -39,6 +39,7 @@
     - 当浏览器不支持MPD视频，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
     
 - 版本历史：
+    - 0.0.30 继续优化画质级别的逻辑
     - 0.0.29 优化Hls.js和Dash.js的画质级别逻辑，增加界面文本的配置，具体说明请浏览Wiki
     - 0.0.28 更新依赖，增加forceUse配置项，具体说明请浏览Wiki
     - 0.0.25 增加快进(forward)/倒退(backward)时间的自定义设置，默认为5秒
