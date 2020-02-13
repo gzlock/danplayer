@@ -101,6 +101,11 @@ $controller-color: #00a1d6;
     width: 100%;
     height: 100%;
 
+    display: flex; // make us of Flexbox
+    align-items: center; // does vertically center the desired content
+    justify-content: center; // horizontally centers single line items
+    text-align: center;
+
 
     // 提示层
     .toast {
@@ -128,6 +133,11 @@ $controller-color: #00a1d6;
 
       &.show {
         display: block;
+      }
+
+      &.loading {
+        padding: 6px 10px;
+        color: white;
       }
     }
 

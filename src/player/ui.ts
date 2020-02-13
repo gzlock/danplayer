@@ -26,6 +26,7 @@ export class UiString {
   hideDanmaku = '隐藏弹幕'
   autoQualitySelect = '自动'
   copy = '复制'
+  loading = '读取中'
 }
 
 export class Ui {
@@ -47,6 +48,7 @@ export class Ui {
   private btnShowDanmaku: IconButton
   private $gradientBG: HTMLElement
   private extraButtons: Element[] = []
+  private $loading: HTMLElement
 
   volume: VolumeLayer
   progressBar: ProgressBar
@@ -78,6 +80,8 @@ export class Ui {
     this.danmakuStyleLayer = new DanmakuStyleLayer(this)
     this.danmakuForm = new DanmakuForm(this)
 
+    this.$loading = this.$root.querySelector('.float.loading') as HTMLElement
+
     this.$controllerButtonsRightLayout = this.$controlBar.querySelector(
       '.buttons .right') as Element
 
@@ -104,7 +108,15 @@ export class Ui {
 
     this.player.$video.addEventListener('waiting', () => {
       console.log('视频缓存中')
+      this.$loading.classList.add('show')
     })
+    this.player.$video.addEventListener('canplay', () => {
+      console.log('视频缓存结束')
+      // eslint-disable-next-line no-unused-expressions
+      this.$loading.classList.remove('show')
+    })
+    this.$loading.innerText = this.string.loading
+    this.$loading.classList.add('show')
 
     this.danmakuLayer = new DanmakuLayer(player)
 
@@ -181,6 +193,7 @@ export class Ui {
     this.danmakuLayer.update()
     this.danmakuStyleLayer.update()
     this.qualitySelector.update()
+    this.$loading.innerText = this.string.loading
   }
 
   updatePlayButton () {

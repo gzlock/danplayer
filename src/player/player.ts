@@ -186,6 +186,8 @@ const template = `{video-layer}
   </div>
 
   <div class="float quality-menu"></div>
+  
+  <div class="float loading show"></div>
 
   <div class="controller-bottom-bar">
     <div class="progress-bar live-hide">

@@ -218,6 +218,7 @@ player.set({beforeSendDanmaku})
         cancelFullscreen: 'Cancel Fullscreen',
         showDanmaku: 'Show Danmaku',
         hideDanmaku: 'Hide Danmaku',
+        loading: 'Loading',
       }
       player.set({
         color: this.settings.color,
