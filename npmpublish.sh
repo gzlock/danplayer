@@ -31,15 +31,18 @@ this.license='MIT'
 this.homepage='https://github.com/gzlock/danplayer'
 delete this.scripts
 this.dependencies={
-'@types/hls.js': '^0.12.4',
-'hls.js': '^0.12.4',
-'eventemitter3':'^4.0.0'
+'@types/hls.js': '^0.13.1',
+'hls.js': '^0.13.1',
+'dashjs': '^3.0.2',
+'eventemitter3': '^4.0.0'
 }
 "
 
 echo "# Danplayer v$TRAVIS_TAG
 ### [Github Project HomePage](https://github.com/gzlock/danplayer)
+### [Document](https://github.com/gzlock/danplayer/wiki)
 ### [Demo page](https://gzlock.github.io/danplayer)
+### [CDn](https://www.jsdelivr.com/package/npm/danplayer)
 " > readme.md
 
 if [ $NPM_TOKEN ];then

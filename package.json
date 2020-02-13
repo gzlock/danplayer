@@ -1,6 +1,6 @@
 {
   "name": "danplayer",
-  "version": "0.1.0",
+  "version": "0.0.31",
   "publishConfig": {
     "access": "public"
   },
@@ -11,7 +11,7 @@
   "license": "MIT",
   "homepage": "https://github.com/gzlock/danplayer",
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "export MYVERSION=123 && vue-cli-service serve",
     "build": "cross-env TARGET=docs vue-cli-service build --fix",
     "build-lib": "cross-env TARGET=lib vue-cli-service build --target=lib --name=danplayer ./src/player/index.ts --fix",
     "lint": "vue-cli-service lint",

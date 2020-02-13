@@ -5,7 +5,7 @@
             <div slot="header" class="title">
                 <div class="left">
                     <img src="@/assets/logo.png" title="logo" alt="logo"/>
-                    <div class="text">DanPlayer</div>
+                    <div class="text">DanPlayer v{DanPlayerVersion}</div>
                 </div>
                 <div class="right">
                     <el-link type="primary" href="https://github.com/gzlock/danplayer" target="_blank">Github</el-link>

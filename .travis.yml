@@ -14,8 +14,12 @@ script:
   - npm run build
   - npm run build-lib
 
+# 发布前整理编译后的js脚本文件
+before_deploy:
+  - node after_build.js
+
 # 发布到npm
-after_script:
+after_deploy:
   - bash ./npmpublish.sh
 
 # 发布到github pages

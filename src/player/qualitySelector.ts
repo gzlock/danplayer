@@ -3,7 +3,7 @@ import { Ui } from '@/player/ui'
 import { QualityLevel } from '@/player/qualityLevelAdapter'
 
 export class QualitySelector extends ButtonAndLayer {
-  private autoLevel: QualityLevel
+  private readonly autoLevel: QualityLevel
   private readonly levels: QualityLevel[] = []
   currentLevel = -1
 
@@ -19,6 +19,7 @@ export class QualitySelector extends ButtonAndLayer {
         const value = parseInt($item.getAttribute('data-value') as string)
         console.log('level click', value)
         this.levels.forEach(level => {
+          if (level.selected && level.index === this.currentLevel) return
           level.selected = level.index === value
           if (level.selected) {
             this.emit('selectLevel', level)
@@ -48,6 +49,8 @@ export class QualitySelector extends ButtonAndLayer {
   }
 
   reset () {
+    console.error('qualitySelector reset')
+    this.levels.length = 0
     this.currentLevel = -1
     this.$layer.innerHTML = ''
   }
@@ -69,10 +72,16 @@ export class QualitySelector extends ButtonAndLayer {
   }
 
   updateLevel (levels: QualityLevel[]) {
-    console.log('update level', levels)
     this.levels.length = 0
-    this.autoLevel.selected = true
     this.levels.push(...levels.reverse(), this.autoLevel)
+    if (this.currentLevel === -1) {
+      this.autoLevel.selected = true
+    } else {
+      this.levels.every((level: QualityLevel) => {
+        level.selected = level.index === this.currentLevel
+      })
+    }
+    console.log('update level', this.levels)
     this._updateLevel()
     this.updateLayerPosition()
     this.updateButton()

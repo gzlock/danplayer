@@ -6,6 +6,8 @@ import { DanmakuLayerOptions, MakeDanmakuLayerOptions, } from '@/player/danmaku/
 import { QualityLevel, QualityLevelAdapter } from '@/player/qualityLevelAdapter'
 import { Hash, RandomID } from '@/player/utils'
 
+const DanPlayerVersion = '{DanPlayerVersion}'
+
 const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
 
 const defaultColor = '#00a1d6'
@@ -278,6 +280,7 @@ export class Player extends EventEmitter {
   constructor ($e: HTMLElement, options?: Partial<PlayerPublicOptions>) {
     super()
 
+    console.info(`DanPlayer v${DanPlayerVersion}`)
     options = options || {}
     this.options = MakeDefaultOptions(options)
 
@@ -445,6 +448,7 @@ export class Player extends EventEmitter {
       })
     this.ui.qualitySelector.on('selectLevel', (level: QualityLevel) => {
       console.log('选择画质级别', level)
+      this.ui.progressBar.resetProgressBar()
       this.adapter.changeLevelTo(level)
     })
 
@@ -501,7 +505,7 @@ export class Player extends EventEmitter {
 `
       this.$root.append(this.$style)
     }
-    this.ui.qualitySelector.reset()
+    this.ui.qualitySelector.update()
 
     if (this.options.live) {
       this.$root.classList.add('live')
@@ -512,13 +516,16 @@ export class Player extends EventEmitter {
   }
 
   set (options: Partial<PlayerPublicOptions>) {
+    const srcHasChanged = options.src !== this.options.src
     options.ui = Object.assign({}, new UiString(), options.ui)
     options.danmaku = Object.assign({}, this.options.danmaku, options.danmaku)
     const newOptions = Object.assign({}, this.options, options)
     console.log('set', newOptions)
     const optionsHasChanged = JSON.stringify(newOptions) ===
       JSON.stringify(this.options)
-    const srcHasChanged = newOptions.src !== this.options.src
+    if (srcHasChanged) {
+      if (!options.forceUse) newOptions.forceUse = undefined
+    }
     this.options = newOptions
     if (srcHasChanged) {
       if (this.hls) {
@@ -530,6 +537,7 @@ export class Player extends EventEmitter {
         this.dash = undefined
       }
       this.ui.progressBar.reset()
+      this.ui.qualitySelector.reset()
       this.updateSrc().then()
     }
     this.updateUI()

@@ -8,6 +8,8 @@ Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 
+console.log('my version', process.env)
+
 new Vue({
   render: h => h(App)
 }).$mount('#app')

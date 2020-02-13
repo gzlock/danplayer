@@ -25,6 +25,7 @@ export class UiString {
   showDanmaku = '显示弹幕'
   hideDanmaku = '隐藏弹幕'
   autoQualitySelect = '自动'
+  copy = '复制'
 }
 
 export class Ui {

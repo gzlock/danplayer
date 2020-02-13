@@ -195,9 +195,9 @@ export class ProgressBar {
     for (let i = 0; i < this.player.$video.buffered.length; i++) {
       const start = this.player.$video.buffered.start(i)
       const end = this.player.$video.buffered.end(i)
-      if (start < this._currentTime && this._currentTime < end) {
+      // if (start < this._currentTime && this._currentTime < end) {
         this.$buffer.style.width = end / this.player.$video.duration * this.barWidth + 'px'
-      }
+      // }
     }
   }
 }

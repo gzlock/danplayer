@@ -2,8 +2,9 @@
 <img src="./logo.png" alt="DanPlayer" width="100">
 </p>
 
-# 弹幕播放器 [Demo体验](https://gzlock.github.io/danplayer)
-[![Build Status](https://www.travis-ci.org/gzlock/danplayer.svg?branch=master)](https://www.travis-ci.org/gzlock/danplayer)
+
+# DanPlayer 弹幕播放器 [Demo体验](https://gzlock.github.io/danplayer)
+[![Build Status](https://www.travis-ci.org/gzlock/danplayer.svg?branch=master)](https://www.travis-ci.org/gzlock/danplayer) [![](https://data.jsdelivr.com/v1/package/npm/danplayer/badge)](https://www.jsdelivr.com/package/npm/danplayer)
 
 <p align="center">
 <img src="./images/screenshot.png" alt="screenshot">
