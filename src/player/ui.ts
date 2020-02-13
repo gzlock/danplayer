@@ -102,6 +102,10 @@ export class Ui {
       this.updateDanmakuButton()
     })
 
+    this.player.$video.addEventListener('waiting', () => {
+      console.log('视频缓存中')
+    })
+
     this.danmakuLayer = new DanmakuLayer(player)
 
     this.insertExtraButtons()

@@ -42,7 +42,7 @@ echo "# Danplayer v$TRAVIS_TAG
 ### [Github Project HomePage](https://github.com/gzlock/danplayer)
 ### [Document](https://github.com/gzlock/danplayer/wiki)
 ### [Demo page](https://gzlock.github.io/danplayer)
-### [CDn](https://www.jsdelivr.com/package/npm/danplayer)
+### [CDN](https://www.jsdelivr.com/package/npm/danplayer)
 " > readme.md
 
 if [ $NPM_TOKEN ];then

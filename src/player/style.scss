@@ -65,11 +65,6 @@ $controller-color: #00a1d6;
     overflow: hidden;
   }
 
-  // 复制弹幕用的辅助input，默认隐藏
-  input.copy-tool {
-    display: none
-  }
-
   // 播放器的live模式，隐藏.live-hide的元素
   &.live {
     .live-hide {

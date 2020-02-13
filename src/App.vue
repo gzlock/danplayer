@@ -165,8 +165,6 @@ player.set({beforeSendDanmaku})
   import { UiString } from './player'
 
   let player: Player
-  const min = parseInt('4E00', 16)
-  const max = parseInt('9FA5', 16)
   let updateInterval
 
   @Component
@@ -207,6 +205,7 @@ player.set({beforeSendDanmaku})
         live: 'Live',
         play: 'Play',
         pause: 'Pause',
+        copy: 'Copy',
         danmakuSend: 'Send',
         danmakuInputHint: 'Input Danmaku Content',
         autoQualitySelect: 'Auto',
@@ -278,22 +277,11 @@ player.set({beforeSendDanmaku})
       for (let i = 0; i < this.random.count; i++) {
         const randomTime = Math.random() * this.random.timeRange
         const currentTime = player.currentTime + randomTime
-        const text = this.randomChinese(8)
         const randomType = [0, 1, 2].indexOf(Math.round(Math.random() * 3))
-        const danmaku = new Danmaku(text, { currentTime, type: randomType })
+        const danmaku = new Danmaku('弹幕 ' + i, { currentTime, type: randomType })
         array.push(danmaku)
       }
       player.fillDanmakus(array)
-    }
-
-    // 随机汉字，范围16进制 4E00-9FA5
-    randomChinese (count = 0) {
-      count = count > 0 ? count : Math.round(Math.random() * 10)
-      let str: string = ''
-      for (let i = 0; i < count; i++) {
-        str += '\\u' + Math.floor(Math.random() * (max - min + 1) + min)
-      }
-      return unescape(str.replace(/\\/g, '%'))
     }
 
     mounted () {

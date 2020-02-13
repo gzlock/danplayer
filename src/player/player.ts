@@ -168,7 +168,6 @@ function MakeDefaultOptions ({
 }
 
 const template = `{video-layer}
-<input class="copy-tool" />
 <div class="interactive-layer">
   <canvas class="danmaku-layer"></canvas>
 

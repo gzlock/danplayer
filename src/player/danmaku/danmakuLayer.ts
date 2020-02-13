@@ -49,11 +49,12 @@ export function MakeDanmakuLayerOptions ({
   }
 }
 
-const template = '<div class="content"></div><div class="buttons"><span class="copy">复制</span></div>'
+const template = '<div class="content"></div><div class="buttons"></div>'
 
 function MakeDanmakuDrawerMenu (
-  d: DanmakuDrawer, menus: { [p: string]: () => void },
-  copyFn: (text: string) => void): HTMLDivElement {
+  d: DanmakuDrawer,
+  menus: { [p: string]: () => void },
+): HTMLDivElement {
   const $div = document.createElement('div')
   $div.innerHTML = template
   const $content = $div.querySelector('.content') as HTMLElement
@@ -62,15 +63,19 @@ function MakeDanmakuDrawerMenu (
   for (const key in menus) {
     const $span = document.createElement('span')
     $span.innerText = key
-    $span.onclick = menus[key]
+    $span.addEventListener('click', menus[key])
     $buttons.prepend($span)
   }
-  const $copy = $div.querySelector('.copy') as HTMLElement
-  if ($copy) {
-    $copy.addEventListener('click', () => copyFn(d.danmaku.text))
-  }
-
   return $div
+}
+
+function copyText (text: string) {
+  const el = document.createElement('textarea')
+  el.value = text
+  document.body.appendChild(el)
+  el.select()
+  document.execCommand('copy')
+  document.body.removeChild(el)
 }
 
 export class DanmakuLayer {
@@ -172,9 +177,12 @@ export class DanmakuLayer {
     for (let i = 0; i < drawers.length; i++) {
       const drawer = drawers[i]
       if (this.player.options.danmaku.contextMenu) {
-        const $menu = MakeDanmakuDrawerMenu(drawer,
-          this.player.options.danmaku.contextMenu(drawer.danmaku),
-          text => this.copyText(text))
+        const menus = this.player.options.danmaku.contextMenu(drawer.danmaku)
+        menus[this.player.options.ui.copy] = () => {
+          console.log('复制按钮', drawer.danmaku.text)
+          copyText(drawer.danmaku.text)
+        }
+        const $menu = MakeDanmakuDrawerMenu(drawer, menus)
         this.$menu.append($menu)
       }
     }
@@ -348,18 +356,6 @@ export class DanmakuLayer {
       }
     }
     this.canvas.renderAll()
-  }
-
-  $input!: HTMLInputElement
-
-  copyText (text: string) {
-    if (!this.$input) {
-      this.$input = this.player.$root.querySelector(
-        'input.copy-tool') as HTMLInputElement
-    }
-    this.$input.value = text
-    this.$input.select()
-    document.execCommand('copy')
   }
 
   private calcFlowY (): number {
