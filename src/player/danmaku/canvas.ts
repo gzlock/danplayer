@@ -1,6 +1,5 @@
 import { Player } from '@/player/player'
 import { DanmakuDrawer } from '@/player/danmaku/danmakuDrawer'
-import { Danmaku } from '@/player/danmaku/danmaku'
 
 const font = 'px "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif'
 
@@ -16,8 +15,8 @@ export class Canvas {
     this.$canvas = player.$root.querySelector('canvas') as HTMLCanvasElement
     this.ctx = this.$canvas.getContext('2d') as CanvasRenderingContext2D
 
-    this.$canvas.addEventListener('click', () => {
-      player.toggle()
+    this.$canvas.addEventListener(player.clickEvent, () => {
+      if (this.player.ui.isShow) player.toggle()
     })
   }
 

@@ -13,11 +13,12 @@ export class QualitySelector extends ButtonAndLayer {
     this.$btn = this.player.$root.querySelector('.button.quality') as HTMLElement
     this.$layer = this.player.$root.querySelector('.float.quality-menu') as HTMLElement
     this.init()
-    this.$layer.addEventListener('click', (e: MouseEvent) => {
+    this.$layer.addEventListener(this.player.clickEvent, (e: MouseEvent | TouchEvent) => {
+      console.log('level click 1', e.target)
       const $item = e.target as HTMLElement
       if ($item.hasAttribute('data-value')) {
         const value = parseInt($item.getAttribute('data-value') as string)
-        console.log('level click', value)
+        console.log('level click 2', value)
         this.levels.forEach(level => {
           if (level.selected && level.index === this.currentLevel) return
           level.selected = level.index === value
@@ -34,7 +35,7 @@ export class QualitySelector extends ButtonAndLayer {
 
   showLayer () {
     super.showLayer()
-    this._updateLevel()
+    this.updateLevelMenu()
     this.updateLayerPosition()
     this.updateButton()
   }
@@ -49,14 +50,14 @@ export class QualitySelector extends ButtonAndLayer {
   }
 
   reset () {
-    console.error('qualitySelector reset')
+    // console.error('qualitySelector reset')
     this.levels.length = 0
     this.currentLevel = -1
     this.$layer.innerHTML = ''
   }
 
-  private _updateLevel () {
-    console.warn('_updateLevel')
+  updateLevelMenu () {
+    console.warn('updateLevelMenu')
     // 清空菜单内容
     this.$layer.innerHTML = ''
     this.levels.forEach((level: QualityLevel) => {
@@ -82,14 +83,14 @@ export class QualitySelector extends ButtonAndLayer {
       })
     }
     console.log('update level', this.levels)
-    this._updateLevel()
+    this.updateLevelMenu()
     this.updateLayerPosition()
     this.updateButton()
   }
 
   update () {
     this.autoLevel.name = this.ui.string.autoQualitySelect
-    this._updateLevel()
+    this.updateLevelMenu()
     this.updateButton()
   }
 }

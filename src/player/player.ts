@@ -247,6 +247,8 @@ export class Player extends EventEmitter {
 
   public ui: Ui
 
+  clickEvent: 'touchstart' | 'click' = ('ontouchstart' in document.documentElement ? 'touchstart' : 'click')
+
   private adapter: QualityLevelAdapter
 
   private $style!: HTMLStyleElement

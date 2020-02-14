@@ -131,7 +131,7 @@ export class ProgressBar {
   }
 
   private updateTime () {
-    console.warn('updateTime')
+    // console.warn('updateTime')
     if (!this.player.options.live) {
       this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
         ' / ' + SecondsToString(this.player.$video.duration)
@@ -150,7 +150,7 @@ export class ProgressBar {
   }
 
   update () {
-    console.warn('update')
+    // console.warn('update')
     // console.warn('进度条 update', this.ui.isShow)
     // this.$controller.style.background = this.player.options.color
     // this.$current.style.background = this.player.options.color
@@ -165,7 +165,7 @@ export class ProgressBar {
   }
 
   private updateBar () {
-    console.warn('updateBar')
+    // console.warn('updateBar')
     if (this.ui.isShow) {
       this.barWidth = this.player.width - this.offsetWidth
     } else {
@@ -191,7 +191,7 @@ export class ProgressBar {
   }
 
   updateBufferBar () {
-    console.warn('updateBufferBar')
+    // console.warn('updateBufferBar')
     for (let i = 0; i < this.player.$video.buffered.length; i++) {
       const start = this.player.$video.buffered.start(i)
       const end = this.player.$video.buffered.end(i)

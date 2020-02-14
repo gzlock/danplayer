@@ -94,6 +94,7 @@ export class Ui {
 
     this.btnPlay = new IconButton(
       this.$controlBar.querySelector('.button.play') as HTMLElement)
+
     this.btnPlay.$root.addEventListener('click', () => {
       this.player.toggle()
       this.updatePlayButton()

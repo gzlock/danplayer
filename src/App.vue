@@ -171,7 +171,7 @@ player.set({beforeSendDanmaku})
   export default class App extends Vue {
     private settings = {
       danmaku: true,
-      danmakuForm: true,
+      danmakuForm: !('ontouchstart' in document.documentElement),
       flowDuration: 1,
       fadeoutDuration: 1,
       volume: 0.7,
@@ -291,8 +291,9 @@ player.set({beforeSendDanmaku})
         player = new Player($e, {
           src: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4',
           color: '#ea3bf1',
-          width: 600,
+          width: '100%',
           volume: 0.7,
+          danmakuForm: this.settings.danmakuForm,
           danmaku: {
             contextMenu: (danmaku: Danmaku) => {
               const items: any = {}
