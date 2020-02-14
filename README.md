@@ -40,6 +40,7 @@
     - 当浏览器不支持MPD视频，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
     
 - 版本历史：
+    - 0.0.33 优化手机界面的操作逻辑
     - 0.0.32 
         * 弹幕右键菜单的'复制'按钮适配语言文本设置，优化'复制'按钮的功能逻辑
         * 增加Loading提示
