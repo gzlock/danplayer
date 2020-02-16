@@ -40,6 +40,11 @@
     - 当浏览器不支持MPD视频，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
     
 - 版本历史：
+    - 0.0.34
+        * extraButtons参数支持HTML元素数组，可以实现自定义网页元素样式了，并且请自行添加互动事件(onclick那些)  
+            * {'按钮文本': () => alert('点击事件')}
+            * \[网页元素1, 网页元素2\]
+        * 增加preload参数，可选项为'auto'|'metadata'|'none'，默认值为'none'
     - 0.0.33 优化手机界面的操作逻辑
     - 0.0.32 
         * 弹幕右键菜单的'复制'按钮适配语言文本设置，优化'复制'按钮的功能逻辑

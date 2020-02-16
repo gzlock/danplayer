@@ -287,6 +287,9 @@ player.set({beforeSendDanmaku})
 
     mounted () {
       const $e = document.getElementById('player') as HTMLVideoElement
+      const $myButton = document.createElement('div')
+      $myButton.innerText = '😂'
+      $myButton.onclick = () => alert('点击了扩展按钮')
       if ($e) {
         player = new Player($e, {
           src: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4',
@@ -313,9 +316,8 @@ player.set({beforeSendDanmaku})
             danmaku.id = 'myself'
             return true
           },
+          extraButtons: [$myButton]
         })
-        // 扩展按钮
-        player.set({ extraButtons: { 扩展按钮: () => alert('点击了扩展按钮') } })
         this.settings.flowDuration = player.options.danmaku.flowDuration
         this.settings.fadeoutDuration = player.options.danmaku.fadeoutDuration
         this.settings.alpha = player.options.danmaku.alpha

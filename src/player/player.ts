@@ -36,7 +36,7 @@ interface PlayerOptions {
   forward: number
   backward: number
 
-  extraButtons: { [name: string]: () => void }
+  extraButtons: HTMLElement[] | { [name: string]: () => void }
 
   danmaku: DanmakuLayerOptions
 
@@ -53,6 +53,8 @@ interface PlayerOptions {
   forceUse?: ForceUse
 
   ui: UiString
+
+  preload: 'auto' | 'metadata' | 'none'
 }
 
 export interface PlayerPublicOptions {
@@ -84,7 +86,9 @@ export interface PlayerPublicOptions {
   backward: number
 
   // 扩展按钮
-  extraButtons: { [name: string]: () => void }
+  // extraButtons: { [name: string | HTMLElement]: () => void }
+
+  extraButtons: HTMLElement[]
 
   // 弹幕层的配置 DanmakuLayerOptions
   danmaku: Partial<DanmakuLayerOptions>
@@ -111,6 +115,9 @@ export interface PlayerPublicOptions {
 
   // ui 界面 多语言支持
   ui?: UiString
+
+  preload?: 'auto' | 'metadata' | 'none'
+
 }
 
 enum VideoType {
@@ -127,7 +134,7 @@ function MakeDefaultOptions ({
   width = 600,
   height = 350,
   uiFadeOutDelay = 3000,
-  extraButtons = {},
+  extraButtons = [],
   src = '',
   iconSrc = icon,
   danmakuForm = true,
@@ -139,6 +146,7 @@ function MakeDefaultOptions ({
   unique = false,
   forceUse = undefined,
   ui = undefined,
+  preload = 'none',
 }: Partial<PlayerPublicOptions>): PlayerOptions {
   if (volume < 0 || volume > 1) {
     volume = 0.7
@@ -164,6 +172,7 @@ function MakeDefaultOptions ({
     width,
     forceUse,
     ui: _ui,
+    preload,
   }
 }
 
@@ -409,7 +418,7 @@ export class Player extends EventEmitter {
       // console.log('视频长度', this.$video.duration)
       this._duration = this.$video.duration
     })
-    this.$video.setAttribute('preload', '')
+    this.$video.setAttribute('preload', this.options.preload)
 
     this.$video.addEventListener('playing', () => this.ui.hideUIDelay())
 
@@ -530,6 +539,7 @@ export class Player extends EventEmitter {
       if (!options.forceUse) newOptions.forceUse = undefined
     }
     this.options = newOptions
+    this.$video.setAttribute('preload', this.options.preload)
     if (srcHasChanged) {
       if (this.hls) {
         this.hls.detachMedia()

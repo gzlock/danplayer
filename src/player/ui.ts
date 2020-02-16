@@ -172,7 +172,12 @@ export class Ui {
 
   insertExtraButtons () {
     this.clearExtraButtons()
-    if (this.player.options.extraButtons) {
+    if (this.player.options.extraButtons instanceof Array) {
+      this.player.options.extraButtons.forEach(($e) => {
+        this.$controllerButtonsRightLayout.prepend($e)
+        this.extraButtons.push($e)
+      })
+    } else {
       for (const name in this.player.options.extraButtons) {
         const $btn = document.createElement('div') as HTMLElement
         $btn.innerText = name
