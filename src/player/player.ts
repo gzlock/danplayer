@@ -55,6 +55,8 @@ interface PlayerOptions {
   ui: UiString
 
   preload: 'auto' | 'metadata' | 'none'
+
+  timeFormat?: string
 }
 
 export interface PlayerPublicOptions {
@@ -118,6 +120,7 @@ export interface PlayerPublicOptions {
 
   preload?: 'auto' | 'metadata' | 'none'
 
+  timeFormat?: string
 }
 
 enum VideoType {
@@ -147,6 +150,7 @@ function MakeDefaultOptions ({
   forceUse = undefined,
   ui = undefined,
   preload = 'none',
+  timeFormat,
 }: Partial<PlayerPublicOptions>): PlayerOptions {
   if (volume < 0 || volume > 1) {
     volume = 0.7
@@ -173,6 +177,7 @@ function MakeDefaultOptions ({
     forceUse,
     ui: _ui,
     preload,
+    timeFormat,
   }
 }
 

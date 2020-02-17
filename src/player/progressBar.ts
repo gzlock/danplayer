@@ -133,8 +133,8 @@ export class ProgressBar {
   private updateTime () {
     // console.warn('updateTime')
     if (!this.player.options.live) {
-      this.$time.innerText = SecondsToString(this.player.$video.currentTime) +
-        ' / ' + SecondsToString(this.player.$video.duration)
+      this.$time.innerText = SecondsToString(this.player.$video.currentTime, this.player.options.timeFormat) +
+        ' / ' + SecondsToString(this.player.$video.duration, this.player.options.timeFormat)
     }
   }
 

@@ -296,6 +296,7 @@ player.set({beforeSendDanmaku})
           color: '#ea3bf1',
           width: '100%',
           volume: 0.7,
+          timeFormat: 'mm😊ss',
           danmakuForm: this.settings.danmakuForm,
           danmaku: {
             contextMenu: (danmaku: Danmaku) => {
@@ -325,6 +326,7 @@ player.set({beforeSendDanmaku})
         this.settings.volume = player.options.volume
         this.settings.danmakuLimit = Object.keys(LimitType)[Object.values(LimitType).indexOf(player.options.danmaku.limit)]
 
+        // tg-ignore
         window.player = player
       }
     }

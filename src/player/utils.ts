@@ -1,18 +1,24 @@
-export function SecondsToString (seconds: number): string {
-  const time: number[] = []
+export function SecondsToString (seconds: number, format: string = 'hh:mm:ss'): string {
+  seconds = parseInt(seconds.toString(), 10)
+  let h = 0
+  let m = 0
+  let s = 0
   if (seconds > 0) {
+    // 时
+    if (format.indexOf('h') > -1) h = Math.floor(seconds / 3600)
     // 分
-    let temp = Math.floor(seconds / 60)
-    time.push(temp)
+    if (format.indexOf('m') > -1) m = Math.floor((seconds - (h * 3600)) / 60)
     // 秒
-    temp = Math.floor(seconds) - Math.floor(seconds / 60) * 60
-    time.push(temp)
-  } else {
-    time.push(0, 0)
+    s = seconds - (h * 3600) - (m * 60)
   }
-  return time.map(item => {
-    return item.toString().length === 1 ? '0' + item : item.toString()
-  }).join(':')
+  format = format
+    .split('hh').join(h.toString().padStart(2, '0'))
+    .split('h').join(h.toString())
+    .split('mm').join(m.toString().padStart(2, '0'))
+    .split('m').join(m.toString())
+    .split('ss').join(s.toString().padStart(2, '0'))
+    .split('s').join(s.toString())
+  return format
 }
 
 export function LoadMimeType (url: string): Promise<string> {
