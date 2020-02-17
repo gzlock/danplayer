@@ -40,6 +40,7 @@
     - 当浏览器不支持MPD视频，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
     
 - 版本历史：
+    - 0.0.35 增加timeFormat参数，用法请查看wiki
     - 0.0.34
         * extraButtons参数支持HTML元素数组，可以实现自定义网页元素样式了，并且请自行添加互动事件(onclick那些)  
             * {'按钮文本': () => alert('点击事件')}
