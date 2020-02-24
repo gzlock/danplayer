@@ -8,7 +8,7 @@ import { Hash, RandomID } from '@/player/utils'
 
 const DanPlayerVersion = '{DanPlayerVersion}'
 
-const icon = '//at.alicdn.com/t/font_1373341_m9a3piei0s.js'
+const icon = '//at.alicdn.com/t/font_1373341_eeojr5zqmon.js'
 
 const defaultColor = '#00a1d6'
 
@@ -57,6 +57,8 @@ interface PlayerOptions {
   preload: 'auto' | 'metadata' | 'none'
 
   timeFormat?: string
+
+  pictureInPicture: boolean
 }
 
 export interface PlayerPublicOptions {
@@ -121,9 +123,11 @@ export interface PlayerPublicOptions {
   preload?: 'auto' | 'metadata' | 'none'
 
   timeFormat?: string
+
+  pictureInPicture?: boolean
 }
 
-enum VideoType {
+export enum VideoType {
   Normal = 'native',
   Hls = 'hls.js',
   Dash = 'dash.js',
@@ -151,6 +155,7 @@ function MakeDefaultOptions ({
   ui = undefined,
   preload = 'none',
   timeFormat,
+  pictureInPicture = true,
 }: Partial<PlayerPublicOptions>): PlayerOptions {
   if (volume < 0 || volume > 1) {
     volume = 0.7
@@ -178,6 +183,7 @@ function MakeDefaultOptions ({
     ui: _ui,
     preload,
     timeFormat,
+    pictureInPicture,
   }
 }
 
@@ -241,6 +247,10 @@ const template = `{video-layer}
 
         <div class="button quality" title="{switchQuality}"></div>
 
+        <div class="button intern-button picture-in-picture">
+          <svg class="icon"><use xlink:href="#danplayer-pip"></use></svg>
+        </div>
+        
         <div class="button intern-button full-screen" data-on="danplayer-quanping" data-off="danplayer-zuixiaohua"
         data-on-title="{fullscreen}" data-off-title="{cancelFullscreen}">
           <svg class="icon"><use xlink:href="#danplayer-quanping"></use></svg>
@@ -255,6 +265,14 @@ export class Player extends EventEmitter {
   $root: HTMLElement
   $video: HTMLVideoElement
   type = VideoType.Normal
+  // @ts-ignore
+  public isSupportPictureInPicture: boolean = !!document.pictureInPictureEnabled
+
+  public get isInPictureInPicture () {
+    // @ts-ignore
+    return this.$video === document.pictureInPictureElement
+  }
+
   private readonly id: string
   private hls?: Hls
   private dash?: dashjs.MediaPlayerClass
@@ -745,6 +763,26 @@ export class Player extends EventEmitter {
     }
     this.resize()
     this.emit('toggleFullscreen')
+  }
+
+  /**
+   * 切换 画中画
+   */
+  async togglePictureInPicture () {
+    // @ts-ignore
+    if (!this.isSupportPictureInPicture) return
+    try {
+      // @ts-ignore
+      if (this.$video !== document.pictureInPictureElement) {
+        // @ts-ignore
+        await this.$video.requestPictureInPicture()
+      } else {
+        // @ts-ignore
+        await document.exitPictureInPicture()
+      }
+    } catch (error) {
+    } finally {
+    }
   }
 
   /**

@@ -380,6 +380,9 @@ $controller-color: #00a1d6;
         }
 
         .right {
+          .button {
+            margin-left: 10px;
+          }
         }
 
         .button {
@@ -402,15 +405,12 @@ $controller-color: #00a1d6;
           }
         }
 
-        .button + .button {
-          margin-left: 10px;
-        }
 
         .button.danmaku-style {
           margin-top: 4px;
         }
 
-        .button.volume, .button.full-screen {
+        .button.volume, .button.full-screen, .button.picture-in-picture {
           svg {
             width: 22px;
             height: 22px;

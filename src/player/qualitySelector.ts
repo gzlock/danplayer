@@ -1,5 +1,6 @@
 import { ButtonAndLayer } from '@/player/buttonAndLayer'
 import { Ui } from '@/player/ui'
+import { VideoType } from '@/player/player'
 import { QualityLevel } from '@/player/qualityLevelAdapter'
 
 export class QualitySelector extends ButtonAndLayer {
@@ -89,6 +90,7 @@ export class QualitySelector extends ButtonAndLayer {
   }
 
   update () {
+    this.$btn.style.display = this.player.type === VideoType.Normal ? 'none' : ''
     this.autoLevel.name = this.ui.string.autoQualitySelect
     this.updateLevelMenu()
     this.updateButton()

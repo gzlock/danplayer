@@ -27,6 +27,8 @@ export class UiString {
   autoQualitySelect = '自动'
   copy = '复制'
   loading = '读取中'
+  pictureInPictureOn = '开启画中画'
+  pictureInPictureOff = '退出画中画'
 }
 
 export class Ui {
@@ -45,6 +47,8 @@ export class Ui {
   // 控制器按钮
   private btnPlay: IconButton
   private btnFullScreen: IconButton
+  // picture-in-picture button
+  private btnPIP: IconButton
   private btnShowDanmaku: IconButton
   private $gradientBG: HTMLElement
   private extraButtons: Element[] = []
@@ -87,6 +91,15 @@ export class Ui {
 
     this.btnFullScreen = new IconButton(
       this.$controlBar.querySelector('.button.full-screen') as HTMLElement)
+
+    this.btnPIP = new IconButton(
+      this.$controlBar.querySelector('.button.picture-in-picture') as HTMLElement)
+    this.btnPIP.$root.addEventListener('click', () => {
+      this.player.togglePictureInPicture().then(() => {
+        this.updatePIPButton()
+      })
+    })
+
     this.btnFullScreen.$root.addEventListener('click', async () => {
       await this.player.toggleFullScreen()
       this.updateFullScreenButton()
@@ -193,6 +206,7 @@ export class Ui {
     this.updateDanmakuButton()
     this.updateFullScreenButton()
     this.updatePlayButton()
+    this.updatePIPButton()
     this.danmakuForm.update()
     this.progressBar.update()
     this.volume.update()
@@ -223,6 +237,13 @@ export class Ui {
     } else {
       this.btnFullScreen.switch('data-on', 'data-on-title')
     }
+  }
+
+  updatePIPButton () {
+    this.btnPIP.$root.style.display = this.player.isSupportPictureInPicture && this.player.options.pictureInPicture
+      ? ''
+      : 'none'
+    this.btnPIP.$root.setAttribute('title', this.player.isInPictureInPicture ? this.string.pictureInPictureOff : this.string.pictureInPictureOn)
   }
 
   updateDanmakuButton () {
