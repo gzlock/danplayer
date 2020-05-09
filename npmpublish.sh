@@ -31,9 +31,9 @@ this.license='MIT'
 this.homepage='https://github.com/gzlock/danplayer'
 delete this.scripts
 this.dependencies={
-'@types/hls.js': '^0.13.1',
-'hls.js': '^0.13.1',
-'dashjs': '^3.0.2',
+'@types/hls.js': '^0.12.6',
+'hls.js': '^0.13.2',
+'dashjs': '^3.1.0',
 'eventemitter3': '^4.0.0'
 }
 "
