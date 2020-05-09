@@ -40,6 +40,7 @@
     - 当浏览器不支持MPD视频，则使用[dash.js](https://github.com/Dash-Industry-Forum/dash.js)
     
 - 版本历史：
+    - 0.0.38 更新依赖
     - 0.0.36 增加画中画功能，详情请查看wiki
     - 0.0.35 增加timeFormat参数，用法请查看wiki
     - 0.0.34
