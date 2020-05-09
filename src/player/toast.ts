@@ -28,6 +28,10 @@ export class Toast {
     this.$root.innerText = text
   }
 
+  get text () {
+    return this.$root.innerText
+  }
+
   get x () { return parseInt(this.$root.style.left || '0') }
 
   set x (x: number) { this.$root.style.left = x + 'px' }

@@ -1,6 +1,6 @@
 import { ForceUse, Player, PlayerPublicOptions } from '@/player/player'
 import { UiString } from '@/player/ui'
-import { Danmaku, DanmakuOptions, DanmakuType, } from '@/player/danmaku/danmaku'
+import { Danmaku, DanmakuOptions, DanmakuType, MakeDanmakuOptions } from '@/player/danmaku/danmaku'
 
 export {
   Player,
@@ -10,4 +10,5 @@ export {
   Danmaku,
   DanmakuType,
   DanmakuOptions,
+  MakeDanmakuOptions,
 }

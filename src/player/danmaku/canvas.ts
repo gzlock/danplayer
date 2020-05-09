@@ -50,6 +50,10 @@ export class Canvas {
     this.ctx.globalAlpha = val
   }
 
+  get alpha () {
+    return this.ctx.globalAlpha
+  }
+
   fontHeight (fontSize: number): number {
     this.ctx.font = fontSize + font
     const size = this.ctx.measureText('M')
